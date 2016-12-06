@@ -37,12 +37,15 @@ co(function* () {
 
     // This is the main command prompt loop
     while(true) {
-      var text = yield prompt('$ ');
-      if (text.trim() === 'list') {
-        let endpoints = yield client.listEndpoints();
-        console.log(endpoints);
-      } else {
-        console.log('\'' + text + '\' is not a supported command.');
+      var rawInput = yield prompt('$ ');
+      var command = rawInput.trim().toLowerCase();
+      switch (command) {
+        case 'list':
+          let endpoints = yield client.listEndpoints();
+          console.log(endpoints);
+          break;
+        default:
+          console.log('"' + command + '" is not a supported command.');
       }
     }
   } catch(e) {
