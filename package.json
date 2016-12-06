@@ -16,7 +16,9 @@
     "express": "^4.14.0",
     "handlebars": "^4.0.5",
     "hbs": "^4.0.1",
+    "opn": "^4.0.2",
     "query-string": "^4.2.3",
-    "request": "^2.75.0"
+    "request": "^2.75.0",
+    "server-destroy": "^1.0.1"
   }
 }
