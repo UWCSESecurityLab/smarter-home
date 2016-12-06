@@ -24,9 +24,10 @@ tokenPromise.then(function(accessToken) {
     while(true) {
       var text = yield prompt('$ ');
       if (text.trim() === 'list') {
-        client.listEndpoints().then(console.log);
+        let endpoints = yield client.listEndpoints();
+        console.log(endpoints);
       } else {
-        console.log('text');
+        console.log('\'' + text + '\' is not a supported command.');
       }
     }
   });
