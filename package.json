@@ -9,6 +9,7 @@
   "author": "Eric Zeng",
   "license": "ISC",
   "dependencies": {
+    "appdirs": "^1.0.0",
     "body-parser": "^1.15.2",
     "bootstrap": "^3.3.7",
     "co": "^4.6.0",
