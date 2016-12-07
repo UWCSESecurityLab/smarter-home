@@ -29,28 +29,18 @@ class SmartAppClient {
   }
 
   doorStatus() {
-    return new Promise(function(resolve, reject) {
-      request({
-        method: 'GET',
-        url: this.apiUrl + '/door',
-        headers: {
-          'Authorization': 'Bearer ' + this.accessToken
-        }
-      }, function(err, res, body) {
-        if (err) {
-          reject(err);
-        } else {
-          resolve(JSON.parse(body));
-        }
-      });
-    }.bind(this));
+    return this.getAPI('door');
   }
 
   temperatureStatus() {
+    return this.getAPI('temp')
+  }
+
+  getAPI(endpoint) {
     return new Promise(function(resolve, reject) {
       request({
         method: 'GET',
-        url: this.apiUrl + '/temp',
+        url: this.apiUrl + '/' + endpoint,
         headers: {
           'Authorization': 'Bearer ' + this.accessToken
         }
