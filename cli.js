@@ -38,8 +38,8 @@ co(function* () {
     // This is the main command prompt loop
     while(true) {
       var rawInput = yield prompt('$ ');
-      var command = rawInput.trim().toLowerCase();
-      switch (command) {
+      var command = rawInput.trim().toLowerCase().split(' ');
+      switch (command[0]) {
         case 'list':
           let endpoints = yield client.listEndpoints();
           console.log(endpoints);
@@ -52,12 +52,24 @@ co(function* () {
           let temp = yield client.temperatureStatus();
           console.log(temp);
           break;
-        case 'delete token':
-          deleteAccessToken();
-          console.log('Access token file deleted. Please restart the app.');
-          process.exit();
+        case 'switch':
+          let status = command[1];
+          if (status) {
+            let res = yield client.setSwitch(status);
+            console.log(res);
+          } else {
+            let status = yield client.switchStatus();
+            console.log(status);
+          }
+          break;
+        case 'delete':
+          if (command[1] === 'token') {
+            deleteAccessToken();
+            console.log('Access token file deleted. Please restart the app.');
+            process.exit();
+          }
         default:
-          console.log('"' + command + '" is not a supported command.');
+          console.log('"' + command.join(' ') + '" is not a supported command.');
       }
     }
   } catch(e) {
