@@ -44,12 +44,25 @@ co(function* () {
           let endpoints = yield client.listEndpoints();
           console.log(endpoints);
           break;
+        case 'door':
+          let door = yield client.doorStatus();
+          console.log(door);
+          break;
+        case 'temp':
+          let temp = yield client.temperatureStatus();
+          console.log(temp);
+          break;
+        case 'delete token':
+          deleteAccessToken();
+          console.log('Access token file deleted. Please restart the app.');
+          process.exit();
         default:
           console.log('"' + command + '" is not a supported command.');
       }
     }
   } catch(e) {
     console.error(e.stack);
+    process.exit();
   }
 });
 
@@ -71,4 +84,10 @@ function writeAccessToken(token) {
     fs.mkdirSync(tokenDir);
   }
   fs.writeFileSync(tokenFile, JSON.stringify(token));
+}
+
+function deleteAccessToken() {
+  if (fs.existsSync(tokenFile)) {
+    fs.unlinkSync(tokenFile);
+  }
 }
