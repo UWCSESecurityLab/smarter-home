@@ -46,7 +46,7 @@ exports.getAccessToken = function() {
           reject(err);
         }
         let accessToken = JSON.parse(body);
-        res.send('<html><body>Login successful! You may close this window.</body></html>');
+        res.send(successpage);
         server.destroy();
         resolve(accessToken);
       });
@@ -62,3 +62,26 @@ exports.getAccessToken = function() {
     console.log('Auth Server listening on port 5000');
   });
 }
+
+
+const successpage =
+  `<html>
+  <head>
+    <style type='text/css'>
+      body {
+        font-family: Arial, Helvetica, sans-serif;
+        margin: 24px;
+      }
+      h2 {
+        font-size: 36;
+      }
+      p {
+        font-size: 18;
+      }
+    </style>
+  </head>
+  <body>
+    <h2>Authorization Successful!</h2>
+    <p>You may now close this window.</p>
+  </body>
+  </html>`;
