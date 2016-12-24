@@ -17,7 +17,7 @@ co(function* () {
     let tokenPromise;
     if (hasCachedAccessToken()) {
       // Grab the cached copy from disk
-      tokenPromise = Promise.resolve(readAccessToken())
+      tokenPromise = Promise.resolve(readAccessToken());
     } else {
       // Get the access token through OAuth in the browser
       tokenPromise = authServer.getAccessToken();
@@ -36,23 +36,26 @@ co(function* () {
     let client = new SmartAppClient(accessToken.access_token);
 
     // This is the main command prompt loop
-    while(true) {
+    while (true) {
       var rawInput = yield prompt('$ ');
       var command = rawInput.trim().toLowerCase().split(' ');
       switch (command[0]) {
-        case 'list':
+        case 'list': {
           let endpoints = yield client.listEndpoints();
           console.log(endpoints);
           break;
-        case 'door':
+        }
+        case 'door': {
           let door = yield client.doorStatus();
           console.log(door);
           break;
-        case 'temp':
+        }
+        case 'temp': {
           let temp = yield client.temperatureStatus();
           console.log(temp);
           break;
-        case 'switch':
+        }
+        case 'switch': {
           let status = command[1];
           if (status) {
             let res = yield client.setSwitch(status);
@@ -62,14 +65,18 @@ co(function* () {
             console.log(status);
           }
           break;
-        case 'delete':
+        }
+        case 'delete': {
           if (command[1] === 'token') {
             deleteAccessToken();
             console.log('Access token file deleted. Please restart the app.');
             process.exit();
           }
-        default:
+          break;
+        }
+        default: {
           console.log('"' + command.join(' ') + '" is not a supported command.');
+        }
       }
     }
   } catch(e) {

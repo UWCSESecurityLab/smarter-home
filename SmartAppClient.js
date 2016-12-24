@@ -33,7 +33,7 @@ class SmartAppClient {
   }
 
   temperatureStatus() {
-    return this.getAPI('temp')
+    return this.getAPI('temp');
   }
 
   switchStatus() {
@@ -86,11 +86,6 @@ class SmartAppClient {
       });
     }.bind(this));
   }
-
-
 }
-
-let client = new SmartAppClient();
-// client.authorize('localhost:3000/auth/return');
 
 module.exports = SmartAppClient;

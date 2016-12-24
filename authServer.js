@@ -61,7 +61,7 @@ exports.getAccessToken = function() {
     enableDestroy(server);
     console.log('Auth Server listening on port 5000');
   });
-}
+};
 
 
 const successpage =
