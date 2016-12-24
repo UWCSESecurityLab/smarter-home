@@ -3,8 +3,6 @@ const authServer = require('./authServer');
 const express = require('express');
 const bodyParser = require('body-parser');
 const opn = require('opn');
-const queryString = require('query-string');
-const request = require('request');
 const SmartAppClient = require('./SmartAppClient');
 
 let tokenPromise = authServer.getAccessToken();

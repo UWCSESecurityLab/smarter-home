@@ -17,7 +17,7 @@ co(function* () {
     let tokenPromise;
     if (hasCachedAccessToken()) {
       // Grab the cached copy from disk
-      tokenPromise = Promise.resolve(readAccessToken())
+      tokenPromise = Promise.resolve(readAccessToken());
     } else {
       // Get the access token through OAuth in the browser
       tokenPromise = authServer.getAccessToken();
