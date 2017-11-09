@@ -27,6 +27,15 @@ tokenPromise.then(function(accessToken) {
     }
   });
 
+  app.get('/events/onContactOpen', function(req, res) {
+    console.log('Contact open fired');
+    res.status(200).send('Event received');
+  });
+
+  app.get('/', function(req, res) {
+    res.send('<html><body><h1>Shim server root</h1></body></html>');
+  });
+
   app.listen(4000);
   console.log('Control server listening on port 4000');
 });
