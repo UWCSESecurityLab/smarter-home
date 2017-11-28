@@ -28,8 +28,8 @@ class SmartAppClient {
     }.bind(this));
   }
 
-  doorStatus() {
-    return this.getAPI('door');
+  contactStatus() {
+    return this.getAPI('contact');
   }
 
   temperatureStatus() {
@@ -40,6 +40,10 @@ class SmartAppClient {
     return this.getAPI('switch');
   }
 
+  lockStatus() {
+    return this.getAPI('lock');
+  }
+
   setSwitch(status) {
     switch (status) {
       case 'on':
@@ -47,7 +51,18 @@ class SmartAppClient {
       case 'off':
         return this.postAPI('switch', 'off');
       default:
-        return Promise.resolve('Cannot set switch to ' + status);
+        return Promise.reject('Cannot set switch to "' + status + '".');
+    }
+  }
+
+  setLock(status) {
+    switch(status) {
+      case 'lock':
+        return this.postAPI('lock', 'lock');
+      case 'unlock':
+        return this.postAPI('lock', 'unlock');
+      default:
+        return Promise.reject('Cannot set lock to "' + status + '".');
     }
   }
 

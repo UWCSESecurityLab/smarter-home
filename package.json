@@ -9,18 +9,18 @@
   "author": "Eric Zeng",
   "license": "ISC",
   "dependencies": {
-    "appdirs": "^1.0.0",
-    "body-parser": "^1.15.2",
+    "appdirs": "^1.1.0",
+    "body-parser": "^1.18.2",
     "bootstrap": "^3.3.7",
     "co": "^4.6.0",
     "co-prompt": "^1.0.0",
     "eddystone-beacon": "^1.0.7",
-    "express": "^4.14.0",
-    "handlebars": "^4.0.5",
+    "express": "^4.16.2",
+    "handlebars": "^4.0.11",
     "hbs": "^4.0.1",
     "opn": "^4.0.2",
-    "query-string": "^4.2.3",
-    "request": "^2.75.0",
+    "query-string": "^4.3.4",
+    "request": "^2.83.0",
     "server-destroy": "^1.0.1"
   }
 }

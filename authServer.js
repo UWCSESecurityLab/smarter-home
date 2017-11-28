@@ -11,8 +11,6 @@ const client_secret = '7b549488-c4a0-4012-8bd8-963d4ea055f3';
 exports.getAccessToken = function() {
   return new Promise((resolve, reject) => {
     var app = express();
-    app.set('views', __dirname + '/views');
-    app.set('view engine', 'hbs');
     app.use(bodyParser.json());
     app.use('/static', express.static(__dirname + '/node_modules/bootstrap/dist'));
 
