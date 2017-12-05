@@ -42,9 +42,8 @@ tokenPromise.then(function(accessToken) {
   });
 
   // SmartThings server calls this endpoint whenever an event is generated.
-  app.get('/events', function(req, res) {
-    let event = JSON.parse(req.body);
-    console.log(event);
+  app.post('/event', function(req, res) {
+    console.log(req.body);
     res.status(200).send('OK');
   });
 
