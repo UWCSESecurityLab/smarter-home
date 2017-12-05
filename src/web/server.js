@@ -64,6 +64,11 @@ tokenPromise.then(function(accessToken) {
     });
   });
 
+  app.get('/testGateway', function(req, res) {
+    console.log('testGateway');
+    res.status(200).send();
+  });
+
   app.listen(4000);
   console.log('Control server listening on port 4000');
 });
