@@ -2,23 +2,25 @@
 const authServer = require('./authServer');
 const express = require('express');
 const bodyParser = require('body-parser');
-const hbs = require('hbs');
 const opn = require('opn');
 const SmartAppClient = require('./SmartAppClient');
+
+const PORT = 4000;
 
 let tokenPromise = authServer.getAccessToken();
 console.log('Please log in to SmartThings in your browser.');
 opn('http://localhost:5000/login');
 
-tokenPromise.then(function(accessToken) {
+tokenPromise.then((accessToken) => {
   let app = express();
 
   app.set('views', __dirname + '/views');
-  app.set('view engine', 'hbs');
+  app.set('view engine', 'ejs');
 
   app.use(bodyParser.json());
 
-  let client = new SmartAppClient(accessToken.access_token);
+  let client = new SmartAppClient(accessToken.access_token, PORT);
+  client.initialize().catch(console.log);
 
   app.get('/switch', function(req, res) {
     client.switchStatus().then((response) => {
@@ -48,16 +50,14 @@ tokenPromise.then(function(accessToken) {
   });
 
   app.get('/', function(req, res) {
-    Promise.all([
-      client.switchStatus(),
-      client.lockStatus(),
-      client.contactStatus()]
-    ).then((promises) => {
-      res.render('dashboard', {
-        outletStatus: JSON.stringify(promises[0]),
-        lockStatus: JSON.stringify(promises[1]),
-        contactStatus: JSON.stringify(promises[2])
-      });
+    client.getAPI('home').then((homeState) => {
+      console.log(homeState);
+      // res.render('dashboard', {
+      //   outletStatus: JSON.stringify(promises[0]),
+      //   lockStatus: JSON.stringify(promises[1]),
+      //   contactStatus: JSON.stringify(promises[2])
+      // });
+      res.send(homeState);
     }).catch((err) => {
       res.status(500).send(err);
     });
@@ -68,6 +68,6 @@ tokenPromise.then(function(accessToken) {
     res.status(200).send();
   });
 
-  app.listen(4000);
-  console.log('Control server listening on port 4000');
+  app.listen(PORT);
+  console.log('Control server listening on port ' + PORT);
 });
