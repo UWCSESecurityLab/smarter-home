@@ -1,5 +1,12 @@
-const express = require('express');
 const bodyParser = require('body-parser');
+const express = require('express');
+const httpSignature = require('http-signature');
+
+const CONFIG = require('./auth/config.json');
+const PUBLIC_KEY = CONFIG.app.webhookSmartApp.publicKey;
+
+let app = express();
+app.use(bodyParser.json());
 
 function handlePing(req, res) {
   res.status(200);
@@ -9,6 +16,20 @@ function handlePing(req, res) {
     }
   });
   res.send();
+}
+
+function signatureIsVerified(req) {
+  try {
+    let parsed = httpSignature.parseRequest(req);
+    if (!httpSignature.verifySignature(parsed, PUBLIC_KEY)) {
+      console.log('forbidden - failed verifySignature');
+      return false;
+    }
+  } catch (error) {
+    console.error(error);
+    return false;
+  }
+  return true;
 }
 
 function handleConfigurationInit(req, res) {
@@ -86,12 +107,30 @@ function handleConfigurationPage(req, res) {
   res.send();
 }
 
-app.post('/webhook', (req, res) => {
+app.post('/', (req, res) => {
+  if (!req.body) {
+    res.status(400);
+    res.send('Invalid request');
+    return;
+  }
+
+  if (req.body.lifecycle === 'PING') {
+    console.log('PING');
+    console.log(req.body);
+    handlePing(req, res);
+    return;
+  }
+
+  // if (!signatureIsVerified(req)) {
+  //   res.status(403);
+  //   res.send('Unauthorized');
+  //   return;
+  // }
+
   switch (req.body.lifecycle) {
-    case 'PING':
-      handlePing(req, res);
-      break;
     case 'CONFIGURATION':
+      console.log('CONFIGURATION');
+      console.log(req.body);
       if (req.body.configurationData == 'INITIALIZE') {
         handleConfigurationInit(req, res);
       } else {
@@ -99,12 +138,54 @@ app.post('/webhook', (req, res) => {
       }
       break;
     case 'INSTALL':
-
+      console.log('UNINSTALL');
+      console.log(req.body);
+      res.status(200);
+      res.json({
+        installData: {}
+      });
+      res.send();
+      break;
+    case 'UPDATE':
+      console.log('UPDATE');
+      console.log(req.body);
+      res.status(200);
+      res.json({
+        updateData: {}
+      });
+      res.send();
+      break;
+    case 'EVENT':
+      console.log('EVENT');
+      console.log(req.body);
+      res.status(200);
+      res.json({
+        eventData: {}
+      });
+      res.send();
+      break;
+    case 'OAUTH_CALLBACK':
+      console.log('OAUTH_CALLBACK');
+      console.log(req.body);
+      res.status(200);
+      res.json({
+        oAuthCallbackData: {}
+      });
+      res.send();
+      break;
+    case 'UNINSTALL':
+      console.log('UNINSTALL');
+      console.log(req.body);
+      res.status(200);
+      res.json({
+        uninstallData: {}
+      });
+      res.send();
+      break;
     default:
       res.status(400);
       res.send();
   }
 });
-
-
-app.listen(5051);
+app.listen(5000);
+console.log('Listening on port 5000');
