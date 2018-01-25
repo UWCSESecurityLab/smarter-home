@@ -45,7 +45,6 @@ function handleConfigurationInit(req, res) {
           'r:devices:*',
           'w:devices:*',
           'x:devices:*',
-          'i:deviceprofiles',
           'r:schedules',
           'r:locations:*'
         ],
@@ -58,51 +57,55 @@ function handleConfigurationInit(req, res) {
 
 function handleConfigurationPage(req, res) {
   res.json({
-    pageId: '1',
-    name: 'Dependent settings',
-    nextPageId: null,
-    previousPageId: null,
-    complete: true,
-    sections: [
-      {
-        'name': 'Get smart notifications about door locks opening and closing.',
-        'settings': [
+    configurationData: {
+      page: {
+        pageId: '1',
+        name: 'Dependent settings',
+        nextPageId: null,
+        previousPageId: null,
+        complete: true,
+        sections: [
           {
-            'id': 'doorLock',
-            'name': 'Which door locks?',
-            'description': 'Tap to set',
-            'type': 'DEVICE',
-            'required': false,
-            'multiple': true,
-            'capabilities': [
-              'lock'
-            ],
-            'permissions': [
-              'r', 'x'
+            'name': 'Get smart notifications about door locks opening and closing.',
+            'settings': [
+              {
+                'id': 'doorLock',
+                'name': 'Which door locks?',
+                'description': 'Tap to set',
+                'type': 'DEVICE',
+                'required': false,
+                'multiple': true,
+                'capabilities': [
+                  'lock'
+                ],
+                'permissions': [
+                  'r', 'x'
+                ]
+              }
             ]
-          }
-        ]
-      },
-      {
-        'name': 'Get smart notifications about switches turning on and off.',
-        'settings': [
+          },
           {
-            'id': 'switches',
-            'name': 'Which switches?',
-            'description': 'Tap to set',
-            'type': 'DEVICE',
-            'required': false,
-            'multiple': true,
-            'capabilities': [
-              'switch'
-            ],
-            'permissions': [
-              'r', 'x'
+            'name': 'Get smart notifications about switches turning on and off.',
+            'settings': [
+              {
+                'id': 'switches',
+                'name': 'Which switches?',
+                'description': 'Tap to set',
+                'type': 'DEVICE',
+                'required': false,
+                'multiple': true,
+                'capabilities': [
+                  'switch'
+                ],
+                'permissions': [
+                  'r', 'x'
+                ]
+              }
             ]
           }
         ]
       }
-    ]
+    }
   });
   res.send();
 }
@@ -114,9 +117,9 @@ app.post('/', (req, res) => {
     return;
   }
 
+  console.log(req.body);
+
   if (req.body.lifecycle === 'PING') {
-    console.log('PING');
-    console.log(req.body);
     handlePing(req, res);
     return;
   }
@@ -129,17 +132,13 @@ app.post('/', (req, res) => {
 
   switch (req.body.lifecycle) {
     case 'CONFIGURATION':
-      console.log('CONFIGURATION');
-      console.log(req.body);
-      if (req.body.configurationData == 'INITIALIZE') {
+      if (req.body.configurationData.phase == 'INITIALIZE') {
         handleConfigurationInit(req, res);
-      } else {
+      } else if (req.body.configurationData.phase == 'PAGE') {
         handleConfigurationPage(req, res);
       }
       break;
     case 'INSTALL':
-      console.log('UNINSTALL');
-      console.log(req.body);
       res.status(200);
       res.json({
         installData: {}
@@ -147,8 +146,6 @@ app.post('/', (req, res) => {
       res.send();
       break;
     case 'UPDATE':
-      console.log('UPDATE');
-      console.log(req.body);
       res.status(200);
       res.json({
         updateData: {}
@@ -156,8 +153,6 @@ app.post('/', (req, res) => {
       res.send();
       break;
     case 'EVENT':
-      console.log('EVENT');
-      console.log(req.body);
       res.status(200);
       res.json({
         eventData: {}
@@ -165,8 +160,6 @@ app.post('/', (req, res) => {
       res.send();
       break;
     case 'OAUTH_CALLBACK':
-      console.log('OAUTH_CALLBACK');
-      console.log(req.body);
       res.status(200);
       res.json({
         oAuthCallbackData: {}
@@ -174,8 +167,6 @@ app.post('/', (req, res) => {
       res.send();
       break;
     case 'UNINSTALL':
-      console.log('UNINSTALL');
-      console.log(req.body);
       res.status(200);
       res.json({
         uninstallData: {}
