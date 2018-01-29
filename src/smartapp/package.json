@@ -13,6 +13,7 @@
     "ejs": "^2.5.7",
     "express": "^4.16.2",
     "http-signature": "^1.2.0",
-    "mongoose": "^5.0.1"
+    "mongoose": "^5.0.1",
+    "request": "^2.83.0"
   }
 }
