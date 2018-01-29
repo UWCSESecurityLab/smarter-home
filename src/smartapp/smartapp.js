@@ -1,9 +1,18 @@
 const bodyParser = require('body-parser');
 const express = require('express');
 const httpSignature = require('http-signature');
+const InstallData = require('./db/installData');
+const mongoose = require('mongoose');
 
 const CONFIG = require('./auth/config.json');
 const PUBLIC_KEY = CONFIG.app.webhookSmartApp.publicKey;
+
+mongoose.connect('mongodb://localhost/test');
+let db = mongoose.connection;
+db.on('error', console.error.bind(console, 'connection error:'));
+db.once('open', function() {
+  console.log('Database connection established');
+});
 
 let app = express();
 app.use(bodyParser.json());
@@ -117,7 +126,7 @@ app.post('/', (req, res) => {
     return;
   }
 
-  console.log(req.body);
+  console.log(JSON.stringify(req.body, null, 2));
 
   if (req.body.lifecycle === 'PING') {
     handlePing(req, res);
@@ -138,13 +147,23 @@ app.post('/', (req, res) => {
         handleConfigurationPage(req, res);
       }
       break;
-    case 'INSTALL':
+    case 'INSTALL': {
       res.status(200);
-      res.json({
-        installData: {}
+      let data = new InstallData(req.body.installData);
+      data.save((err) => {
+        if (err) {
+          console.log(err);
+          res.status(500);
+          res.send('Couldn\'t save installData.');
+        } else {
+          res.json({
+            installData: {}
+          });
+          res.send();
+        }
       });
-      res.send();
       break;
+    }
     case 'UPDATE':
       res.status(200);
       res.json({
