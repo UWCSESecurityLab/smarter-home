@@ -24,44 +24,44 @@ db.once('open', function() {
       console.error(err);
       return;
     }
-    try {
-      let apps = JSON.parse(body);
-      apps.items.forEach((app) => {
-        if (app.appId !== APP_ID) {
+    let apps = JSON.parse(body);
+    apps.items.forEach((app) => {
+      if (app.appId !== APP_ID) {
+        return;
+      }
+      console.log('Attempting to delete ' + app.installedAppId);
+
+      request({
+        url: 'https://api.smartthings.com/v1/installedapps/' + app.installedAppId,
+        method: 'DELETE',
+        headers: {
+          'Authorization': 'Bearer ' + bearer
+        }
+      }, (err, res) => {
+        if (err) {
+          console.error(err);
           return;
         }
-        request({
-          url: 'https://api.smartthings.com/v1/installedapps/' + app.installedAppId,
-          method: 'DELETE',
-          headers: {
-            'Authorization': 'Bearer ' + bearer
-          }
-        }, (err, res) => {
+        if (res.status !== 200) {
+          console.error('Error ' +  res.status);
+          return;
+        }
+
+        console.log('Deleted from SmartThings.');
+
+        InstallData.findOneAndRemove({
+          'installedApp.installedAppId': app.installedAppId
+        }, (err) => {
           if (err) {
-            console.error(err);
+            console.log(err);
             return;
           }
-          if (res.status !== 200) {
-            console.error('Error ' +  res.status);
-            return;
-          }
-
-          console.log('Deleted ' + app.installedAppId + ' from SmartThings.');
-
-          InstallData.findOneAndRemove({
-            'installedApp.installedAppId': app.InstalledAppId
-          }, (err) => {
-            if (err) {
-              console.log(err);
-              return;
-            }
-            console.log('Deleted ' + app.installedAppId + ' from Mongo.');
-          });
+          console.log('Deleted from Mongo.');
         });
       });
-    } catch (e) {
-      console.error(e);
-    }
+    });
+    console.log('Done');
+    process.exit();
   });
 });
 
