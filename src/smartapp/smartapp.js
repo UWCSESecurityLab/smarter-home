@@ -4,6 +4,7 @@ const express = require('express');
 const httpSignature = require('http-signature');
 const InstallData = require('./db/installData');
 const mongoose = require('mongoose');
+const request = require('request');
 
 const APP_CONFIG = require('./auth/config.json');
 const PUBLIC_KEY = APP_CONFIG.app.webhookSmartApp.publicKey;
@@ -52,6 +53,76 @@ function handleConfigurationPage(req, res) {
   res.send();
 }
 
+// Given an InstallData object, subscribe to all of the attributes of all of the
+// authorized devices.
+function subscribeToAuthorizedDevices(installData) {
+  console.log(installData);
+  // return new Promise((resolve, reject) => {
+  let devices = [];
+  // Flatten devices into a list
+  for (let category in installData.installedApp.config) {
+    for (let item of installData.installedApp.config[category]) {
+      if (item.valueType === 'DEVICE') {
+        devices.push(item);
+      }
+    }
+  }
+  // Form request body
+  let subscriptions = devices.map((d) => {
+    return {
+      sourceType: 'DEVICE',
+      device: {
+        deviceId: d.deviceConfig.deviceId,
+        stateChangeOnly: true
+      }
+    };
+  });
+
+  return Promise.all(subscriptions.map((subscription) => {
+    return new Promise((resolve, reject) => {
+      request({
+        url: `https://api.smartthings.com/v1/installedapps/${installData.installedApp.installedAppId}/subscriptions`,
+        method: 'POST',
+        json: true,
+        headers: {
+          'Authorization': `Bearer ${installData.authToken}`
+        },
+        body: subscription
+      }, (err, res, body) => {
+        if (err) {
+          reject(err);
+          return;
+        }
+        if (res.statusCode !== 200) {
+          console.log(res.statusCode);
+          reject(body);
+          return;
+        }
+        resolve(body);
+      });
+    });
+  }));
+}
+
+// Executed when a SmartApp is installed onto a new hub.
+function handleInstall(req, res) {
+  let data = new InstallData(req.body.installData);
+  data.save()
+    .then(subscribeToAuthorizedDevices)
+    .then(() => {
+      res.json({
+        installData: {}
+      });
+      res.status(200);
+      res.send();
+    })
+    .catch((err) => {
+      console.log(JSON.stringify(err, null, 2));
+      res.status(500);
+      res.send('Problem installing app.');
+    });
+}
+
 app.post('/', (req, res) => {
   if (!req.body) {
     res.status(400);
@@ -80,23 +151,9 @@ app.post('/', (req, res) => {
         handleConfigurationPage(req, res);
       }
       break;
-    case 'INSTALL': {
-      res.status(200);
-      let data = new InstallData(req.body.installData);
-      data.save((err) => {
-        if (err) {
-          console.log(err);
-          res.status(500);
-          res.send('Couldn\'t save installData.');
-        } else {
-          res.json({
-            installData: {}
-          });
-          res.send();
-        }
-      });
+    case 'INSTALL':
+      handleInstall(req, res);
       break;
-    }
     case 'UPDATE':
       res.status(200);
       res.json({
