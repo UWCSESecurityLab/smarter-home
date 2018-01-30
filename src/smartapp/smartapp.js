@@ -1,11 +1,12 @@
 const bodyParser = require('body-parser');
+const configuration = require('./configuration');
 const express = require('express');
 const httpSignature = require('http-signature');
 const InstallData = require('./db/installData');
 const mongoose = require('mongoose');
 
-const CONFIG = require('./auth/config.json');
-const PUBLIC_KEY = CONFIG.app.webhookSmartApp.publicKey;
+const APP_CONFIG = require('./auth/config.json');
+const PUBLIC_KEY = APP_CONFIG.app.webhookSmartApp.publicKey;
 
 mongoose.connect('mongodb://localhost/test');
 let db = mongoose.connection;
@@ -42,80 +43,12 @@ function signatureIsVerified(req) {
 }
 
 function handleConfigurationInit(req, res) {
-  res.json({
-    configurationData: {
-      initialize: {
-        name: 'Smart Notifications',
-        description: 'Location-aware notifications',
-        id: 'app',
-        permissions: [
-          'r:installedapps:*',
-          'l:devices',
-          'r:devices:*',
-          'w:devices:*',
-          'x:devices:*',
-          'r:schedules',
-          'r:locations:*'
-        ],
-        firstPageId: '1'
-      }
-    }
-  });
+  res.json(configuration.init);
   res.send();
 }
 
 function handleConfigurationPage(req, res) {
-  res.json({
-    configurationData: {
-      page: {
-        pageId: '1',
-        name: 'Dependent settings',
-        nextPageId: null,
-        previousPageId: null,
-        complete: true,
-        sections: [
-          {
-            'name': 'Get smart notifications about door locks opening and closing.',
-            'settings': [
-              {
-                'id': 'doorLock',
-                'name': 'Which door locks?',
-                'description': 'Tap to set',
-                'type': 'DEVICE',
-                'required': false,
-                'multiple': true,
-                'capabilities': [
-                  'lock'
-                ],
-                'permissions': [
-                  'r', 'x'
-                ]
-              }
-            ]
-          },
-          {
-            'name': 'Get smart notifications about switches turning on and off.',
-            'settings': [
-              {
-                'id': 'switches',
-                'name': 'Which switches?',
-                'description': 'Tap to set',
-                'type': 'DEVICE',
-                'required': false,
-                'multiple': true,
-                'capabilities': [
-                  'switch'
-                ],
-                'permissions': [
-                  'r', 'x'
-                ]
-              }
-            ]
-          }
-        ]
-      }
-    }
-  });
+  res.json(configuration.pages[0]);
   res.send();
 }
 
