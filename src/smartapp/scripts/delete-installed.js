@@ -50,7 +50,7 @@ db.once('open', function() {
             return;
           }
 
-          console.log(app.installedAppId + 'was deleted from SmartThings.');
+          console.log(app.installedAppId + ' was deleted from SmartThings.');
 
           InstallData.findOneAndRemove({
             'installedApp.installedAppId': app.installedAppId
