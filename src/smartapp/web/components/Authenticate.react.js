@@ -21,19 +21,19 @@ class Authenticate extends React.Component {
   render() {
     if (this.state.mode === 'LOGIN') {
       return (
-        <div>
+        <div id="authenticate">
           <Login oauth={this.props.oauth}/>
           { this.props.oauth ?
             null :
-            <a onClick={this.switchToRegister}>Create an account</a>
+            <a className="switch-mode" onClick={this.switchToRegister}>Create an account</a>
           }
         </div>
       );
     } else if (this.state.mode === 'REGISTER') {
       return (
-        <div>
+        <div id="authenticate">
           <Register/>
-          <a onClick={this.switchToLogin}>Already have an account? Log in</a>
+          <a className="switch-mode" onClick={this.switchToLogin}>Already have an account? Log in</a>
         </div>
       );
     } else {

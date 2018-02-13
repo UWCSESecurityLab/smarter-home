@@ -69,8 +69,8 @@ class Register extends React.Component {
 
   render() {
     return (
-      <div>
-        <h3 className="login-text">Register for Smart Home</h3>
+      <div className="container">
+        <h2 className="login-text">Register for Smart Notifications</h2>
         <form id="register-form" onSubmit={this.register}>
           <div>
             <input value={this.state.username}
@@ -90,7 +90,7 @@ class Register extends React.Component {
             <input value={this.state.confirmPassword}
               onChange={this.updateConfirmPassword}
               type="password"
-              placeholder="Type your password again to confirm"
+              placeholder="Confirm Password"
               required/>
           </div>
         </form>

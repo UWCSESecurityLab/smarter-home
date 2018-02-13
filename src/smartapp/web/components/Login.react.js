@@ -86,7 +86,7 @@ class Login extends React.Component {
 
     return (
       <div className="container">
-        <h3 className="login-text">Log into Smart Home</h3>
+        <h2 className="login-text">Log into Smart Notifications</h2>
         <form id="login-form" onSubmit={this.login}>
           <div className="form-group">
             <input value={this.state.username}

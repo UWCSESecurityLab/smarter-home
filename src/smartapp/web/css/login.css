@@ -1,0 +1,60 @@
+body {
+  background: #5FC4FA;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+h2 {
+  font-weight: lighter;
+}
+
+input {
+  font-size: 16;
+  border: none;
+  border-bottom: 1px solid rgb(185, 231, 255);
+  width: 80%;
+  padding: 6px 3px;
+  margin: 6px 0;
+}
+
+input:focus {
+  border: none;
+  border-bottom: 2px solid #5FC4FA;
+  outline: none;
+}
+
+button {
+  color: white;
+  background: #00a6ff;
+  border: none;
+  padding: 6px 12px;
+  font-size: 16;
+  border-radius: 4px;
+  margin-bottom: 16px;
+}
+
+button:hover {
+  background: #50c2ff;
+}
+button:active {
+  background: #0082c9;
+}
+button:disabled {
+  background: #3b5b6d;
+}
+
+.switch-mode {
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+#react {
+  display: flex;
+  justify-content: center;
+}
+
+#authenticate {
+  background: white;
+  border-radius: 8px;
+  padding: 30px 20px;
+  max-width: 85%;
+}

@@ -26,6 +26,7 @@ let app = express();
 app.set('view engine', 'ejs');
 app.set('views', __dirname + '/web/views');
 app.use(express.static('dist'));
+app.use('/css', express.static('web/css'));
 app.use(bodyParser.json());
 app.use(session({
   resave: true,
