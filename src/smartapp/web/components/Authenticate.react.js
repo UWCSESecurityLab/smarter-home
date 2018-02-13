@@ -6,7 +6,6 @@ class Authenticate extends React.Component {
   constructor(props, context) {
     super(props, context);
     this.state = { mode: 'LOGIN' };
-
     this.switchToRegister = this.switchToRegister.bind(this);
     this.switchToLogin = this.switchToLogin.bind(this);
   }
@@ -23,8 +22,11 @@ class Authenticate extends React.Component {
     if (this.state.mode === 'LOGIN') {
       return (
         <div>
-          <Login/>
-          <a onClick={this.switchToRegister}>Create an account</a>
+          <Login oauth={this.props.oauth}/>
+          { this.props.oauth ?
+            null :
+            <a onClick={this.switchToRegister}>Create an account</a>
+          }
         </div>
       );
     } else if (this.state.mode === 'REGISTER') {

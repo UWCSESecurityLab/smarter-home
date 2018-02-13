@@ -1,5 +1,5 @@
 const bcrypt = require('bcrypt');
-const shortid = require('shortid');
+const uuid = require('uuid/v4');
 const User = require('./db/user');
 
 const SALT_ROUNDS = 10;
@@ -32,9 +32,10 @@ module.exports = {
         } else {
           bcrypt.hash(password, SALT_ROUNDS, (hash) => {
             let user = new User({
-              id: shortid.generate(),
+              id: uuid(),
               username: username,
-              hashedPassword: hash
+              hashedPassword: hash,
+              oauthClients: []
             });
             user.save((err) => {
               if (err) {

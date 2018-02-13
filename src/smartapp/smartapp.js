@@ -11,6 +11,7 @@ const passport = require('passport');
 const request = require('request');
 const session = require('express-session');
 const User = require('./db/user');
+const uuid = require('uuid/v4');
 
 const APP_CONFIG = require('./config/config.json');
 const PUBLIC_KEY = APP_CONFIG.app.webhookSmartApp.publicKey;
@@ -90,14 +91,12 @@ function signatureIsVerified(req) {
   return true;
 }
 
-function handleConfigurationInit(req, res) {
-  res.json(configuration.init);
-  res.send();
-}
-
-function handleConfigurationPage(req, res) {
-  res.json(configuration.pages[0]);
-  res.send();
+function handleConfiguration(req, res) {
+  if (req.body.configurationData.phase == 'INITIALIZE') {
+    res.json(configuration.init);
+  } else if (req.body.configurationData.phase == 'PAGE') {
+    res.json(configuration.pages[req.body.configurationData.pageId]);
+  }
 }
 
 // Given an InstallData object, subscribe to all of the attributes of all of the
@@ -141,7 +140,6 @@ function subscribeToAuthorizedDevices(installData) {
           return;
         }
         if (res.statusCode !== 200) {
-          console.log(res.statusCode);
           reject(body);
           return;
         }
@@ -192,11 +190,7 @@ app.post('/', logEndpoint, (req, res) => {
 
   switch (req.body.lifecycle) {
     case 'CONFIGURATION':
-      if (req.body.configurationData.phase == 'INITIALIZE') {
-        handleConfigurationInit(req, res);
-      } else if (req.body.configurationData.phase == 'PAGE') {
-        handleConfigurationPage(req, res);
-      }
+      handleConfiguration(req, res);
       break;
     case 'INSTALL':
       handleInstall(req, res);
@@ -240,8 +234,22 @@ app.get('/login', logEndpoint, (req, res) => {
 });
 
 app.post('/login', logEndpoint, passport.authenticate('local'), (req, res) => {
-  res.status(200);
-  res.send('Authenticated');
+  if (req.query.oauth == 'true') {
+    let token = uuid();
+    req.user.oauthClients.push(token);
+    req.user.save((err) => {
+      if (err) {
+        res.status(500);
+        res.json({ message: 'OAUTH_ERROR' });
+      } else {
+        res.status(200);
+        res.json({ token: token });
+      }
+    });
+  } else {
+    res.status(200);
+    res.send('Authenticated');
+  }
 });
 
 app.post('/register', logEndpoint, (req, res) => {

@@ -14,59 +14,84 @@ module.exports = {
           'r:schedules',
           'r:locations:*'
         ],
-        firstPageId: '1'
+        firstPageId: 'oauth'
       }
     }
   },
-  pages: [{
-    configurationData: {
-      page: {
-        pageId: '1',
-        name: 'Dependent settings',
-        nextPageId: null,
-        previousPageId: null,
-        complete: true,
-        sections: [
-          {
-            'name': 'Get smart notifications about door locks opening and closing.',
+  pages: {
+    'oauth': {
+      configurationData: {
+        page: {
+          pageId: 'oauth',
+          name: 'Setup Smart Notifications',
+          nextPageId: 'devices',
+          previousPageId: null,
+          complete: false,
+          sections: [{
+            'name': 'Connect with the Smart Notifications service',
             'settings': [
               {
-                'id': 'doorLock',
-                'name': 'Which door locks?',
-                'description': 'Tap to set',
-                'type': 'DEVICE',
-                'required': false,
-                'multiple': true,
-                'capabilities': [
-                  'lock'
-                ],
-                'permissions': [
-                  'r', 'x'
-                ]
+                'id': 'oauth',
+                'name': 'Log in with your Smart Notifications account',
+                'description': 'Tap here to log in',
+                'type': 'OAUTH',
+                'urlTemplate': 'http://selenium.dyn.cs.washington.edu:5000/login?oauth=true'
               }
             ]
-          },
-          {
-            'name': 'Get smart notifications about switches turning on and off.',
-            'settings': [
-              {
-                'id': 'switches',
-                'name': 'Which switches?',
-                'description': 'Tap to set',
-                'type': 'DEVICE',
-                'required': false,
-                'multiple': true,
-                'capabilities': [
-                  'switch'
-                ],
-                'permissions': [
-                  'r', 'x'
-                ]
-              }
-            ]
-          }
-        ]
+          }]
+        }
+      }
+    },
+    'devices': {
+      configurationData: {
+        page: {
+          pageId: 'devices',
+          name: 'Select Devices',
+          nextPageId: null,
+          previousPageId: 'oauth',
+          complete: true,
+          sections: [
+            {
+              'name': 'Get smart notifications about door locks opening and closing.',
+              'settings': [
+                {
+                  'id': 'doorLock',
+                  'name': 'Which door locks?',
+                  'description': 'Tap to set',
+                  'type': 'DEVICE',
+                  'required': false,
+                  'multiple': true,
+                  'capabilities': [
+                    'lock'
+                  ],
+                  'permissions': [
+                    'r', 'x'
+                  ]
+                }
+              ]
+            },
+            {
+              'name': 'Get smart notifications about switches turning on and off.',
+              'settings': [
+                {
+                  'id': 'switches',
+                  'name': 'Which switches?',
+                  'description': 'Tap to set',
+                  'type': 'DEVICE',
+                  'required': false,
+                  'multiple': true,
+                  'capabilities': [
+                    'switch'
+                  ],
+                  'permissions': [
+                    'r', 'x'
+                  ]
+                }
+              ]
+            }
+          ]
+        }
       }
     }
-  }]
+  }
 };
