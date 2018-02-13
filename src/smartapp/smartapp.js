@@ -235,13 +235,9 @@ app.get('/login', logEndpoint, (req, res) => {
 
 app.post('/login', logEndpoint, passport.authenticate('local'), (req, res) => {
   if (req.query.oauth == 'true') {
-    auth.createToken.then((token) => {
-      res.status(200);
-      res.json({ token: token });
-    }).catch(() => {
-      res.status(500);
-      res.json({ message: 'OAUTH_ERROR' });
-    });
+    res.redirect('https://api.smartthings.com/oauth/callback?token=' + req.user.id);
+    // res.status(200);
+    // res.json({ token: req.user.id });
   } else {
     res.status(200);
     res.send('Authenticated');
@@ -278,7 +274,7 @@ app.post('/register', logEndpoint, (req, res) => {
 
 app.get('/home', logEndpoint, ensureLogin('/login'), (req, res) => {
   res.status(200);
-  res.send('/home (authenticated)');
+
 });
 
 

@@ -34,6 +34,7 @@ module.exports = {
                 'id': 'oauth',
                 'name': 'Log in with your Smart Notifications account',
                 'description': 'Tap here to log in',
+                'required': true,
                 'type': 'OAUTH',
                 'urlTemplate': 'http://selenium.dyn.cs.washington.edu:5000/login?oauth=true'
               }

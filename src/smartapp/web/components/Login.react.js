@@ -40,13 +40,14 @@ class Login extends React.Component {
       } else if (res.statusCode === 200) {
         try {
           if (this.props.oauth) {
-            window.location.href =
-              'https://api.smartthings.com/oauth/callback?token=' +
-              JSON.parse(body).token;
+            // Shouldn't get here... should just receive a 302 redirect?
+            // window.location.href =
+            //   'https://api.smartthings.com/oauth/callback?token=' +
+            //   JSON.parse(body).token;
           } else {
             window.location.href = '/home';
           }
-        } catch(e) {
+        } catch (e) {
           this.setState({ error: 'UNKNOWN', loading: false});
         }
       } else {

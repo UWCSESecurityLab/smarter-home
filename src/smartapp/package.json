@@ -4,7 +4,8 @@
   "description": "",
   "main": "smartapp.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "delete": "node scripts/delete-installed.js"
   },
   "author": "",
   "license": "",

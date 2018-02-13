@@ -52,18 +52,5 @@ module.exports = {
         }
       });
     });
-  },
-  createToken: function(user) {
-    return new Promise((resolve, reject) => {
-      let token = uuid();
-      user.oauthClients.push(token);
-      user.save((err) => {
-        if (err) {
-          reject(err);
-        } else {
-          resolve(token);
-        }
-      });
-    });
   }
 };
