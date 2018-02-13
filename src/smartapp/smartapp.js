@@ -1,12 +1,18 @@
+const auth = require('./auth');
 const bodyParser = require('body-parser');
 const configuration = require('./configuration');
+const ensureLogin = require('connect-ensure-login').ensureLoggedIn;
 const express = require('express');
 const httpSignature = require('http-signature');
 const InstallData = require('./db/installData');
+const LocalStrategy = require('passport-local').Strategy;
 const mongoose = require('mongoose');
+const passport = require('passport');
 const request = require('request');
+const session = require('express-session');
+const User = require('./db/user');
 
-const APP_CONFIG = require('./auth/config.json');
+const APP_CONFIG = require('./config/config.json');
 const PUBLIC_KEY = APP_CONFIG.app.webhookSmartApp.publicKey;
 
 mongoose.connect('mongodb://localhost/test');
@@ -17,7 +23,48 @@ db.once('open', function() {
 });
 
 let app = express();
+app.set('view engine', 'ejs');
+app.set('views', __dirname + '/web/views');
+app.use(express.static('dist'));
 app.use(bodyParser.json());
+app.use(session({
+  resave: true,
+  saveUninitialized: false,
+  secret: 'cat keyboard'
+}));
+app.use(passport.initialize());
+app.use(passport.session());
+
+passport.use(new LocalStrategy(function(username, password, done) {
+  auth.verify(username, password).then((user) => {
+    done(null, user);
+  }).catch((err) => {
+    if (err.message) {
+      console.log(err.message);
+      done(null, false, err);
+    } else {
+      done(err);
+    }
+  });
+}));
+
+passport.serializeUser(function(user, done) {
+  done(null, user.id);
+});
+
+passport.deserializeUser(function(id, done) {
+  User.findOne({id: id}, function(err, user) {
+    if (err) {
+      console.log(err);
+    }
+    done(err, user);
+  });
+});
+
+function logEndpoint(req, res, next) {
+  console.log(req.method + ' ' + req.originalUrl);
+  next();
+}
 
 function handlePing(req, res) {
   res.status(200);
@@ -123,7 +170,7 @@ function handleInstall(req, res) {
     });
 }
 
-app.post('/', (req, res) => {
+app.post('/', logEndpoint, (req, res) => {
   if (!req.body) {
     res.status(400);
     res.send('Invalid request');
@@ -187,5 +234,64 @@ app.post('/', (req, res) => {
       res.send();
   }
 });
+
+app.get('/login', logEndpoint, (req, res) => {
+  res.render('login');
+});
+
+app.post('/login', logEndpoint, passport.authenticate('local'), (req, res) => {
+  res.status(200);
+  res.send('Authenticated');
+});
+
+app.post('/register', logEndpoint, (req, res) => {
+  if (!req.query.username || !req.query.password || !req.query.confirm) {
+    res.status(400);
+    res.json({ message: 'MISSING_FIELD' });
+    res.send();
+    return;
+  }
+
+  if (req.query.password !== req.query.confirm) {
+    res.status(400);
+    res.json({ message: 'PW_MISMATCH' });
+    res.send();
+    return;
+  }
+
+  User.findOne({ username: req.query.username }, (err, user) => {
+    if (err) {
+      console.log(err);
+      res.status(400);
+      res.json({ message: 'QUERY_ERROR' });
+      res.send();
+      return;
+    }
+    if (user) {
+      res.status(400);
+      res.json({ message: 'USERNAME_TAKEN' });
+      res.send();
+      return;
+    }
+
+    auth.generate(req.query.username, req.query.password).then(() => {
+      res.status(200);
+      res.send();
+
+    }).catch(() => {
+      res.status(500);
+      res.json({ message: 'CREATE_ERROR' });
+      res.send();
+    });
+  });
+});
+
+app.get('/home', logEndpoint, ensureLogin('/login'), (req, res) => {
+  console.log('hit home');
+  res.status(200);
+  res.send('/home (authenticated)');
+});
+
+
 app.listen(5000);
 console.log('Listening on port 5000');
