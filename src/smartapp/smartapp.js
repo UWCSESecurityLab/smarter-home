@@ -11,7 +11,6 @@ const passport = require('passport');
 const request = require('request');
 const session = require('express-session');
 const User = require('./db/user');
-const uuid = require('uuid/v4');
 
 const APP_CONFIG = require('./config/config.json');
 const PUBLIC_KEY = APP_CONFIG.app.webhookSmartApp.publicKey;
@@ -37,7 +36,7 @@ app.use(passport.initialize());
 app.use(passport.session());
 
 passport.use(new LocalStrategy(function(username, password, done) {
-  auth.verify(username, password).then((user) => {
+  auth.verifyUser(username, password).then((user) => {
     done(null, user);
   }).catch((err) => {
     if (err.message) {
@@ -235,16 +234,12 @@ app.get('/login', logEndpoint, (req, res) => {
 
 app.post('/login', logEndpoint, passport.authenticate('local'), (req, res) => {
   if (req.query.oauth == 'true') {
-    let token = uuid();
-    req.user.oauthClients.push(token);
-    req.user.save((err) => {
-      if (err) {
-        res.status(500);
-        res.json({ message: 'OAUTH_ERROR' });
-      } else {
-        res.status(200);
-        res.json({ token: token });
-      }
+    auth.createToken.then((token) => {
+      res.status(200);
+      res.json({ token: token });
+    }).catch(() => {
+      res.status(500);
+      res.json({ message: 'OAUTH_ERROR' });
     });
   } else {
     res.status(200);
@@ -267,35 +262,20 @@ app.post('/register', logEndpoint, (req, res) => {
     return;
   }
 
-  User.findOne({ username: req.query.username }, (err, user) => {
-    if (err) {
-      console.log(err);
+  auth.createUser(req.query.username, req.query.password).then(() => {
+    res.status(200);
+    res.send();
+  }).catch((err) => {
+    if (err.message == 'USERNAME_TAKEN') {
       res.status(400);
-      res.json({ message: 'QUERY_ERROR' });
-      res.send();
-      return;
-    }
-    if (user) {
-      res.status(400);
-      res.json({ message: 'USERNAME_TAKEN' });
-      res.send();
-      return;
-    }
-
-    auth.generate(req.query.username, req.query.password).then(() => {
-      res.status(200);
-      res.send();
-
-    }).catch(() => {
+    } else {
       res.status(500);
-      res.json({ message: 'CREATE_ERROR' });
-      res.send();
-    });
+    }
+    res.json(err);
   });
 });
 
 app.get('/home', logEndpoint, ensureLogin('/login'), (req, res) => {
-  console.log('hit home');
   res.status(200);
   res.send('/home (authenticated)');
 });
