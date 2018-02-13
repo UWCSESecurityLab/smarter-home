@@ -1,9 +1,10 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import Authenticate from './components/Authenticate.react';
-import queryString from 'query-string';
+import qs from 'querystring';
 
-let qs = queryString.parse(location.search);
+let query = qs.parse(location.search.slice(1));
+console.log(query);
 ReactDOM.render(
-  <Authenticate oauth={!!qs.oauth && qs.oauth == 'true'}/>,
+  <Authenticate oauth={!!query.oauth && query.oauth == 'true'}/>,
   document.getElementById('react'));
