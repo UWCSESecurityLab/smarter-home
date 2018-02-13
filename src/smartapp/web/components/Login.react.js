@@ -22,7 +22,7 @@ class Login extends React.Component {
 
     xhr.post({
       url: `http://localhost:5000/login?username=${this.state.username}&password=${this.state.password}`
-    }, (err, resp, body) => {
+    }, (err, resp) => {
       if (err) {
         this.setState({ error: 'NETWORK', loading: false});
         return;
@@ -73,20 +73,20 @@ class Login extends React.Component {
         <form id="login-form" onSubmit={this.login}>
           <div className="form-group">
             <input value={this.state.username}
-                    onChange={this.updateUsername}
-                    type="text"
-                    className="form-control"
-                    placeholder="Username"
-                    required/>
+              onChange={this.updateUsername}
+              type="text"
+              className="form-control"
+              placeholder="Username"
+              required/>
           </div>
           <div className="form-group">
             <input value={this.state.password}
-                    onChange={this.updatePassword}
-                    type="password"
-                    className="form-control"
-                    id="password"
-                    placeholder="Password"
-                    required/>
+              onChange={this.updatePassword}
+              type="password"
+              className="form-control"
+              id="password"
+              placeholder="Password"
+              required/>
           </div>
         </form>
         <div>

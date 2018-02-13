@@ -36,7 +36,7 @@ module.exports = {
               username: username,
               hashedPassword: hash
             });
-            user.save((err, user) => {
+            user.save((err) => {
               if (err) {
                 console.log(err);
                 reject({message: 'Couldn\'t save password'});

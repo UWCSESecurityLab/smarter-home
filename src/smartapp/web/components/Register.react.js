@@ -43,7 +43,7 @@ class Register extends React.Component {
       } else if (resp.statusCode == 200) {
         xhr.post({
           url: `http://localhost:5000/login?username=${this.state.username}&password=${this.state.password}`
-        }, (err, resp, body) => {
+        }, (err, resp) => {
           if (err || resp.statusCode !== 200) {
             this.setState({ error: 'UNKNOWN', loading: false });
           }
