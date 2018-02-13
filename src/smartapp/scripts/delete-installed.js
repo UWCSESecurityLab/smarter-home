@@ -1,7 +1,7 @@
 // Deletes all installed apps from the mongo database and the smartthings
 // server.
 
-const bearer = require('../auth/personal_tokens.json').full_token;
+const bearer = require('../config/personal_tokens.json').full_token;
 const InstallData = require('../db/installData');
 const mongoose = require('mongoose');
 const request = require('request');
