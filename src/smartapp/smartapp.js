@@ -10,6 +10,7 @@ const mongoose = require('mongoose');
 const passport = require('passport');
 const request = require('request');
 const session = require('express-session');
+const SmartThingsClient = require('./SmartThingsClient');
 const User = require('./db/user');
 
 const APP_CONFIG = require('./config/config.json');
@@ -158,20 +159,17 @@ function handleInstall(req, res) {
       res.json({
         installData: {}
       });
-      res.status(200);
-      res.send();
+      res.status(200).send();
     })
     .catch((err) => {
       console.log(JSON.stringify(err, null, 2));
-      res.status(500);
-      res.send('Problem installing app.');
+      res.status(500).send('Problem installing app.');
     });
 }
 
 app.post('/', logEndpoint, (req, res) => {
   if (!req.body) {
-    res.status(400);
-    res.send('Invalid request');
+    res.status(400).send('Invalid request');
     return;
   }
 
@@ -239,23 +237,18 @@ app.post('/login', logEndpoint, passport.authenticate('local'), (req, res) => {
     // res.status(200);
     // res.json({ token: req.user.id });
   } else {
-    res.status(200);
-    res.send('Authenticated');
+    res.status(200).send('Authenticated');
   }
 });
 
 app.post('/register', logEndpoint, (req, res) => {
   if (!req.query.username || !req.query.password || !req.query.confirm) {
-    res.status(400);
-    res.json({ message: 'MISSING_FIELD' });
-    res.send();
+    res.status(400).json({ message: 'MISSING_FIELD' });
     return;
   }
 
   if (req.query.password !== req.query.confirm) {
-    res.status(400);
-    res.json({ message: 'PW_MISMATCH' });
-    res.send();
+    res.status(400).json({ message: 'PW_MISMATCH' });
     return;
   }
 
@@ -273,8 +266,38 @@ app.post('/register', logEndpoint, (req, res) => {
 });
 
 app.get('/home', logEndpoint, ensureLogin('/login'), (req, res) => {
-  res.status(200);
 
+});
+
+app.get('/deviceStatus', logEndpoint, ensureLogin('/login'), (req, res) => {
+  // id for device type in configuration page
+  const SUPPORTED_DEVICES = ['doorLock', 'switches'];
+  InstallData.findOne({}, (err, installData) => {
+    if (err) {
+      res.status(500).json({ message: 'DB_ERROR' });
+      return;
+    }
+
+    let requests = [];
+    SUPPORTED_DEVICES.forEach((deviceType) => {
+      installData.installedApp.config[deviceType].forEach((device) => {
+        if (device.valueType !== 'DEVICE') {
+          return;
+        }
+        requests.push(SmartThingsClient.getDeviceComponentStatus({
+          deviceId: device.deviceConfig.deviceId,
+          componentId: device.deviceConfig.componentId,
+          authToken: installData.authToken
+        }));
+      });
+    });
+    Promise.all(requests).then((results) => {
+      res.json(results);
+    }).catch((err) => {
+      console.log(err);
+      res.status(500).json({ message: 'SMARTTHINGS_ERROR'});
+    });
+  });
 });
 
 
