@@ -13,7 +13,7 @@ const session = require('express-session');
 const SmartThingsClient = require('./SmartThingsClient');
 const User = require('./db/user');
 
-const APP_CONFIG = require('./config/config.json');
+const APP_CONFIG = require('../config/config.json');
 const PUBLIC_KEY = APP_CONFIG.app.webhookSmartApp.publicKey;
 
 mongoose.connect('mongodb://localhost/test');
@@ -25,7 +25,7 @@ db.once('open', function() {
 
 let app = express();
 app.set('view engine', 'ejs');
-app.set('views', __dirname + '/web/views');
+app.set('views', __dirname + '/../web/views');
 app.use(express.static('dist'));
 app.use('/css', express.static('web/css'));
 app.use(bodyParser.json());
