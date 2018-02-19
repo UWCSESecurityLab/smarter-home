@@ -103,8 +103,6 @@ function handleConfiguration(req, res) {
 // Given an InstallData object, subscribe to all of the attributes of all of the
 // authorized devices.
 function subscribeToAuthorizedDevices(installData) {
-  console.log(installData);
-  // return new Promise((resolve, reject) => {
   let devices = [];
   // Flatten devices into a list
   for (let category in installData.installedApp.config) {
@@ -125,29 +123,16 @@ function subscribeToAuthorizedDevices(installData) {
     };
   });
 
-  return Promise.all(subscriptions.map((subscription) => {
-    return new Promise((resolve, reject) => {
-      request({
-        url: `https://api.smartthings.com/v1/installedapps/${installData.installedApp.installedAppId}/subscriptions`,
-        method: 'POST',
-        json: true,
-        headers: {
-          'Authorization': `Bearer ${installData.authToken}`
-        },
-        body: subscription
-      }, (err, res, body) => {
-        if (err) {
-          reject(err);
-          return;
-        }
-        if (res.statusCode !== 200) {
-          reject(body);
-          return;
-        }
-        resolve(body);
-      });
-    });
-  }));
+  let requests = [];
+  subscriptions.forEach((subscription) => {
+   requests.push(SmartThingsClient.subscribe({
+      installedAppId: installData.installedApp.installedAppId,
+      subscriptionBody: subscription,
+      authToken: installData.authToken
+    }));
+  });
+
+  return Promise.all(requests);
 }
 
 // Executed when a SmartApp is installed onto a new hub.
@@ -295,7 +280,7 @@ app.get('/deviceStatus', logEndpoint, ensureLogin('/login'), (req, res) => {
       res.json(results);
     }).catch((err) => {
       console.log(err);
-      res.status(500).json({ message: 'SMARTTHINGS_ERROR'});
+      res.status(500).json({ message: 'SMARTTHINGS_ERROR' });
     });
   });
 });
