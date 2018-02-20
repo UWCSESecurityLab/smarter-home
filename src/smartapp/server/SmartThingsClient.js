@@ -1,4 +1,5 @@
 const InstallData = require('./db/installData');
+const log = require('./log');
 const request = require('request');
 
 const CONFIG = require('../config/config.json');
@@ -6,11 +7,11 @@ const CONFIG = require('../config/config.json');
 // Helper function for handling errors from the API.
 function rejectErrors(err, resp, body, reject) {
   if (err) {
-    console.log(err);
+    log.red('SmartThings Request Error', err);
     reject(err);
     return true;
   } else if (resp.statusCode !== 200) {
-    console.log(resp.statusCode);
+    log.red('SmartThings Request Error', resp.statusCode);
     console.log(body);
     if (body) {
       reject(body);
@@ -31,8 +32,8 @@ class SmartThingsClient {
    * @param {string} params.authToken
    */
   static getDeviceComponentStatus(params) {
-    console.log(`https://api.smartthings.com/v1/devices/${params.deviceId}/components/${params.componentId}/status`);
     return new Promise((resolve, reject) => {
+      log.green('SmartThings Request', `https://api.smartthings.com/v1/devices/${params.deviceId}/components/${params.componentId}/status`);
       request({
         method: 'GET',
         url: `https://api.smartthings.com/v1/devices/${params.deviceId}/components/${params.componentId}/status`,
@@ -58,8 +59,8 @@ class SmartThingsClient {
    * @param {string} params.authToken
    */
   static subscribe(params) {
-    console.log(`https://api.smartthings.com/v1/installedapps/${params.installedAppId}/subscriptions`);
     return new Promise((resolve, reject) => {
+      log.green('SmartThings Request', `https://api.smartthings.com/v1/installedapps/${params.installedAppId}/subscriptions`);
       request({
         url: `https://api.smartthings.com/v1/installedapps/${params.installedAppId}/subscriptions`,
         method: 'POST',
@@ -70,6 +71,7 @@ class SmartThingsClient {
         body: params.subscriptionBody
       }, (err, res, body) => {
         if (!rejectErrors(err, res, body, reject)) {
+          log.green('SmartThings Request', 'Success');
           resolve(body);
         }
       });
@@ -86,6 +88,7 @@ class SmartThingsClient {
         let credentials = new Buffer(
           CONFIG.oauthClientId + ':' + CONFIG.oauthClientSecret)
           .toString('base64');
+          log.green('SmartThings Request', 'https://auth-global.api.smartthings.com/oauth/token');
         request({
           method: 'POST',
           url: 'https://auth-global.api.smartthings.com/oauth/token',
@@ -124,6 +127,7 @@ class SmartThingsClient {
    */
   static createTokenUpdateSchedule(params) {
     return new Promise((resolve, reject) => {
+      log.green('SmartThings Request', `https://api.smartthings.com/v1/installedapps/${installedAppId}/schedules`);
       request({
         method: 'POST',
         url: `https://api.smartthings.com/v1/installedapps/${installedAppId}/schedules`,

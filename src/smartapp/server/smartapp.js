@@ -5,6 +5,7 @@ const ensureLogin = require('connect-ensure-login').ensureLoggedIn;
 const express = require('express');
 const httpSignature = require('http-signature');
 const InstallData = require('./db/installData');
+const log = require('./log');
 const LocalStrategy = require('passport-local').Strategy;
 const mongoose = require('mongoose');
 const passport = require('passport');
@@ -64,7 +65,7 @@ passport.deserializeUser(function(id, done) {
 });
 
 function logEndpoint(req, res, next) {
-  console.log(req.method + ' ' + req.originalUrl);
+  log.magenta('User Request', req.method + ' ' + req.originalUrl);
   next();
 }
 
@@ -123,6 +124,14 @@ function subscribeToAuthorizedDevices(installData) {
     };
   });
 
+  log.log('subscription data:');
+  console.log(subscriptions);
+
+  // return SmartThingsClient.subscribe({
+  //   installedAppId: installData.installedApp.installedAppId,
+  //   subscriptionBody: subscriptions,
+  //   authToken: installData.authToken
+  // });
   let requests = [];
   subscriptions.forEach((subscription) => {
    requests.push(SmartThingsClient.subscribe({
@@ -140,19 +149,22 @@ function handleInstall(req, res) {
   let data = new InstallData(req.body.installData);
   data.save()
     .then(subscribeToAuthorizedDevices)
+    // .then(() => {
+    //   log.log('Done subscribing, creating schedule');
+    //   return SmartThingsClient.createTokenUpdateSchedule({
+    //     installedAppId: data.installedApp.installedAppId,
+    //     authToken: data.authToken
+    //   });
+    // })
     .then(() => {
-      return SmartThingsClient.createTokenUpdateSchedule({
-        installedAppId: data.installedApp.installedAppId,
-        authToken: data.authToken
-      });
-    })
-    .then(() => {
+      log.log('Install successful');
       res.json({
         installData: {}
       });
       res.status(200).send();
     })
     .catch((err) => {
+      log.error('Install error:');
       console.log(JSON.stringify(err, null, 2));
       res.status(500).send('Problem installing app.');
     });
@@ -170,7 +182,9 @@ function handleUpdateTokens(req, res) {
   SmartThingsClient.renewTokens(req.body.eventData.installedApp.installedAppId);
 }
 
-app.post('/', logEndpoint, (req, res) => {
+app.post('/', (req, res) => {
+  log.blue('SmartThings Event', req.method + ' ' + req.originalUrl);
+
   if (!req.body) {
     res.status(400).send('Invalid request');
     return;
