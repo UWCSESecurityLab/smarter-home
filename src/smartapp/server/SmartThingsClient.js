@@ -90,7 +90,7 @@ class SmartThingsClient {
           method: 'POST',
           url: 'https://auth-global.api.smartthings.com/oauth/token',
           headers: {
-            'Authorization': 'Basic ' + credentials,
+            'Authorization': `Basic ${credentials}`,
             'Content-Type': 'application/x-www-form-urlencoded'
           },
           body: {
@@ -113,6 +113,35 @@ class SmartThingsClient {
             }
           });
         });
+      });
+    });
+  }
+  /**
+   * Create a schedule for this app to remind the server to update the refresh
+   * token.
+   * @param {string} params.installedAppId
+   * @param {string} params.authToken
+   */
+  static createTokenUpdateSchedule(params) {
+    return new Promise((resolve, reject) => {
+      request({
+        method: 'POST',
+        url: `https://api.smartthings.com/v1/installedapps/${installedAppId}/schedules`,
+        json: true,
+        headers: {
+          'Authorization': `Bearer ${authToken}`
+        },
+        body: {
+          name: 'update-tokens-schedule',
+          cron: {
+            expression: '0 12 ? * 3 *',
+            timezone: 'PST'
+          }
+        }
+      }, (err, res, body) => {
+        if (!rejectErrors(err, res, body)) {
+          resolve();
+        }
       });
     });
   }
