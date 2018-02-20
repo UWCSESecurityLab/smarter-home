@@ -141,6 +141,12 @@ function handleInstall(req, res) {
   data.save()
     .then(subscribeToAuthorizedDevices)
     .then(() => {
+      return SmartThingsClient.createTokenUpdateSchedule({
+        installedAppId: data.installedApp.installedAppId,
+        authToken: data.authToken
+      });
+    })
+    .then(() => {
       res.json({
         installData: {}
       });
@@ -150,6 +156,18 @@ function handleInstall(req, res) {
       console.log(JSON.stringify(err, null, 2));
       res.status(500).send('Problem installing app.');
     });
+}
+
+function handleEvent(req, res) {
+  if (req.body.eventData.events.find((event) => {
+    return event.timerEvent.name === 'update-tokens-schedule'
+  })) {
+    handleUpdateTokensEvent(req, res);
+  }
+}
+
+function handleUpdateTokens(req, res) {
+  SmartThingsClient.renewTokens(req.body.eventData.installedApp.installedAppId);
 }
 
 app.post('/', logEndpoint, (req, res) => {
@@ -179,36 +197,19 @@ app.post('/', logEndpoint, (req, res) => {
       handleInstall(req, res);
       break;
     case 'UPDATE':
-      res.status(200);
-      res.json({
-        updateData: {}
-      });
-      res.send();
+      res.status(200).json({ updateData: {} });
       break;
     case 'EVENT':
-      res.status(200);
-      res.json({
-        eventData: {}
-      });
-      res.send();
+      handleEvent(req, res);
+      res.status(200).json({ eventData: {} });
       break;
     case 'OAUTH_CALLBACK':
-      res.status(200);
-      res.json({
-        oAuthCallbackData: {}
-      });
-      res.send();
-      break;
+      res.status(200).json({ oAuthCallbackData: {} });
     case 'UNINSTALL':
-      res.status(200);
-      res.json({
-        uninstallData: {}
-      });
-      res.send();
+      res.status(200).json({ uninstallData: {} });
       break;
     default:
-      res.status(400);
-      res.send();
+      res.status(400).send();
   }
 });
 
@@ -219,8 +220,6 @@ app.get('/login', logEndpoint, (req, res) => {
 app.post('/login', logEndpoint, passport.authenticate('local'), (req, res) => {
   if (req.query.oauth == 'true') {
     res.redirect('https://api.smartthings.com/oauth/callback?token=' + req.user.id);
-    // res.status(200);
-    // res.json({ token: req.user.id });
   } else {
     res.status(200).send('Authenticated');
   }

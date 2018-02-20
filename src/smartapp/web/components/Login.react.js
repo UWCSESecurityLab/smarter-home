@@ -28,7 +28,7 @@ class Login extends React.Component {
     });
 
     xhr.post({
-      url: 'http://selenium.dyn.cs.washington.edu:5000/login?' + query
+      url: 'http://localhost:5000/login?' + query
     }, (err, res, body) => {
       if (err) {
         this.setState({ error: 'NETWORK', loading: false});
@@ -45,7 +45,7 @@ class Login extends React.Component {
             //   'https://api.smartthings.com/oauth/callback?token=' +
             //   JSON.parse(body).token;
           } else {
-            window.location.href = '/home';
+            window.location.href = '/deviceStatus';
           }
         } catch (e) {
           this.setState({ error: 'UNKNOWN', loading: false});
