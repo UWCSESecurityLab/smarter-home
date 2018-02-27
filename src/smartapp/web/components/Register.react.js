@@ -31,7 +31,7 @@ class Register extends React.Component {
     }
 
     xhr.post({
-      url: `http://localhost:5000/register?username=${this.state.username}&password=${this.state.password}&confirm=${this.state.confirmPassword}`
+      url: `http://selenium.dyn.cs.washington.edu:5000/register?username=${this.state.username}&password=${this.state.password}&confirm=${this.state.confirmPassword}`
     }, (err, resp, body) => {
       if (err) {
         this.setState({ error: 'NETWORK', loading: false});
@@ -42,7 +42,7 @@ class Register extends React.Component {
         }
       } else if (resp.statusCode == 200) {
         xhr.post({
-          url: `http://localhost:5000/login?username=${this.state.username}&password=${this.state.password}`
+          url: `http://selenium.dyn.cs.washington.edu:5000/login?username=${this.state.username}&password=${this.state.password}`
         }, (err, resp) => {
           if (err || resp.statusCode !== 200) {
             this.setState({ error: 'UNKNOWN', loading: false });
