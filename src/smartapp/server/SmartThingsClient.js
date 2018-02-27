@@ -25,6 +25,24 @@ function rejectErrors(err, resp, body, reject) {
 }
 
 class SmartThingsClient {
+  static listDevices(params) {
+    return new Promise((resolve, reject) => {
+      log.green('SmartThings Request', 'https://api.smartthings.com/v1/devices');
+      request({
+        method: 'GET',
+        url: 'https://api.smartthings.com/v1/devices',
+        headers: {
+          'Authorization': `Bearer ${params.authToken}`
+        }
+      }, (err, resp, body) => {
+        if (!rejectErrors(err, resp, body, reject)) {
+          resolve(JSON.parse(body));
+        }
+      });
+    });
+  }
+
+
   /**
    * Get device component status.
    * @param {string} params.deviceId
@@ -71,7 +89,7 @@ class SmartThingsClient {
         body: params.subscriptionBody
       }, (err, res, body) => {
         if (!rejectErrors(err, res, body, reject)) {
-          log.green('SmartThings Request', 'Success');
+          log.green('SmartThings Request', 'Subscribe Success');
           resolve(body);
         }
       });
@@ -82,13 +100,14 @@ class SmartThingsClient {
     return new Promise((resolve, reject) => {
       InstallData.findOne({}, (err, installData) => {
         if (err) {
+          log.red('DB Error', 'installed app not found');
           reject(err);
           return;
         }
         let credentials = new Buffer(
           CONFIG.oauthClientId + ':' + CONFIG.oauthClientSecret)
           .toString('base64');
-          log.green('SmartThings Request', 'https://auth-global.api.smartthings.com/oauth/token');
+        log.green('SmartThings Request', 'https://auth-global.api.smartthings.com/oauth/token');
         request({
           method: 'POST',
           url: 'https://auth-global.api.smartthings.com/oauth/token',
@@ -127,13 +146,14 @@ class SmartThingsClient {
    */
   static createTokenUpdateSchedule(params) {
     return new Promise((resolve, reject) => {
-      log.green('SmartThings Request', `https://api.smartthings.com/v1/installedapps/${installedAppId}/schedules`);
+      log.green('SmartThings Request', `https://api.smartthings.com/v1/installedapps/${params.installedAppId}/schedules`);
+      console.log(params);
       request({
         method: 'POST',
-        url: `https://api.smartthings.com/v1/installedapps/${installedAppId}/schedules`,
+        url: `https://api.smartthings.com/v1/installedapps/${params.installedAppId}/schedules`,
         json: true,
         headers: {
-          'Authorization': `Bearer ${authToken}`
+          'Authorization': `Bearer ${params.authToken}`
         },
         body: {
           name: 'update-tokens-schedule',
@@ -143,7 +163,7 @@ class SmartThingsClient {
           }
         }
       }, (err, res, body) => {
-        if (!rejectErrors(err, res, body)) {
+        if (!rejectErrors(err, res, body, reject)) {
           resolve();
         }
       });

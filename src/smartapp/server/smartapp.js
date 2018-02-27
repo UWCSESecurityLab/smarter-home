@@ -172,6 +172,9 @@ function handleInstall(req, res) {
 
 function handleEvent(req, res) {
   if (req.body.eventData.events.find((event) => {
+    if (!event || !event.timerEvent || !event.timerEvent.name ) {
+      return false;
+    }
     return event.timerEvent.name === 'update-tokens-schedule'
   })) {
     handleUpdateTokensEvent(req, res);
@@ -267,29 +270,16 @@ app.get('/home', logEndpoint, ensureLogin('/login'), (req, res) => {
 
 });
 
-app.get('/deviceStatus', logEndpoint, ensureLogin('/login'), (req, res) => {
-  // id for device type in configuration page
-  const SUPPORTED_DEVICES = ['doorLock', 'switches'];
+app.get('/listDevices', logEndpoint, ensureLogin('/login'), (req, res) => {
   InstallData.findOne({}, (err, installData) => {
     if (err) {
       res.status(500).json({ message: 'DB_ERROR' });
       return;
     }
 
-    let requests = [];
-    SUPPORTED_DEVICES.forEach((deviceType) => {
-      installData.installedApp.config[deviceType].forEach((device) => {
-        if (device.valueType !== 'DEVICE') {
-          return;
-        }
-        requests.push(SmartThingsClient.getDeviceComponentStatus({
-          deviceId: device.deviceConfig.deviceId,
-          componentId: device.deviceConfig.componentId,
-          authToken: installData.authToken
-        }));
-      });
-    });
-    Promise.all(requests).then((results) => {
+    SmartThingsClient.listDevices({
+      authToken: installData.authToken
+    }).then((results) => {
       res.json(results);
     }).catch((err) => {
       console.log(err);
