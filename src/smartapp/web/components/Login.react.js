@@ -28,7 +28,7 @@ class Login extends React.Component {
     });
 
     xhr.post({
-      url: 'http://selenium.dyn.cs.washington.edu:5000/login?' + query
+      url: 'http://localhost:5000/login?' + query
     }, (err, res, body) => {
       if (err) {
         this.setState({ error: 'NETWORK', loading: false});
@@ -38,18 +38,7 @@ class Login extends React.Component {
         this.setState({ error: 'BAD_USER_PW', loading: false});
         return;
       } else if (res.statusCode === 200) {
-        try {
-          if (this.props.oauth) {
-            // Shouldn't get here... should just receive a 302 redirect?
-            // window.location.href =
-            //   'https://api.smartthings.com/oauth/callback?token=' +
-            //   JSON.parse(body).token;
-          } else {
-            window.location.href = '/listDevices';
-          }
-        } catch (e) {
-          this.setState({ error: 'UNKNOWN', loading: false});
-        }
+        window.location.href = body;
       } else {
         this.setState({ error: 'UNKNOWN', loading: false});
       }

@@ -17,6 +17,8 @@
     "ejs": "^2.5.7",
     "express": "^4.16.2",
     "express-session": "^1.15.6",
+    "firebase": "^4.10.1",
+    "googleapis": "^26.0.1",
     "http-signature": "^1.2.0",
     "mongoose": "^5.0.4",
     "passport": "^0.4.0",

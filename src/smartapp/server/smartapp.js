@@ -28,6 +28,7 @@ let app = express();
 app.set('view engine', 'ejs');
 app.set('views', __dirname + '/../web/views');
 app.use(express.static('dist'));
+app.use(express.static('web/sw'));
 app.use('/css', express.static('web/css'));
 app.use(bodyParser.json());
 app.use(session({
@@ -236,9 +237,9 @@ app.get('/login', logEndpoint, (req, res) => {
 
 app.post('/login', logEndpoint, passport.authenticate('local'), (req, res) => {
   if (req.query.oauth == 'true') {
-    res.redirect('https://api.smartthings.com/oauth/callback?token=' + req.user.id);
+    res.send('https://api.smartthings.com/oauth/callback?token=' + req.user.id);
   } else {
-    res.status(200).send('Authenticated');
+    res.send('/home');
   }
 });
 
@@ -267,7 +268,23 @@ app.post('/register', logEndpoint, (req, res) => {
 });
 
 app.get('/home', logEndpoint, ensureLogin('/login'), (req, res) => {
+  res.render('home');
+});
 
+app.post('/notificationToken', logEndpoint, ensureLogin('/login'), (req, res) => {
+  if (!req.user.notificationTokens.includes(req.query.token)) {
+    res.status(200).send();
+    return;
+  }
+
+  req.user.notificationTokens.push(req.query.token);
+  req.user.save((err, user) => {
+    if (err) {
+      res.status(500).send('Database error: ' + err);
+    } else {
+      res.status(200).send();
+    }
+  });
 });
 
 app.get('/listDevices', logEndpoint, ensureLogin('/login'), (req, res) => {

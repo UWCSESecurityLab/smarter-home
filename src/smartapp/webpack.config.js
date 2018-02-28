@@ -1,6 +1,7 @@
 module.exports = {
   entry: {
-    login: './web/login.js'
+    login: './web/login.js',
+    home: './web/home.js',
   },
   output: {
     filename: '[name]-bundle.js',

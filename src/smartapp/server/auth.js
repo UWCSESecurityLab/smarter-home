@@ -33,12 +33,16 @@ module.exports = {
         if (user) {
           reject({ message: 'USERNAME_TAKEN'});
         } else {
-          bcrypt.hash(password, SALT_ROUNDS, (hash) => {
+          bcrypt.hash(password, SALT_ROUNDS, (err, hash) => {
+            if (err) {
+              reject(err);
+              return;
+            }
             let user = new User({
               id: uuid(),
               username: username,
               hashedPassword: hash,
-              oauthClients: []
+              notificationTokens: []
             });
             user.save((err) => {
               if (err) {
