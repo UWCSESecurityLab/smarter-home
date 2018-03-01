@@ -6,8 +6,10 @@ import {
   TextInput,
   View
 } from 'react-native';
+import { connect } from 'react-redux';
+import { navigate, Views } from '../redux/actions';
 
-export default class Login extends React.Component {
+class Login extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -31,6 +33,7 @@ export default class Login extends React.Component {
       } else {
         this.setState({ error: '' });
         console.log('Success');
+        this.props.dispatch(navigate(Views.HOME));
       }
     }).catch(() => {
       this.setState({ error: 'Couldn\'t reach the Smart Notifications server.' });
@@ -90,3 +93,5 @@ const styles = StyleSheet.create({
     fontSize: 18
   }
 });
+
+export default connect()(Login);

@@ -1,5 +1,4 @@
 import { AppRegistry } from 'react-native';
-import App from './components/App';
-import Login from './components/Login';
+import Entry from './components/Entry';
 
-AppRegistry.registerComponent('SmarterHome', () => Login);
+AppRegistry.registerComponent('SmarterHome', () => Entry);
