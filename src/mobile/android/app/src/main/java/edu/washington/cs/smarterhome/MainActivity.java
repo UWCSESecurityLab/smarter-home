@@ -1,4 +1,4 @@
-package com.smarterhome;
+package edu.washington.cs.smarterhome;
 
 import com.facebook.react.ReactActivity;
 

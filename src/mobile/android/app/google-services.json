@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "469706959609",
+    "firebase_url": "https://iot-stuff-8e265.firebaseio.com",
+    "project_id": "iot-stuff-8e265",
+    "storage_bucket": "iot-stuff-8e265.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:469706959609:android:77371b0d29e81e5b",
+        "android_client_info": {
+          "package_name": "edu.washington.cs.smarterhome"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "469706959609-l2256atng7k4rko4pmefhli23clv29ng.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "edu.washington.cs.smarterhome",
+            "certificate_hash": "1d9d0bad1018af8b8878bb38d33900825f98268d"
+          }
+        },
+        {
+          "client_id": "469706959609-gmdibhuo61pu26o5mk61njk8eknkfrgs.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDghTvnfJlNhAxhx43wMW13-N5pxGSbYM0"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "469706959609-gmdibhuo61pu26o5mk61njk8eknkfrgs.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
