@@ -38,7 +38,7 @@ class Login extends React.Component {
       }
     }).catch(() => {
       this.setState({ error: 'Couldn\'t reach the Smart Notifications server.' });
-    });;
+    });
   }
 
   render() {

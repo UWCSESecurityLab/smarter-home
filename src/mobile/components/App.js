@@ -1,10 +1,8 @@
 import React from 'react';
-import { createStore } from 'redux';
 import { connect } from 'react-redux';
 import Home from './Home';
 import Login from './Login';
 import { Views } from '../redux/actions';
-import reducers from '../redux/reducers';
 
 const mapStateToProps = (state) => {
   return {
