@@ -2,11 +2,15 @@ import React from 'react';
 import { Button, Text, View } from 'react-native';
 import { connect } from 'react-redux';
 import { navigate, Views } from '../redux/actions';
-import FCM from 'react-native-fcm';
+import FCM, { FCMEvent } from 'react-native-fcm';
+
+
+
 
 class Home extends React.Component {
   constructor(props) {
     super(props);
+    this.state = { notification: '' };
     this.signOut = this.signOut.bind(this);
   }
 
@@ -18,6 +22,10 @@ class Home extends React.Component {
     FCM.getFCMToken()
       .then(this.sendTokenToServer)
       .catch(console.error);
+
+    FCM.on(FCMEvent.Notification, async (notification) => {
+      this.setState({ notification: JSON.stringify(notification, null, 2) });
+    });
   }
 
   signOut() {
@@ -37,8 +45,11 @@ class Home extends React.Component {
   render() {
     return (
       <View>
-        <Text>Home component</Text>
         <Button title="Sign Out" onPress={this.signOut} />
+        { this.state.notification === ''
+          ? null
+          : <Text selectable={true}>{this.state.notification}</Text>
+        }
       </View>
     );
   }
