@@ -3,6 +3,7 @@ const bodyParser = require('body-parser');
 const configuration = require('./configuration');
 const ensureLogin = require('connect-ensure-login').ensureLoggedIn;
 const express = require('express');
+const fcmClient = require('./fcmClient');
 const httpSignature = require('http-signature');
 const InstallData = require('./db/installData');
 const log = require('./log');
@@ -172,13 +173,28 @@ function handleInstall(req, res) {
 }
 
 function handleEvent(req, res) {
-  if (req.body.eventData.events.find((event) => {
-    if (!event || !event.timerEvent || !event.timerEvent.name ) {
-      return false;
-    }
-    return event.timerEvent.name === 'update-tokens-schedule'
-  })) {
-    handleUpdateTokensEvent(req, res);
+  // if (req.body.eventData.events.find((event) => {
+  //   if (!event || !event.timerEvent || !event.timerEvent.name ) {
+  //     return false;
+  //   }
+  //   return event.timerEvent.name === 'update-tokens-schedule'
+  // })) {
+  //   handleUpdateTokensEvent(req, res);
+  // }
+
+  let deviceEvent = req.body.eventData.events.find((event) => {
+    return event.eventType === 'DEVICE_EVENT';
+  });
+  if (!deviceEvent) {
+    return;
+  }
+
+  if (deviceEvent.deviceEvent.capability === 'switch') {
+    fcmClient.sendNotification({
+      device: deviceEvent.deviceEvent.deviceId,
+      capability: deviceEvent.deviceEvent.capability,
+      value: deviceEvent.deviceEvent.value
+    });
   }
 }
 

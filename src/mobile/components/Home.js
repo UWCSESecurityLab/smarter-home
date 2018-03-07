@@ -4,8 +4,18 @@ import { connect } from 'react-redux';
 import { navigate, Views } from '../redux/actions';
 import FCM, { FCMEvent } from 'react-native-fcm';
 
+FCM.on(FCMEvent.Notification, async (notification) => {
+  let data = JSON.parse(notification.smartapp);
+  let title = data.capability + ' ' + data.value;
 
-
+  FCM.presentLocalNotification({
+    id: new Date().valueOf().toString(),
+    title: title,
+    body: data.device,
+    sound: 'default',
+    priority: 'low'
+  });
+});
 
 class Home extends React.Component {
   constructor(props) {
