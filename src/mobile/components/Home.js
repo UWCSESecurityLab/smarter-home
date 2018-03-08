@@ -5,17 +5,43 @@ import { navigate, Views } from '../redux/actions';
 import FCM, { FCMEvent } from 'react-native-fcm';
 import Kontakt from 'react-native-kontaktio';
 
-FCM.on(FCMEvent.Notification, async (notification) => {
-  let data = JSON.parse(notification.smartapp);
-  let title = data.capability + ' ' + data.value;
+Kontakt.connect('', [Kontakt.EDDYSTONE])
+  .then(() => Kontakt.startScanning())
+  .catch(error => console.log('error', error));
 
-  FCM.presentLocalNotification({
-    id: new Date().valueOf().toString(),
-    title: title,
-    body: data.device,
-    sound: 'default',
-    priority: 'low'
-  });
+let _beacon = false;
+
+DeviceEventEmitter.addListener('eddystoneDidAppear', ({ eddystone, namespace }) => {
+  console.log('eddystoneDidAppear', eddystone, namespace);
+  if (eddystone.instanceId === 'aabbccddeeff') {
+    _beacon = true;
+  }
+});
+
+DeviceEventEmitter.addListener('eddystoneDidDisappear', ({ eddystone, namespace }) => {
+  console.log('eddystoneDidDisappear', eddystone, namespace);
+  if (eddystone.instanceId === 'aabbccddeeff') {
+    _beacon = false;
+  }
+});
+
+FCM.on(FCMEvent.Notification, async (notification) => {
+  console.log('FCMEvent.Notification');
+  if (_beacon) {
+    console.log('_beacon is true');
+    let data = JSON.parse(notification.smartapp);
+    let title = data.capability + ' ' + data.value;
+
+    FCM.presentLocalNotification({
+      id: new Date().valueOf().toString(),
+      title: title,
+      body: data.device,
+      sound: 'default',
+      priority: 'low'
+    });
+  } else {
+    console.log('_beacon is false');
+  }
 });
 
 class Home extends React.Component {
@@ -36,20 +62,6 @@ class Home extends React.Component {
 
     FCM.on(FCMEvent.Notification, async (notification) => {
       this.setState({ notification: JSON.stringify(notification, null, 2) });
-    });
-
-    Kontakt.connect('', [Kontakt.EDDYSTONE])
-      .then(() => Kontakt.startScanning())
-      .catch(error => console.log('error', error));
-
-    DeviceEventEmitter.addListener('eddystoneDidAppear', ({ eddystone, namespace }) => {
-      console.log('eddystoneDidAppear', eddystone, namespace);
-      this.setState({ beacon: eddystone.instanceId });
-    });
-
-    DeviceEventEmitter.addListener('eddystoneDidDisappear', ({ eddystone, namespace }) => {
-      console.log('eddystoneDidAppear', eddystone, namespace);
-      this.setState({ beacon: '' });
     });
   }
 
