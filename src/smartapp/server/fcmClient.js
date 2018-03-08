@@ -22,10 +22,10 @@ function getAccessToken() {
   });
 }
 
-function sendNotification(data) {
+function sendNotification(data, token) {
   let notification = {
     "message": {
-      "token": "cQOUXUKBGtg:APA91bEaOD2XF4oPnvHiI2O-mXOOizfSxAS1PIlk3IZa_ypCYdPnn_cCA8GHlIxZlbzD7qNiwQPlj2M8JZ9EhqAvcldKd7UP_7wnGCgFz3ZVgAcFeGkCu6QXv1r_NykVU4uHfyLKgPiT",
+      "token": token,
       "data": {
         smartapp: JSON.stringify(data)
       }

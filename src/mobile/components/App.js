@@ -3,6 +3,7 @@ import { connect } from 'react-redux';
 import Home from './Home';
 import Login from './Login';
 import { Views } from '../redux/actions';
+import '../notifications';
 
 const mapStateToProps = (state) => {
   return {

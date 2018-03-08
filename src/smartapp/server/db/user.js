@@ -4,7 +4,7 @@ let userSchema = mongoose.Schema({
   id: String,
   username: String,
   hashedPassword: String,
-  notificationTokens: [String],
+  notificationToken: String,
 });
 
 let User = mongoose.model('User', userSchema);

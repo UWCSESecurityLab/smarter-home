@@ -3,51 +3,13 @@ import { Button, DeviceEventEmitter, Text, View } from 'react-native';
 import { connect } from 'react-redux';
 import { navigate, Views } from '../redux/actions';
 import FCM, { FCMEvent } from 'react-native-fcm';
-import Kontakt from 'react-native-kontaktio';
 
-Kontakt.connect('', [Kontakt.EDDYSTONE])
-  .then(() => Kontakt.startScanning())
-  .catch(error => console.log('error', error));
-
-let _beacon = false;
-
-DeviceEventEmitter.addListener('eddystoneDidAppear', ({ eddystone, namespace }) => {
-  console.log('eddystoneDidAppear', eddystone, namespace);
-  if (eddystone.instanceId === 'aabbccddeeff') {
-    _beacon = true;
-  }
-});
-
-DeviceEventEmitter.addListener('eddystoneDidDisappear', ({ eddystone, namespace }) => {
-  console.log('eddystoneDidDisappear', eddystone, namespace);
-  if (eddystone.instanceId === 'aabbccddeeff') {
-    _beacon = false;
-  }
-});
-
-FCM.on(FCMEvent.Notification, async (notification) => {
-  console.log('FCMEvent.Notification');
-  if (_beacon) {
-    console.log('_beacon is true');
-    let data = JSON.parse(notification.smartapp);
-    let title = data.capability + ' ' + data.value;
-
-    FCM.presentLocalNotification({
-      id: new Date().valueOf().toString(),
-      title: title,
-      body: data.device,
-      sound: 'default',
-      priority: 'low'
-    });
-  } else {
-    console.log('_beacon is false');
-  }
-});
+const BEACON_INSTANCE_ID = 'aabbccddeeff';
 
 class Home extends React.Component {
   constructor(props) {
     super(props);
-    this.state = { notification: '', beacon: '' };
+    this.state = { notification: '', beacon: false };
     this.signOut = this.signOut.bind(this);
   }
 
@@ -61,7 +23,23 @@ class Home extends React.Component {
       .catch(console.error);
 
     FCM.on(FCMEvent.Notification, async (notification) => {
-      this.setState({ notification: JSON.stringify(notification, null, 2) });
+      let data = JSON.parse(notification.smartapp);
+      let title = data.capability + ' ' + data.value;
+      this.setState({ notification: title });
+    });
+
+    DeviceEventEmitter.addListener('eddystoneDidAppear', ({ eddystone, namespace }) => {
+      if (eddystone.instanceId === BEACON_INSTANCE_ID) {
+        console.log('Beacon appeared');
+        this.setState({ beacon: true });
+      }
+    });
+
+    DeviceEventEmitter.addListener('eddystoneDidDisappear', ({ eddystone, namespace }) => {
+      if (eddystone.instanceId === BEACON_INSTANCE_ID) {
+        console.log('Beacon disappeared');
+        this.setState({ beacon: false });
+      }
     });
   }
 
@@ -85,9 +63,13 @@ class Home extends React.Component {
         <Button title="Sign Out" onPress={this.signOut} />
         { this.state.notification === ''
           ? null
-          : <Text selectable={true}>{this.state.notification}</Text>
+          : <Text style={{marginTop: 20, fontSize: 24}}>
+              Received notification: {this.state.notification}
+            </Text>
         }
-        <Text>Detected Beacon Instance: {this.state.beacon}</Text>
+        <Text style={{marginTop: 20, fontSize: 18, marginLeft: 20}}>
+          Beacon Nearby? {this.state.beacon ? 'Yes' : 'No'}
+        </Text>
       </View>
     );
   }

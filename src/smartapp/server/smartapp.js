@@ -190,10 +190,22 @@ function handleEvent(req, res) {
   }
 
   if (deviceEvent.deviceEvent.capability === 'switch') {
-    fcmClient.sendNotification({
-      device: deviceEvent.deviceEvent.deviceId,
-      capability: deviceEvent.deviceEvent.capability,
-      value: deviceEvent.deviceEvent.value
+    User.findOne({}, (err, user) => {
+      if (err) {
+        log.error(err);
+        return;
+      }
+
+      if (!user.notificationToken) {
+        log.error('No notification token found');
+        return;
+      }
+
+      fcmClient.sendNotification({
+        device: deviceEvent.deviceEvent.deviceId,
+        capability: deviceEvent.deviceEvent.capability,
+        value: deviceEvent.deviceEvent.value
+      }, user.notificationToken);
     });
   }
 }
@@ -288,12 +300,12 @@ app.get('/home', logEndpoint, ensureLogin('/login'), (req, res) => {
 });
 
 app.post('/notificationToken', logEndpoint, ensureLogin('/login'), (req, res) => {
-  if (!req.user.notificationTokens.includes(req.query.token)) {
-    res.status(200).send();
-    return;
-  }
+  // if (!req.user.notificationTokens.includes(req.query.token)) {
+  //   res.status(200).send();
+  //   return;
+  // }
 
-  req.user.notificationTokens.push(req.query.token);
+  req.user.notificationToken = req.query.token;
   req.user.save((err, user) => {
     if (err) {
       res.status(500).send('Database error: ' + err);
