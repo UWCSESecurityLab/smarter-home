@@ -2,6 +2,7 @@ module.exports = {
   entry: {
     login: './web/login.js',
     home: './web/home.js',
+    beacon: './web/beacon.js',
   },
   output: {
     filename: '[name]-bundle.js',

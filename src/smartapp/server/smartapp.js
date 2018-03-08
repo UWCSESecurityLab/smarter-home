@@ -3,6 +3,7 @@ const bodyParser = require('body-parser');
 const configuration = require('./configuration');
 const ensureLogin = require('connect-ensure-login').ensureLoggedIn;
 const express = require('express');
+const eddystone = require('eddystone-beacon');
 const fcmClient = require('./fcmClient');
 const httpSignature = require('http-signature');
 const InstallData = require('./db/installData');
@@ -331,6 +332,30 @@ app.get('/listDevices', logEndpoint, ensureLogin('/login'), (req, res) => {
       res.status(500).json({ message: 'SMARTTHINGS_ERROR' });
     });
   });
+});
+
+
+app.get('/beacon', logEndpoint, (req, res) => {
+  res.render('beacon');
+});
+
+app.get('/beacon/on', logEndpoint, (req, res) => {
+  try {
+    eddystone.advertiseUid('00010203040506070809','aabbccddeeff');
+  } catch (e) {
+    res.status(400).send(e);
+  }
+  res.status(200).send();
+
+});
+
+app.get('/beacon/off', logEndpoint, (req, res) => {
+  try {
+    eddystone.stop();
+  } catch (e) {
+    res.status(400).send(e);
+  }
+  res.status(200).send();
 });
 
 
