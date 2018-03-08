@@ -343,6 +343,7 @@ app.get('/beacon/on', logEndpoint, (req, res) => {
   try {
     eddystone.advertiseUid('00010203040506070809','aabbccddeeff');
   } catch (e) {
+    log.error(e);
     res.status(400).send(e);
   }
   res.status(200).send();
@@ -353,6 +354,7 @@ app.get('/beacon/off', logEndpoint, (req, res) => {
   try {
     eddystone.stop();
   } catch (e) {
+    log.error(e);
     res.status(400).send(e);
   }
   res.status(200).send();
