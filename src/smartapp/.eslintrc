@@ -1,8 +1,5 @@
 {
   "parserOptions": {
-    "ecmaFeatures": {
-      "jsx": true
-    },
     "sourceType": "module"
   },
   "env": {
@@ -12,5 +9,8 @@
   "extends": [
     "eslint:recommended",
     "plugin:react/recommended"
-  ]
+  ],
+  "rules": {
+    "no-console": "off"
+  }
 }

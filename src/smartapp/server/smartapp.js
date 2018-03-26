@@ -1,19 +1,19 @@
-const auth = require('./auth');
 const bodyParser = require('body-parser');
-const configuration = require('./configuration');
 const ensureLogin = require('connect-ensure-login').ensureLoggedIn;
 const express = require('express');
 const eddystone = require('eddystone-beacon');
-const fcmClient = require('./fcmClient');
 const httpSignature = require('http-signature');
-const InstallData = require('./db/installData');
-const log = require('./log');
 const LocalStrategy = require('passport-local').Strategy;
 const mongoose = require('mongoose');
 const passport = require('passport');
-const request = require('request');
+
 const session = require('express-session');
 const SmartThingsClient = require('./SmartThingsClient');
+
+const auth = require('./auth');
+const InstallData = require('./db/installData');
+const lifecycle = require('./lifecycle');
+const log = require('./log');
 const User = require('./db/user');
 
 const APP_CONFIG = require('../config/config.json');
@@ -23,7 +23,7 @@ mongoose.connect('mongodb://localhost/test');
 let db = mongoose.connection;
 db.on('error', console.error.bind(console, 'connection error:'));
 db.once('open', function() {
-  console.log('Database connection established');
+  log.log('Database connection established');
 });
 
 let app = express();
@@ -61,7 +61,7 @@ passport.serializeUser(function(user, done) {
 passport.deserializeUser(function(id, done) {
   User.findOne({id: id}, function(err, user) {
     if (err) {
-      console.log(err);
+      log.error(err);
     }
     done(err, user);
   });
@@ -72,147 +72,18 @@ function logEndpoint(req, res, next) {
   next();
 }
 
-function handlePing(req, res) {
-  res.status(200);
-  res.json({
-    pingData: {
-      challenge: req.body.pingData.challenge
-    }
-  });
-  res.send();
-}
-
 function signatureIsVerified(req) {
   try {
     let parsed = httpSignature.parseRequest(req);
     if (!httpSignature.verifySignature(parsed, PUBLIC_KEY)) {
-      console.log('forbidden - failed verifySignature');
+      log.error('forbidden - failed verifySignature');
       return false;
     }
   } catch (error) {
-    console.error(error);
+    log.error(error);
     return false;
   }
   return true;
-}
-
-function handleConfiguration(req, res) {
-  if (req.body.configurationData.phase == 'INITIALIZE') {
-    res.json(configuration.init);
-  } else if (req.body.configurationData.phase == 'PAGE') {
-    res.json(configuration.pages[req.body.configurationData.pageId]);
-  }
-}
-
-// Given an InstallData object, subscribe to all of the attributes of all of the
-// authorized devices.
-function subscribeToAuthorizedDevices(installData) {
-  let devices = [];
-  // Flatten devices into a list
-  for (let category in installData.installedApp.config) {
-    for (let item of installData.installedApp.config[category]) {
-      if (item.valueType === 'DEVICE') {
-        devices.push(item);
-      }
-    }
-  }
-  // Form request body
-  let subscriptions = devices.map((d) => {
-    return {
-      sourceType: 'DEVICE',
-      device: {
-        deviceId: d.deviceConfig.deviceId,
-        stateChangeOnly: true
-      }
-    };
-  });
-
-  log.log('subscription data:');
-  console.log(subscriptions);
-
-  // return SmartThingsClient.subscribe({
-  //   installedAppId: installData.installedApp.installedAppId,
-  //   subscriptionBody: subscriptions,
-  //   authToken: installData.authToken
-  // });
-  let requests = [];
-  subscriptions.forEach((subscription) => {
-   requests.push(SmartThingsClient.subscribe({
-      installedAppId: installData.installedApp.installedAppId,
-      subscriptionBody: subscription,
-      authToken: installData.authToken
-    }));
-  });
-
-  return Promise.all(requests);
-}
-
-// Executed when a SmartApp is installed onto a new hub.
-function handleInstall(req, res) {
-  let data = new InstallData(req.body.installData);
-  data.save()
-    .then(subscribeToAuthorizedDevices)
-    // .then(() => {
-    //   log.log('Done subscribing, creating schedule');
-    //   return SmartThingsClient.createTokenUpdateSchedule({
-    //     installedAppId: data.installedApp.installedAppId,
-    //     authToken: data.authToken
-    //   });
-    // })
-    .then(() => {
-      log.log('Install successful');
-      res.json({
-        installData: {}
-      });
-      res.status(200).send();
-    })
-    .catch((err) => {
-      log.error('Install error:');
-      console.log(JSON.stringify(err, null, 2));
-      res.status(500).send('Problem installing app.');
-    });
-}
-
-function handleEvent(req, res) {
-  // if (req.body.eventData.events.find((event) => {
-  //   if (!event || !event.timerEvent || !event.timerEvent.name ) {
-  //     return false;
-  //   }
-  //   return event.timerEvent.name === 'update-tokens-schedule'
-  // })) {
-  //   handleUpdateTokensEvent(req, res);
-  // }
-
-  let deviceEvent = req.body.eventData.events.find((event) => {
-    return event.eventType === 'DEVICE_EVENT';
-  });
-  if (!deviceEvent) {
-    return;
-  }
-
-  if (deviceEvent.deviceEvent.capability === 'switch') {
-    User.findOne({}, (err, user) => {
-      if (err) {
-        log.error(err);
-        return;
-      }
-
-      if (!user.notificationToken) {
-        log.error('No notification token found');
-        return;
-      }
-
-      fcmClient.sendNotification({
-        device: deviceEvent.deviceEvent.deviceId,
-        capability: deviceEvent.deviceEvent.capability,
-        value: deviceEvent.deviceEvent.value
-      }, user.notificationToken);
-    });
-  }
-}
-
-function handleUpdateTokens(req, res) {
-  SmartThingsClient.renewTokens(req.body.eventData.installedApp.installedAppId);
 }
 
 app.post('/', (req, res) => {
@@ -226,7 +97,7 @@ app.post('/', (req, res) => {
   console.log(JSON.stringify(req.body, null, 2));
 
   if (req.body.lifecycle === 'PING') {
-    handlePing(req, res);
+    lifecycle.handlePing(req, res);
     return;
   }
 
@@ -238,20 +109,21 @@ app.post('/', (req, res) => {
 
   switch (req.body.lifecycle) {
     case 'CONFIGURATION':
-      handleConfiguration(req, res);
+      lifecycle.handleConfiguration(req, res);
       break;
     case 'INSTALL':
-      handleInstall(req, res);
+      lifecycle.handleInstall(req, res);
       break;
     case 'UPDATE':
       res.status(200).json({ updateData: {} });
       break;
     case 'EVENT':
-      handleEvent(req, res);
+      lifecycle.handleEvent(req, res);
       res.status(200).json({ eventData: {} });
       break;
     case 'OAUTH_CALLBACK':
       res.status(200).json({ oAuthCallbackData: {} });
+      break;
     case 'UNINSTALL':
       res.status(200).json({ uninstallData: {} });
       break;
@@ -328,7 +200,7 @@ app.get('/listDevices', logEndpoint, ensureLogin('/login'), (req, res) => {
     }).then((results) => {
       res.json(results);
     }).catch((err) => {
-      console.log(err);
+      log.error(err);
       res.status(500).json({ message: 'SMARTTHINGS_ERROR' });
     });
   });
@@ -362,4 +234,4 @@ app.get('/beacon/off', logEndpoint, (req, res) => {
 
 
 app.listen(5000);
-console.log('Listening on port 5000');
+log.log('Listening on port 5000');
