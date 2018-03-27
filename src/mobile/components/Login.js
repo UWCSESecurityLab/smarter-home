@@ -25,7 +25,7 @@ class Login extends React.Component {
     console.log('login');
 
     let query = `username=${this.state.username}&password=${this.state.password}`;
-    fetch('http://selenium.dyn.cs.washington.edu:5000/login?' + query, {
+    fetch('http://10.0.2.2:5000/login?' + query, {
       method: 'POST',
       credentials: 'same-origin'
     }).then((response) => {

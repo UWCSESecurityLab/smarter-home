@@ -1,5 +1,5 @@
 import React from 'react';
-import { Button, DeviceEventEmitter, Dimensions, StyleSheet, Text, View } from 'react-native';
+import { Button, DeviceEventEmitter, StyleSheet, ToolbarAndroid, Text, View } from 'react-native';
 import { connect } from 'react-redux';
 import { navigate, Views, updateDeviceDescription } from '../redux/actions';
 import FCM, { FCMEvent } from 'react-native-fcm';
@@ -58,7 +58,7 @@ class Home extends React.Component {
 
   sendTokenToServer(token) {
     return fetch(
-      `http://selenium.dyn.cs.washington.edu:5000/notificationToken?token=${token}`,
+      `http://10.0.2.2:5000/notificationToken?token=${token}`,
       {
         method: 'POST',
         crednetials: 'same-origin'
@@ -67,7 +67,7 @@ class Home extends React.Component {
   }
 
   getDeviceDescription() {
-    return fetch('http://selenium.dyn.cs.washington.edu:5000/dashboard');
+    return fetch('http://10.0.2.2:5000/dashboard');
   }
 
   renderDoorLocks() {
@@ -93,6 +93,7 @@ class Home extends React.Component {
   render() {
     return (
       <View>
+        <ToolbarAndroid title={'SmarterHome'} titleColor="#ffffff" style={styles.toolbar}/>
         {this.renderDoorLocks()}
         {this.renderSwitches()}
         { this.state.notification === ''
@@ -128,6 +129,12 @@ const mapStateToProps = (state) => {
 };
 
 const styles = StyleSheet.create({
+  toolbar: {
+    backgroundColor: '#2196F3',
+    height: 56,
+    alignSelf: 'stretch',
+    textAlign: 'center'
+  },
   notification: {
     marginTop: 20,
     fontSize: 24
