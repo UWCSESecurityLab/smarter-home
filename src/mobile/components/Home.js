@@ -1,5 +1,5 @@
 import React from 'react';
-import { Button, DeviceEventEmitter, StyleSheet, Text, View } from 'react-native';
+import { Button, DeviceEventEmitter, Dimensions, StyleSheet, Text, View } from 'react-native';
 import { connect } from 'react-redux';
 import { navigate, Views, updateDeviceDescription } from '../redux/actions';
 import FCM, { FCMEvent } from 'react-native-fcm';
@@ -74,7 +74,7 @@ class Home extends React.Component {
     return this.props.device_descs.doorLock.map((lock) => {
       return (
         <View style={styles.device} key={lock.deviceId}>
-          <Text>{lock.label}</Text>
+          <Text style={styles.deviceName}>{lock.label}</Text>
         </View>
       );
     });
@@ -84,7 +84,7 @@ class Home extends React.Component {
     return this.props.device_descs.switches.map((switch_) => {
       return (
         <View style={styles.device} key={switch_.deviceId}>
-          <Text>{switch_.label}</Text>
+          <Text style={styles.deviceName}>{switch_.label}</Text>
         </View>
       );
     });
@@ -95,7 +95,6 @@ class Home extends React.Component {
       <View>
         {this.renderDoorLocks()}
         {this.renderSwitches()}
-        <Button title="Sign Out" onPress={this.signOut} />
         { this.state.notification === ''
           ? null
           : <Text style={styles.notification}>
@@ -107,8 +106,11 @@ class Home extends React.Component {
         </Text>
 
         { this.state.error
-          ? <Text style={{color: 'red'}}>{this.state.error}</Text>
+          ? <Text style={{ color: 'red'}}>{this.state.error.toString()}</Text>
           : null }
+        <View style={styles.signout}>
+          <Button title="Sign Out" onPress={this.signOut}/>
+        </View>
       </View>
     );
   }
@@ -138,6 +140,18 @@ const styles = StyleSheet.create({
   device: {
     borderBottomColor: '#bbb',
     borderBottomWidth: StyleSheet.hairlineWidth,
+    paddingTop: 15,
+    paddingBottom: 15,
+    paddingLeft: 20,
+    paddingRight: 20,
+  },
+  deviceName: {
+    fontSize: 18
+  },
+  signout: {
+    marginTop: 20,
+    marginLeft: 40,
+    marginRight: 40
   }
 });
 
