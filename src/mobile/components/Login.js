@@ -9,6 +9,7 @@ import {
 import { connect } from 'react-redux';
 import { navigate, Views } from '../redux/actions';
 import PropTypes from 'prop-types';
+import ORIGIN from '../origin';
 
 class Login extends React.Component {
   constructor(props) {
@@ -25,7 +26,7 @@ class Login extends React.Component {
     console.log('login');
 
     let query = `username=${this.state.username}&password=${this.state.password}`;
-    fetch('http://10.0.2.2:5000/login?' + query, {
+    fetch(`${ORIGIN}/login?` + query, {
       method: 'POST',
       credentials: 'same-origin'
     }).then((response) => {

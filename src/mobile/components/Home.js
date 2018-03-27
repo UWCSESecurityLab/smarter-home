@@ -4,6 +4,7 @@ import { connect } from 'react-redux';
 import { navigate, Views, updateDeviceDescription } from '../redux/actions';
 import FCM, { FCMEvent } from 'react-native-fcm';
 import PropTypes from 'prop-types';
+import ORIGIN from '../origin';
 
 const BEACON_INSTANCE_ID = 'aabbccddeeff';
 
@@ -42,8 +43,8 @@ class Home extends React.Component {
         this.setState({ beacon: false });
       }
     });
-
-    this.getDeviceDescription()
+    this.refreshToken()
+      .then(this.getDeviceDescription)
       .then((response) => response.json())
       .then((descriptions) => {
         this.props.dispatch(updateDeviceDescription(descriptions))
@@ -57,17 +58,18 @@ class Home extends React.Component {
   }
 
   sendTokenToServer(token) {
-    return fetch(
-      `http://10.0.2.2:5000/notificationToken?token=${token}`,
-      {
-        method: 'POST',
-        crednetials: 'same-origin'
-      }
-    );
+    return fetch(`${ORIGIN}/notificationToken?token=${token}`, {
+      method: 'POST',
+      crednetials: 'same-origin'
+    });
   }
 
   getDeviceDescription() {
-    return fetch('http://10.0.2.2:5000/dashboard');
+    return fetch(`${ORIGIN}/dashboard`);
+  }
+
+  refreshToken() {
+    return fetch(`${ORIGIN}/refresh`);
   }
 
   renderDoorLocks() {
