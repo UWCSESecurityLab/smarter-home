@@ -4,12 +4,7 @@ import Home from './Home';
 import Login from './Login';
 import { Views } from '../redux/actions';
 import '../notifications';
-
-const mapStateToProps = (state) => {
-  return {
-    view: state.view
-  }
-}
+import PropTypes from 'prop-types';
 
 class App extends React.Component {
   constructor(props) {
@@ -33,5 +28,15 @@ class App extends React.Component {
     return activeView;
   }
 }
+
+App.propTypes = {
+  view: PropTypes.oneOf(Views)
+};
+
+const mapStateToProps = (state) => {
+  return {
+    view: state.view
+  }
+};
 
 export default connect(mapStateToProps)(App);

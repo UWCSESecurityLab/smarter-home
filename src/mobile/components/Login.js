@@ -8,6 +8,7 @@ import {
 } from 'react-native';
 import { connect } from 'react-redux';
 import { navigate, Views } from '../redux/actions';
+import PropTypes from 'prop-types';
 
 class Login extends React.Component {
   constructor(props) {
@@ -65,6 +66,10 @@ class Login extends React.Component {
       </View>
     );
   }
+}
+
+Login.propTypes = {
+  dispatch: PropTypes.func
 }
 
 const styles = StyleSheet.create({

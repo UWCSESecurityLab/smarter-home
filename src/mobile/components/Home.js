@@ -1,15 +1,16 @@
 import React from 'react';
-import { Button, DeviceEventEmitter, Text, View } from 'react-native';
+import { Button, DeviceEventEmitter, StyleSheet, Text, View } from 'react-native';
 import { connect } from 'react-redux';
-import { navigate, Views } from '../redux/actions';
+import { navigate, Views, updateDeviceDescription } from '../redux/actions';
 import FCM, { FCMEvent } from 'react-native-fcm';
+import PropTypes from 'prop-types';
 
 const BEACON_INSTANCE_ID = 'aabbccddeeff';
 
 class Home extends React.Component {
   constructor(props) {
     super(props);
-    this.state = { notification: '', beacon: false };
+    this.state = { notification: '', beacon: false, error: '' };
     this.signOut = this.signOut.bind(this);
   }
 
@@ -41,6 +42,14 @@ class Home extends React.Component {
         this.setState({ beacon: false });
       }
     });
+
+    this.getDeviceDescription()
+      .then((response) => response.json())
+      .then((descriptions) => {
+        this.props.dispatch(updateDeviceDescription(descriptions))
+      }).catch((err) => {
+        this.setState({ error: err });
+      });
   }
 
   signOut() {
@@ -57,22 +66,79 @@ class Home extends React.Component {
     );
   }
 
+  getDeviceDescription() {
+    return fetch('http://selenium.dyn.cs.washington.edu:5000/dashboard');
+  }
+
+  renderDoorLocks() {
+    return this.props.device_descs.doorLock.map((lock) => {
+      return (
+        <View style={styles.device} key={lock.deviceId}>
+          <Text>{lock.label}</Text>
+        </View>
+      );
+    });
+  }
+
+  renderSwitches() {
+    return this.props.device_descs.switches.map((switch_) => {
+      return (
+        <View style={styles.device} key={switch_.deviceId}>
+          <Text>{switch_.label}</Text>
+        </View>
+      );
+    });
+  }
+
   render() {
     return (
       <View>
+        {this.renderDoorLocks()}
+        {this.renderSwitches()}
         <Button title="Sign Out" onPress={this.signOut} />
         { this.state.notification === ''
           ? null
-          : <Text style={{marginTop: 20, fontSize: 24}}>
+          : <Text style={styles.notification}>
               Received notification: {this.state.notification}
             </Text>
         }
-        <Text style={{marginTop: 20, fontSize: 18, marginLeft: 20}}>
+        <Text style={styles.beacon}>
           Beacon Nearby? {this.state.beacon ? 'Yes' : 'No'}
         </Text>
+
+        { this.state.error
+          ? <Text style={{color: 'red'}}>{this.state.error}</Text>
+          : null }
       </View>
     );
   }
 }
 
-export default connect()(Home);
+Home.propTypes = {
+  device_descs: PropTypes.object,
+  dispatch: PropTypes.func
+};
+
+const mapStateToProps = (state) => {
+  return {
+    device_descs: state.device_descs
+  }
+};
+
+const styles = StyleSheet.create({
+  notification: {
+    marginTop: 20,
+    fontSize: 24
+  },
+  beacon: {
+    marginTop: 20,
+    fontSize: 18,
+    marginLeft: 20
+  },
+  device: {
+    borderBottomColor: '#bbb',
+    borderBottomWidth: StyleSheet.hairlineWidth,
+  }
+});
+
+export default connect(mapStateToProps)(Home);
