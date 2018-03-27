@@ -42,6 +42,27 @@ class SmartThingsClient {
     });
   }
 
+  /**
+   *
+   * @param {string} params.deviceId
+   * @param {string} params.authToken
+   */
+  static getDeviceDescription(params) {
+    return new Promise((resolve, reject) => {
+      log.green('SmartThings Request', `https://api.smartthings.com/v1/devices/${params.deviceId}`);
+      request({
+        method: 'GET',
+        url: `https://api.smartthings.com/v1/devices/${params.deviceId}`,
+        headers: {
+          'Authorization': 'Bearer ' + params.authToken
+        }
+      }, (err, resp, body) => {
+        if (!rejectErrors(err, resp, body, reject)) {
+          resolve(JSON.parse(body));
+        }
+      });
+    })
+  }
 
   /**
    * Get device component status.
@@ -115,7 +136,7 @@ class SmartThingsClient {
             'Authorization': `Basic ${credentials}`,
             'Content-Type': 'application/x-www-form-urlencoded'
           },
-          body: {
+          form: {
             'grant_type': 'refresh_token',
             'client_id': CONFIG.oauthClientId,
             'client_secret': CONFIG.oauthClientSecret,
@@ -125,13 +146,14 @@ class SmartThingsClient {
           if (rejectErrors(err, res, body, reject)) {
             return;
           }
-          installData.authToken = body.access_token;
-          installData.refreshToken = body.refresh_token;
+          let tokens = JSON.parse(body);
+          installData.authToken = tokens.access_token;
+          installData.refreshToken = tokens.refresh_token;
           installData.save((err) => {
             if (err) {
               reject(err);
             } else {
-              resolve(body.access_token);
+              resolve(tokens);
             }
           });
         });

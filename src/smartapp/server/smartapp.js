@@ -206,6 +206,61 @@ app.get('/listDevices', logEndpoint, ensureLogin('/login'), (req, res) => {
   });
 });
 
+function getDeviceIds(installData, deviceTypes) {
+  let installedDevices = installData.installedApp.config;
+  let ids = [];
+  for (let deviceType of deviceTypes) {
+    for (let device of installedDevices[deviceType]) {
+      ids.push(device.deviceConfig.deviceId);
+    }
+  }
+  return ids;
+}
+
+app.get('/dashboard', logEndpoint, (req, res) => {
+  InstallData.findOne({}, (err, installData) => {
+    if (err) {
+      res.status(500).json({ message: 'DB_ERROR' });
+      return;
+    }
+    const deviceTypes = ['doorLock', 'switches'];
+
+    // Fetch device descriptions
+    let deviceIds = getDeviceIds(installData, deviceTypes);
+    let descriptionRequests = deviceIds.map((deviceId) => {
+      return SmartThingsClient.getDeviceDescription({
+        deviceId: deviceId,
+        authToken: installData.authToken
+      });
+    });
+
+    Promise.all(descriptionRequests).then((descriptions) => {
+      console.log(descriptions);
+      // Store device descriptions in same structure as installData
+      let dashboard = {};
+      let installedDevices = installData.installedApp.config;
+      for (let deviceType of deviceTypes) {
+        dashboard[deviceType] = installedDevices[deviceType].map((device) => {
+          return descriptions.find((description) => {
+            return description.deviceId === device.deviceConfig.deviceId;
+          });
+        });
+      }
+      res.json(dashboard);
+    }).catch((err) => {
+      console.log(err);
+      res.status(500).send(err);
+    });
+  });
+});
+
+app.get('/refresh', (req, res) => {
+  SmartThingsClient.renewTokens().then((tokens) => {
+    res.status(200).json(tokens);
+  }).catch((err) => {
+    res.status(500).send(err);
+  });
+});
 
 app.get('/beacon', logEndpoint, (req, res) => {
   res.render('beacon');
