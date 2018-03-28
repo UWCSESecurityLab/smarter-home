@@ -1,9 +1,19 @@
 import React from 'react';
-import { Button, DeviceEventEmitter, StyleSheet, ToolbarAndroid, Text, View } from 'react-native';
+import {
+  Button,
+  DeviceEventEmitter,
+  StyleSheet,
+  ToolbarAndroid, Text, View } from 'react-native';
 import { connect } from 'react-redux';
-import { navigate, Views, updateDeviceDescription, updateDeviceStatus } from '../redux/actions';
+import {
+  navigate,
+  Views,
+  updateDeviceDescription,
+  updateDeviceStatus
+} from '../redux/actions';
 import FCM, { FCMEvent } from 'react-native-fcm';
 import PropTypes from 'prop-types';
+import DeviceListItem from './DeviceListItem';
 import ORIGIN from '../origin';
 
 const BEACON_INSTANCE_ID = 'aabbccddeeff';
@@ -110,50 +120,24 @@ class Home extends React.Component {
 
   renderDoorLocks() {
     return this.props.deviceDescs.doorLock.map((lock) => {
-      let status = this.props.deviceStatus[lock.deviceId];
-      let buttonStyle;
-      if (status && status.components.main.lock.lock.value === 'locked') {
-        buttonStyle = styles.buttonActive;
-      } else {
-        buttonStyle = styles.buttonInactive;
-      }
       return (
-        <View style={styles.device} key={lock.deviceId}>
-          <Text style={styles.deviceName}>{lock.label}</Text>
-          <View style={buttonStyle}>
-            <Text style={styles.status}>
-              { status
-                ? status.components.main.lock.lock.value
-                : 'Unavailable'
-              }
-            </Text>
-          </View>
-        </View>
+        <DeviceListItem
+          key={lock.deviceId}
+          capability={'lock'}
+          activeState={'unlocked'}
+          deviceDesc={lock} />
       );
     });
   }
 
   renderSwitches() {
     return this.props.deviceDescs.switches.map((switch_) => {
-      let status = this.props.deviceStatus[switch_.deviceId];
-      let buttonStyle;
-      if (status && status.components.main.switch.switch.value === 'on') {
-        buttonStyle = styles.buttonActive;
-      } else {
-        buttonStyle = styles.buttonInactive;
-      }
       return (
-        <View style={styles.device} key={switch_.deviceId}>
-          <Text style={styles.deviceName}>{switch_.label}</Text>
-          <View style={buttonStyle}>
-            <Text style={styles.status}>
-              { status
-                ? status.components.main.switch.switch.value
-                : 'Unavailable'
-              }
-            </Text>
-          </View>
-        </View>
+        <DeviceListItem
+          key={switch_.deviceId}
+          capability={'switch'}
+          activeState={'on'}
+          deviceDesc={switch_} />
       );
     });
   }
@@ -161,7 +145,10 @@ class Home extends React.Component {
   render() {
     return (
       <View>
-        <ToolbarAndroid title={'SmarterHome'} titleColor="#ffffff" style={styles.toolbar}/>
+        <ToolbarAndroid
+          title={'SmarterHome'}
+          titleColor="#ffffff"
+          style={styles.toolbar}/>
         {this.renderDoorLocks()}
         {this.renderSwitches()}
         { this.state.notification === ''
@@ -213,44 +200,10 @@ const styles = StyleSheet.create({
     fontSize: 18,
     marginLeft: 20
   },
-  device: {
-    borderBottomColor: '#bbb',
-    borderBottomWidth: StyleSheet.hairlineWidth,
-    paddingVertical: 15,
-    paddingHorizontal: 20,
-    display: 'flex',
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center'
-  },
-  deviceName: {
-    fontSize: 18
-  },
   signout: {
     marginTop: 20,
     marginHorizontal: 40
   },
-  buttonActive: {
-    backgroundColor: '#73C046',
-    borderColor: '#dddddd',
-    borderWidth: 0.5,
-    borderRadius: 4,
-    paddingVertical: 10,
-    paddingHorizontal: 20,
-    width: 130
-  },
-  buttonInactive: {
-    borderColor: '#dddddd',
-    borderWidth: 0.5,
-    borderRadius: 4,
-    paddingVertical: 10,
-    paddingHorizontal: 20,
-    width: 130,
-  },
-  status: {
-    fontSize: 16,
-    textAlign: 'center'
-  }
 });
 
 export default connect(mapStateToProps)(Home);
