@@ -67,7 +67,8 @@ module.exports = {
       return;
     }
 
-    if (deviceEvent.deviceEvent.capability === 'switch') {
+    if (deviceEvent.deviceEvent.capability === 'switch' ||
+        deviceEvent.deviceEvent.capability === 'lock') {
       User.findOne({}, (err, user) => {
         if (err) {
           log.error(err);

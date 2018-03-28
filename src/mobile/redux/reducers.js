@@ -2,7 +2,7 @@ import { NAVIGATE, UPDATE_DEVICE_DESC, UPDATE_DEVICE_STATUS, Views } from './act
 import { combineReducers } from 'redux';
 
 // Defines which screen in the app is being displayed.
-function view(state = Views.HOME, action) {
+function view(state = Views.LOGIN, action) {
   switch (action.type) {
     case NAVIGATE:
       return action.view

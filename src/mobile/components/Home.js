@@ -30,6 +30,7 @@ class Home extends React.Component {
       let data = JSON.parse(notification.smartapp);
       let title = data.capability + ' ' + data.value;
       this.setState({ notification: title });
+      this.updateAllDevices();
     });
 
     DeviceEventEmitter.addListener('eddystoneDidAppear', ({ eddystone, namespace }) => {
@@ -45,6 +46,7 @@ class Home extends React.Component {
         this.setState({ beacon: false });
       }
     });
+
     this.refreshToken()
       .then(this.getDeviceDescriptions)
       .then((response) => response.json())
