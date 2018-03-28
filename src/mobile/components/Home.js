@@ -1,7 +1,7 @@
 import React from 'react';
 import { Button, DeviceEventEmitter, StyleSheet, ToolbarAndroid, Text, View } from 'react-native';
 import { connect } from 'react-redux';
-import { navigate, Views, updateDeviceDescription } from '../redux/actions';
+import { navigate, Views, updateDeviceDescription, updateDeviceStatus } from '../redux/actions';
 import FCM, { FCMEvent } from 'react-native-fcm';
 import PropTypes from 'prop-types';
 import ORIGIN from '../origin';
@@ -12,7 +12,9 @@ class Home extends React.Component {
   constructor(props) {
     super(props);
     this.state = { notification: '', beacon: false, error: '' };
+
     this.signOut = this.signOut.bind(this);
+    this.updateAllDevices = this.updateAllDevices.bind(this);
   }
 
   componentDidMount() {
@@ -44,13 +46,16 @@ class Home extends React.Component {
       }
     });
     this.refreshToken()
-      .then(this.getDeviceDescription)
+      .then(this.getDeviceDescriptions)
       .then((response) => response.json())
       .then((descriptions) => {
         this.props.dispatch(updateDeviceDescription(descriptions))
-      }).catch((err) => {
+      }).then(this.updateAllDevices)
+      .catch((err) => {
+        console.error(err);
         this.setState({ error: err });
       });
+
   }
 
   signOut() {
@@ -60,33 +65,92 @@ class Home extends React.Component {
   sendTokenToServer(token) {
     return fetch(`${ORIGIN}/notificationToken?token=${token}`, {
       method: 'POST',
-      crednetials: 'same-origin'
+      credentials: 'same-origin'
     });
   }
 
-  getDeviceDescription() {
-    return fetch(`${ORIGIN}/dashboard`);
+  getDeviceDescriptions() {
+    return fetch(`${ORIGIN}/deviceDescriptions`, {
+      credentials: 'same-origin'
+    });
+  }
+
+  updateAllDevices() {
+    let statusRequests = [];
+    for (let deviceType in this.props.deviceDescs) {
+      for (let device of this.props.deviceDescs[deviceType]) {
+        statusRequests.push(this.getDeviceStatus(device.deviceId))
+      }
+    }
+
+    Promise.all(statusRequests)
+      .then((responses) => {
+        return Promise.all(responses.map((response) => response.json()))
+      }).then((statuses) => {
+        statuses.forEach((status) => {
+          this.props.dispatch(updateDeviceStatus(status.deviceId, status.status));
+        });
+    });
+  }
+
+  getDeviceStatus(deviceId) {
+    return fetch(
+      `${ORIGIN}/devices/${deviceId}/status`, {
+        credentials: 'same-origin'
+      });
   }
 
   refreshToken() {
-    return fetch(`${ORIGIN}/refresh`);
+    return fetch(`${ORIGIN}/refresh`, {
+      credentials: 'same-origin'
+    });
   }
 
   renderDoorLocks() {
-    return this.props.device_descs.doorLock.map((lock) => {
+    return this.props.deviceDescs.doorLock.map((lock) => {
+      let status = this.props.deviceStatus[lock.deviceId];
+      let buttonStyle;
+      if (status && status.components.main.lock.lock.value === 'locked') {
+        buttonStyle = styles.buttonActive;
+      } else {
+        buttonStyle = styles.buttonInactive;
+      }
       return (
         <View style={styles.device} key={lock.deviceId}>
           <Text style={styles.deviceName}>{lock.label}</Text>
+          <View style={buttonStyle}>
+            <Text style={styles.status}>
+              { status
+                ? status.components.main.lock.lock.value
+                : 'Unavailable'
+              }
+            </Text>
+          </View>
         </View>
       );
     });
   }
 
   renderSwitches() {
-    return this.props.device_descs.switches.map((switch_) => {
+    return this.props.deviceDescs.switches.map((switch_) => {
+      let status = this.props.deviceStatus[switch_.deviceId];
+      let buttonStyle;
+      if (status && status.components.main.switch.switch.value === 'on') {
+        buttonStyle = styles.buttonActive;
+      } else {
+        buttonStyle = styles.buttonInactive;
+      }
       return (
         <View style={styles.device} key={switch_.deviceId}>
           <Text style={styles.deviceName}>{switch_.label}</Text>
+          <View style={buttonStyle}>
+            <Text style={styles.status}>
+              { status
+                ? status.components.main.switch.switch.value
+                : 'Unavailable'
+              }
+            </Text>
+          </View>
         </View>
       );
     });
@@ -109,7 +173,7 @@ class Home extends React.Component {
         </Text>
 
         { this.state.error
-          ? <Text style={{ color: 'red'}}>{this.state.error.toString()}</Text>
+          ? <Text style={{ color: 'red'}}>{this.state.error.stack}</Text>
           : null }
         <View style={styles.signout}>
           <Button title="Sign Out" onPress={this.signOut}/>
@@ -120,13 +184,15 @@ class Home extends React.Component {
 }
 
 Home.propTypes = {
-  device_descs: PropTypes.object,
+  deviceDescs: PropTypes.object,
+  deviceStatus: PropTypes.object,
   dispatch: PropTypes.func
 };
 
 const mapStateToProps = (state) => {
   return {
-    device_descs: state.device_descs
+    deviceDescs: state.deviceDescs,
+    deviceStatus: state.deviceStatus
   }
 };
 
@@ -135,7 +201,6 @@ const styles = StyleSheet.create({
     backgroundColor: '#2196F3',
     height: 56,
     alignSelf: 'stretch',
-    textAlign: 'center'
   },
   notification: {
     marginTop: 20,
@@ -149,18 +214,40 @@ const styles = StyleSheet.create({
   device: {
     borderBottomColor: '#bbb',
     borderBottomWidth: StyleSheet.hairlineWidth,
-    paddingTop: 15,
-    paddingBottom: 15,
-    paddingLeft: 20,
-    paddingRight: 20,
+    paddingVertical: 15,
+    paddingHorizontal: 20,
+    display: 'flex',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center'
   },
   deviceName: {
     fontSize: 18
   },
   signout: {
     marginTop: 20,
-    marginLeft: 40,
-    marginRight: 40
+    marginHorizontal: 40
+  },
+  buttonActive: {
+    backgroundColor: '#73C046',
+    borderColor: '#dddddd',
+    borderWidth: 0.5,
+    borderRadius: 4,
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    width: 130
+  },
+  buttonInactive: {
+    borderColor: '#dddddd',
+    borderWidth: 0.5,
+    borderRadius: 4,
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    width: 130,
+  },
+  status: {
+    fontSize: 16,
+    textAlign: 'center'
   }
 });
 

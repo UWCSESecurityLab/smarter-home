@@ -67,15 +67,14 @@ class SmartThingsClient {
   /**
    * Get device component status.
    * @param {string} params.deviceId
-   * @param {string} params.componentId
    * @param {string} params.authToken
    */
-  static getDeviceComponentStatus(params) {
+  static getDeviceStatus(params) {
     return new Promise((resolve, reject) => {
-      log.green('SmartThings Request', `https://api.smartthings.com/v1/devices/${params.deviceId}/components/${params.componentId}/status`);
+      log.green('SmartThings Request', `https://api.smartthings.com/v1/devices/${params.deviceId}/status`);
       request({
         method: 'GET',
-        url: `https://api.smartthings.com/v1/devices/${params.deviceId}/components/${params.componentId}/status`,
+        url: `https://api.smartthings.com/v1/devices/${params.deviceId}/status`,
         headers: {
           'Authorization': 'Bearer ' + params.authToken
         }
@@ -83,7 +82,6 @@ class SmartThingsClient {
         if (!rejectErrors(err, resp, body, reject)) {
           resolve({
             deviceId: params.deviceId,
-            componentId: params.componentId,
             status: JSON.parse(body)
           });
         }

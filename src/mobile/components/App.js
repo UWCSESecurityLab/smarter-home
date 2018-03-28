@@ -30,7 +30,7 @@ class App extends React.Component {
 }
 
 App.propTypes = {
-  view: PropTypes.oneOf(Views)
+  view: PropTypes.oneOf(Object.keys(Views))
 };
 
 const mapStateToProps = (state) => {

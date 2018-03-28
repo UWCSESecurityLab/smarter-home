@@ -217,7 +217,7 @@ function getDeviceIds(installData, deviceTypes) {
   return ids;
 }
 
-app.get('/dashboard', logEndpoint, (req, res) => {
+app.get('/deviceDescriptions', logEndpoint, ensureLogin('/login'), (req, res) => {
   InstallData.findOne({}, (err, installData) => {
     if (err) {
       res.status(500).json({ message: 'DB_ERROR' });
@@ -235,7 +235,6 @@ app.get('/dashboard', logEndpoint, (req, res) => {
     });
 
     Promise.all(descriptionRequests).then((descriptions) => {
-      console.log(descriptions);
       // Store device descriptions in same structure as installData
       let dashboard = {};
       let installedDevices = installData.installedApp.config;
@@ -254,7 +253,25 @@ app.get('/dashboard', logEndpoint, (req, res) => {
   });
 });
 
-app.get('/refresh', (req, res) => {
+app.get('/devices/:deviceId/status', logEndpoint, (req, res) => {
+  InstallData.findOne({}, (err, installData) => {
+    if (err) {
+      res.status(500).json({ message: 'DB_ERROR' });
+      return;
+    }
+    SmartThingsClient.getDeviceStatus({
+      deviceId: req.params.deviceId,
+      authToken: installData.authToken
+    }).then((status) => {
+      res.json(status);
+    }).catch((err) => {
+      log.error(err);
+      res.status(500).send(err);
+    });
+  });
+});
+
+app.get('/refresh', logEndpoint, ensureLogin('/login'), (req, res) => {
   SmartThingsClient.renewTokens().then((tokens) => {
     res.status(200).json(tokens);
   }).catch((err) => {

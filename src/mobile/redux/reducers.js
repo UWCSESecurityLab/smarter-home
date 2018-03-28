@@ -1,8 +1,8 @@
-import { NAVIGATE, UPDATE_DEVICE_DESC, Views } from './actions';
+import { NAVIGATE, UPDATE_DEVICE_DESC, UPDATE_DEVICE_STATUS, Views } from './actions';
 import { combineReducers } from 'redux';
 
 // Defines which screen in the app is being displayed.
-function view(state = Views.LOGIN, action) {
+function view(state = Views.HOME, action) {
   switch (action.type) {
     case NAVIGATE:
       return action.view
@@ -16,10 +16,19 @@ let initial_device_desc_state = {
   switches: []
 }
 
-function device_descs(state = initial_device_desc_state, action) {
+function deviceDescs(state = initial_device_desc_state, action) {
   switch (action.type) {
     case UPDATE_DEVICE_DESC:
-      return action.desc
+      return action.desc;
+    default:
+      return state;
+  }
+}
+
+function deviceStatus(state = {}, action) {
+  switch (action.type) {
+    case UPDATE_DEVICE_STATUS:
+      return Object.assign({}, state, { [action.id]: action.status });
     default:
       return state;
   }
@@ -27,7 +36,8 @@ function device_descs(state = initial_device_desc_state, action) {
 
 const reducers = combineReducers({
   view: view,
-  device_descs: device_descs
+  deviceDescs: deviceDescs,
+  deviceStatus: deviceStatus
 });
 
 export default reducers;
