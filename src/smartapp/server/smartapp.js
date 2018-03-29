@@ -6,8 +6,8 @@ const httpSignature = require('http-signature');
 const LocalStrategy = require('passport-local').Strategy;
 const mongoose = require('mongoose');
 const passport = require('passport');
-
 const session = require('express-session');
+const MongoStore = require('connect-mongo')(session);
 const SmartThingsClient = require('./SmartThingsClient');
 
 const auth = require('./auth');
@@ -36,7 +36,8 @@ app.use(bodyParser.json());
 app.use(session({
   resave: true,
   saveUninitialized: false,
-  secret: 'cat keyboard'
+  secret: 'cat keyboard',
+  store: new MongoStore({ mongooseConnection: db })
 }));
 app.use(passport.initialize());
 app.use(passport.session());
