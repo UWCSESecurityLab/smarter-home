@@ -23,12 +23,17 @@ class Home extends React.Component {
   constructor(props, context) {
     super(props, context);
     this.state = {
+      fcmToken: null,
       notificationsEnabled: false,
-      notification: null
+      notificationData: null,
+      deviceId: ''
     };
 
     this.enableNotifications = this.enableNotifications.bind(this);
     this.sendTokenToServer = this.sendTokenToServer.bind(this);
+    this.refreshAccessToken = this.refreshAccessToken.bind(this);
+    this.updateDeviceId = this.updateDeviceId.bind(this);
+    this.goToDeviceStatus = this.goToDeviceStatus.bind(this);
   }
 
   componentDidMount() {
@@ -43,13 +48,14 @@ class Home extends React.Component {
     messaging.onMessage((payload) => {
       console.log('notification received');
       console.log(payload);
-      this.setState({ notification: payload });
+      this.setState({ notificationData: payload });
     });
 
     // Check if there's a cached token on load
     messaging.getToken()
       .then((currentToken) => {
         if (currentToken) {
+          this.setState({ fcmToken: currentToken });
           return this.sendTokenToServer(currentToken)
         } else {
           return Promise.reject();
@@ -64,7 +70,7 @@ class Home extends React.Component {
     console.log(token);
     return new Promise((resolve, reject) => {
       xhr.post({
-        url: 'http://localhost:5000/notificationToken?token=' + token
+        url: '/notificationToken?token=' + token
       }, (err, res, body) => {
         if (err) {
           reject(err);
@@ -93,17 +99,102 @@ class Home extends React.Component {
       }).catch(console.error);
   }
 
+  refreshAccessToken() {
+    this.setState({ refreshStatus: 'loading' });
+    xhr.get({
+      url: '/refresh'
+    }, (err, res, body) => {
+      if (err || res.statusCode !== 200) {
+        this.setState({ refreshStatus: 'error' });
+        return;
+      }
+      this.setState({ refreshStatus: 'success'});
+    });
+  }
+
+  updateDeviceId(e) {
+    this.setState({ deviceId: e.target.value });
+  }
+
+  goToDeviceStatus() {
+    if (this.state.deviceId !== '') {
+      window.open(`/devices/${this.state.deviceId}/status`, '_blank');
+    }
+  }
+
   render() {
+    let refreshStatus;
+    if (this.state.refreshStatus === 'loading') {
+      refreshStatus = <span className="spinner" id="spinner" aria-hidden="true"></span>;
+    } else if (this.state.refreshStatus === 'error') {
+      refreshStatus = <span className="x-mark">✗</span>
+    } else if (this.state.refreshStatus === 'success') {
+      refreshStatus = <span className="check-mark">✓</span>
+    } else {
+      refreshStatus = null;
+    }
+
     return (
-      <div>
-        <h2>Home</h2>
-        { this.state.notificationsEnabled
-          ? <p>Notifications enabled!</p>
-          : <button onClick={this.enableNotifications}>Enable notifications</button>
-        }
-        <code>
-          { JSON.stringify(this.state.notification, null, 2) }
-        </code>
+      <div className="container">
+        <section>
+          <h1>SmarterHome Control Panel</h1>
+        </section>
+        <section>
+          <h3>SmartThings Configuration</h3>
+          <div>
+            <button id="refresh" onClick={this.refreshAccessToken}>⟳</button>
+            <span id="refresh-label" >Refresh Access Token</span>
+            {refreshStatus}
+          </div>
+        </section>
+
+        <section>
+          <h3>Firebase Cloud Messaging Configuration</h3>
+          { this.state.notificationsEnabled
+            ? <p><span className="check-mark">✓</span> Notifications enabled!</p>
+            : <button onClick={this.enableNotifications}>Enable notifications</button>
+          }
+          { this.state.fcmToken
+            ? <div>
+                <p>This client's FCM token:</p>
+                <div className="code-container">
+                  <code>{this.state.fcmToken}</code>
+                </div>
+              </div>
+            : null
+          }
+          { this.state.notificationData ?
+            <div>
+              <p>Received notification data:</p>
+              <div className="code-container">
+                <code>
+                  { JSON.stringify(this.state.notificationData, null, 2) }
+                </code>
+              </div>
+            </div>
+            : null
+          }
+        </section>
+        <section>
+          <h3>Endpoints</h3>
+          <ul>
+            <li>
+              <a href="/beacon" target="_blank">/beacon</a> -
+              Beacon Simulator
+            </li>
+            <li>
+              <a href="/deviceDescriptions" target="_blank">/deviceDescriptions</a> -
+              Device Descriptions
+            </li>
+            <li>
+              Device Status - /device/:deviceId/status
+              <br/>
+              <input placeholder="deviceId" value={this.state.deviceId} onChange={this.updateDeviceId}/>
+              <button onClick={this.goToDeviceStatus}>Go</button>
+            </li>
+          </ul>
+
+        </section>
       </div>
     );
   }
