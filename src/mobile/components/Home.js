@@ -13,8 +13,10 @@ import {
 } from '../redux/actions';
 import FCM, { FCMEvent } from 'react-native-fcm';
 import PropTypes from 'prop-types';
-import DeviceListItem from './DeviceListItem';
 import ORIGIN from '../origin';
+import DeviceListItem from './DeviceList/DeviceListItem';
+import SwitchStatus from './DeviceList/SwitchStatus';
+import LockStatus from './DeviceList/LockStatus';
 
 const BEACON_INSTANCE_ID = 'aabbccddeeff';
 
@@ -67,7 +69,6 @@ class Home extends React.Component {
         console.error(err);
         this.setState({ error: err });
       });
-
   }
 
   signOut() {
@@ -121,11 +122,9 @@ class Home extends React.Component {
   renderDoorLocks() {
     return this.props.deviceDescs.doorLock.map((lock) => {
       return (
-        <DeviceListItem
-          key={lock.deviceId}
-          capability={'lock'}
-          activeState={'unlocked'}
-          deviceDesc={lock} />
+        <DeviceListItem key={lock.deviceId} deviceDesc={lock}>
+          <LockStatus deviceDesc={lock}/>
+        </DeviceListItem>
       );
     });
   }
@@ -133,11 +132,9 @@ class Home extends React.Component {
   renderSwitches() {
     return this.props.deviceDescs.switches.map((switch_) => {
       return (
-        <DeviceListItem
-          key={switch_.deviceId}
-          capability={'switch'}
-          activeState={'on'}
-          deviceDesc={switch_} />
+        <DeviceListItem key={switch_.deviceId} deviceDesc={switch_}>
+          <SwitchStatus deviceDesc={switch_}/>
+        </DeviceListItem>
       );
     });
   }
