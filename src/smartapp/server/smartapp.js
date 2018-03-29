@@ -68,9 +68,23 @@ passport.deserializeUser(function(id, done) {
   });
 });
 
+// Middleware that logs when a request is received.
 function logEndpoint(req, res, next) {
   log.magenta('User Request', req.method + ' ' + req.originalUrl);
   next();
+}
+
+// Middleware that attaches a user's SmartThings InstallData to the request.
+function getInstallData(req, res, next) {
+  // TODO: look up actual user's installData once SmartThings OAuth works.
+  InstallData.findOne({}, (err, installData) => {
+    if (err) {
+      res.status(500).json({ message: 'DB_ERROR' });
+      return;
+    }
+    req.installData = installData;
+    next();
+  });
 }
 
 function signatureIsVerified(req) {
@@ -173,14 +187,15 @@ app.get('/home', logEndpoint, ensureLogin('/login'), (req, res) => {
   res.render('home');
 });
 
-app.post('/notificationToken', logEndpoint, ensureLogin('/login'), (req, res) => {
+app.post('/notificationToken',
+         logEndpoint, ensureLogin('/login'), (req, res) => {
   // if (!req.user.notificationTokens.includes(req.query.token)) {
   //   res.status(200).send();
   //   return;
   // }
 
   req.user.notificationToken = req.query.token;
-  req.user.save((err, user) => {
+  req.user.save((err) => {
     if (err) {
       res.status(500).send('Database error: ' + err);
     } else {
@@ -189,21 +204,15 @@ app.post('/notificationToken', logEndpoint, ensureLogin('/login'), (req, res) =>
   });
 });
 
-app.get('/listDevices', logEndpoint, ensureLogin('/login'), (req, res) => {
-  InstallData.findOne({}, (err, installData) => {
-    if (err) {
-      res.status(500).json({ message: 'DB_ERROR' });
-      return;
-    }
-
-    SmartThingsClient.listDevices({
-      authToken: installData.authToken
-    }).then((results) => {
-      res.json(results);
-    }).catch((err) => {
-      log.error(err);
-      res.status(500).json({ message: 'SMARTTHINGS_ERROR' });
-    });
+app.get('/listDevices',
+        logEndpoint, ensureLogin('/login'), getInstallData, (req, res) => {
+  SmartThingsClient.listDevices({
+    authToken: req.installData.authToken
+  }).then((results) => {
+    res.json(results);
+  }).catch((err) => {
+    log.error(err);
+    res.status(500).json({ message: 'SMARTTHINGS_ERROR' });
   });
 });
 
@@ -218,61 +227,52 @@ function getDeviceIds(installData, deviceTypes) {
   return ids;
 }
 
-app.get('/deviceDescriptions', logEndpoint, ensureLogin('/login'), (req, res) => {
-  InstallData.findOne({}, (err, installData) => {
-    if (err) {
-      res.status(500).json({ message: 'DB_ERROR' });
-      return;
-    }
-    const deviceTypes = ['doorLock', 'switches'];
+app.get('/deviceDescriptions',
+        logEndpoint, ensureLogin('/login'), getInstallData, (req, res) => {
+  const deviceTypes = ['doorLock', 'switches'];
 
-    // Fetch device descriptions
-    let deviceIds = getDeviceIds(installData, deviceTypes);
-    let descriptionRequests = deviceIds.map((deviceId) => {
-      return SmartThingsClient.getDeviceDescription({
-        deviceId: deviceId,
-        authToken: installData.authToken
-      });
+  // Fetch device descriptions
+  let deviceIds = getDeviceIds(req.installData, deviceTypes);
+  let descriptionRequests = deviceIds.map((deviceId) => {
+    return SmartThingsClient.getDeviceDescription({
+      deviceId: deviceId,
+      authToken: req.installData.authToken
     });
+  });
 
-    Promise.all(descriptionRequests).then((descriptions) => {
-      // Store device descriptions in same structure as installData
-      let dashboard = {};
-      let installedDevices = installData.installedApp.config;
-      for (let deviceType of deviceTypes) {
-        dashboard[deviceType] = installedDevices[deviceType].map((device) => {
-          return descriptions.find((description) => {
-            return description.deviceId === device.deviceConfig.deviceId;
-          });
+  Promise.all(descriptionRequests).then((descriptions) => {
+    // Store device descriptions in same structure as installData
+    let dashboard = {};
+    let installedDevices = req.installData.installedApp.config;
+    for (let deviceType of deviceTypes) {
+      dashboard[deviceType] = installedDevices[deviceType].map((device) => {
+        return descriptions.find((description) => {
+          return description.deviceId === device.deviceConfig.deviceId;
         });
-      }
-      res.json(dashboard);
-    }).catch((err) => {
-      console.log(err);
-      res.status(500).send(err);
-    });
-  });
-});
-
-app.get('/devices/:deviceId/status', logEndpoint, (req, res) => {
-  InstallData.findOne({}, (err, installData) => {
-    if (err) {
-      res.status(500).json({ message: 'DB_ERROR' });
-      return;
+      });
     }
-    SmartThingsClient.getDeviceStatus({
-      deviceId: req.params.deviceId,
-      authToken: installData.authToken
-    }).then((status) => {
-      res.json(status);
-    }).catch((err) => {
-      log.error(err);
-      res.status(500).send(err);
-    });
+    res.json(dashboard);
+  }).catch((err) => {
+    console.log(err);
+    res.status(500).send(err);
   });
 });
 
-app.get('/refresh', logEndpoint, ensureLogin('/login'), (req, res) => {
+app.get('/devices/:deviceId/status',
+        logEndpoint,ensureLogin('/login'), getInstallData, (req, res) => {
+  SmartThingsClient.getDeviceStatus({
+    deviceId: req.params.deviceId,
+    authToken: req.installData.authToken
+  }).then((status) => {
+    res.json(status);
+  }).catch((err) => {
+    log.error(err);
+    res.status(500).send(err);
+  });
+});
+
+app.get('/refresh', logEndpoint, ensureLogin('/login'),
+        (req, res) => {
   SmartThingsClient.renewTokens().then((tokens) => {
     res.status(200).json(tokens);
   }).catch((err) => {

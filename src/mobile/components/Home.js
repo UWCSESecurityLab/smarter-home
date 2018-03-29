@@ -2,8 +2,11 @@ import React from 'react';
 import {
   Button,
   DeviceEventEmitter,
+  ScrollView,
   StyleSheet,
-  ToolbarAndroid, Text, View } from 'react-native';
+  ToolbarAndroid,
+  Text,
+  View } from 'react-native';
 import { connect } from 'react-redux';
 import {
   navigate,
@@ -146,8 +149,10 @@ class Home extends React.Component {
           title={'SmarterHome'}
           titleColor="#ffffff"
           style={styles.toolbar}/>
-        {this.renderDoorLocks()}
-        {this.renderSwitches()}
+        <ScrollView>
+          {this.renderDoorLocks()}
+          {this.renderSwitches()}
+        </ScrollView>
         { this.state.notification === ''
           ? null
           : <Text style={styles.notification}>

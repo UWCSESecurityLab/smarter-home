@@ -71,7 +71,8 @@ class SmartThingsClient {
    */
   static getDeviceStatus(params) {
     return new Promise((resolve, reject) => {
-      log.green('SmartThings Request', `https://api.smartthings.com/v1/devices/${params.deviceId}/status`);
+      log.green('SmartThings Request',
+        `https://api.smartthings.com/v1/devices/${params.deviceId}/status`);
       request({
         method: 'GET',
         url: `https://api.smartthings.com/v1/devices/${params.deviceId}/status`,
@@ -86,6 +87,33 @@ class SmartThingsClient {
           });
         }
       });
+    });
+  }
+  /**
+   * Execute a command on a device
+   * See https://smartthings.developer.samsung.com/develop/api-ref/st-api.html#operation/executeDeviceCommands
+   * for command format
+   * @param {string} params.deviceId
+   * @param {object} params.command
+   * @param {string} params.authToken
+   */
+  static executeDeviceCommand(params) {
+    return new Promise((resolve, reject) => {
+      log.green('SmartThingsRequest',
+        `https://api.smartthings.com/v1/devices/${params.deviceId}/commands`);
+      request({
+        method: 'POST',
+        url: `https://api.smartthings.com/v1/devices/${params.deviceId}/commands`,
+        header: {
+          'Authorization': 'Bearer ' + params.authToken
+        },
+        json: true,
+        body: [params.command]
+      }, (err, resp, body) => {
+        if (!rejectErrors(err, resp, body, reject)) {
+          resolve(JSON.parse(body));
+        }
+      })
     });
   }
 
