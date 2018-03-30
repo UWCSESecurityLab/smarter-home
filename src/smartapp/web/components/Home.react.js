@@ -24,6 +24,7 @@ class Home extends React.Component {
     super(props, context);
     this.state = {
       fcmToken: null,
+      accessToken: null,
       notificationsEnabled: false,
       notificationData: null,
       deviceId: ''
@@ -108,7 +109,10 @@ class Home extends React.Component {
         this.setState({ refreshStatus: 'error' });
         return;
       }
-      this.setState({ refreshStatus: 'success'});
+      this.setState({
+        refreshStatus: 'success',
+        accessToken: JSON.parse(body).access_token
+      });
     });
   }
 
@@ -145,6 +149,12 @@ class Home extends React.Component {
             <button id="refresh" onClick={this.refreshAccessToken}>⟳</button>
             <span id="refresh-label" >Refresh Access Token</span>
             {refreshStatus}
+            { this.state.accessToken
+              ? <div className="code-container" id="access-token">
+                  <code>{this.state.accessToken}</code>
+                </div>
+              : null
+            }
           </div>
         </section>
 

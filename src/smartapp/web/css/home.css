@@ -62,3 +62,7 @@ section {
   color: rgb(23, 117, 0);
   font-size: 14pt;
 }
+
+#access-token {
+  margin-top: 16px;
+}
