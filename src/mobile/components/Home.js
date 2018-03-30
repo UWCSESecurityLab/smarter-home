@@ -20,6 +20,7 @@ import ORIGIN from '../origin';
 import DeviceListItem from './DeviceList/DeviceListItem';
 import SwitchStatus from './DeviceList/SwitchStatus';
 import LockStatus from './DeviceList/LockStatus';
+import SmartAppClient from '../SmartAppClient';
 
 const BEACON_INSTANCE_ID = 'aabbccddeeff';
 
@@ -95,25 +96,15 @@ class Home extends React.Component {
     let statusRequests = [];
     for (let deviceType in this.props.deviceDescs) {
       for (let device of this.props.deviceDescs[deviceType]) {
-        statusRequests.push(this.getDeviceStatus(device.deviceId))
+        statusRequests.push(SmartAppClient.getDeviceStatus(device.deviceId))
       }
     }
 
-    Promise.all(statusRequests)
-      .then((responses) => {
-        return Promise.all(responses.map((response) => response.json()))
-      }).then((statuses) => {
-        statuses.forEach((status) => {
-          this.props.dispatch(updateDeviceStatus(status.deviceId, status.status));
-        });
-    });
-  }
-
-  getDeviceStatus(deviceId) {
-    return fetch(
-      `${ORIGIN}/devices/${deviceId}/status`, {
-        credentials: 'same-origin'
+    Promise.all(statusRequests) .then((statuses) => {
+      statuses.forEach((status) => {
+        this.props.dispatch(updateDeviceStatus(status.deviceId, status.status));
       });
+    });
   }
 
   refreshToken() {

@@ -3,8 +3,8 @@ import { TouchableHighlight, Text, View } from 'react-native';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import StatusStyles from './StatusStyles';
-import ORIGIN from '../../origin';
 import { updateDeviceStatus } from '../../redux/actions';
+import SmartAppClient from '../../SmartAppClient';
 
 class SwitchStatus extends React.Component {
   constructor(props, context) {
@@ -12,7 +12,7 @@ class SwitchStatus extends React.Component {
     this.toggle = this.toggle.bind(this);
   }
 
-  toggle() {
+  async toggle() {
     const status = this.props.deviceStatus[this.props.deviceDesc.deviceId];
     if (!status) {
       return;
@@ -26,29 +26,26 @@ class SwitchStatus extends React.Component {
       console.error('Invalid state: ' + status.components.main.switch.switch.value);
       return;
     }
-
-    fetch(`${ORIGIN}/devices/${this.props.deviceDesc.deviceId}/commands`, {
-      method: 'POST',
-      headers: {
-        'credentials': 'same-origin',
-        'content-type': 'application/json'
-      },
-      body: JSON.stringify({
-        component: 'main',
-        capability: 'switch',
-        command: command
-      })
-    }).then(() => {
-      fetch(
-        `${ORIGIN}/devices/${this.props.deviceDesc.deviceId}/status`, {
-          credentials: 'same-origin'
-      }).then((response) => response.json())
-      .then((status) => {
-        this.props.dispatch(updateDeviceStatus(status.deviceId, status.status));
+    try {
+      await SmartAppClient.executeDeviceCommand({
+        deviceId: this.props.deviceDesc.deviceId,
+        command: {
+          component: 'main',
+          capability: 'switch',
+          command: command
+        }
       });
-    }).catch((err) => {
-      console.error(err);
-    });
+
+      let newStatus = await SmartAppClient.getDeviceStatus(
+        this.props.deviceDesc.deviceId
+      );
+
+      this.props.dispatch(
+        updateDeviceStatus(newStatus.deviceId, newStatus.status)
+      );
+    } catch(e) {
+      console.error(e.stack);
+    }
   }
 
   render() {
