@@ -47,7 +47,6 @@ passport.use(new LocalStrategy(function(username, password, done) {
     done(null, user);
   }).catch((err) => {
     if (err.message) {
-      console.log(err.message);
       done(null, false, err);
     } else {
       done(err);
@@ -109,7 +108,6 @@ app.post('/', (req, res) => {
     return;
   }
 
-  console.log(JSON.stringify(req.body, null, 2));
 
   if (req.body.lifecycle === 'PING') {
     lifecycle.handlePing(req, res);
@@ -187,6 +185,7 @@ app.get('/home', logEndpoint, ensureLogin('/login'), (req, res) => {
   res.render('home');
 });
 
+// Registers the FCM notification token with the current user.
 app.post('/notificationToken',
          logEndpoint, ensureLogin('/login'), (req, res) => {
   // if (!req.user.notificationTokens.includes(req.query.token)) {
@@ -204,6 +203,7 @@ app.post('/notificationToken',
   });
 });
 
+// Lists all devices in the home.
 app.get('/listDevices',
         logEndpoint, ensureLogin('/login'), getInstallData, (req, res) => {
   SmartThingsClient.listDevices({
@@ -227,6 +227,9 @@ function getDeviceIds(installData, deviceTypes) {
   return ids;
 }
 
+// Get all of the descriptions of devices.
+// Responds with a dictionary of device type -> array of device descriptions
+// in that device type.
 app.get('/deviceDescriptions',
         logEndpoint, ensureLogin('/login'), getInstallData, (req, res) => {
   const deviceTypes = ['doorLock', 'switches'];
@@ -253,13 +256,13 @@ app.get('/deviceDescriptions',
     }
     res.json(dashboard);
   }).catch((err) => {
-    console.log(err);
     res.status(500).send(err);
   });
 });
 
+// Get the status of a device
 app.get('/devices/:deviceId/status',
-        logEndpoint,ensureLogin('/login'), getInstallData, (req, res) => {
+        logEndpoint, ensureLogin('/login'), getInstallData, (req, res) => {
   SmartThingsClient.getDeviceStatus({
     deviceId: req.params.deviceId,
     authToken: req.installData.authToken
@@ -268,6 +271,20 @@ app.get('/devices/:deviceId/status',
   }).catch((err) => {
     log.error(err);
     res.status(500).send(err);
+  });
+});
+
+app.post('/devices/:deviceId/commands',
+         logEndpoint, ensureLogin('/login'), getInstallData, (req, res) => {
+  SmartThingsClient.executeDeviceCommand({
+    deviceId: req.params.deviceId,
+    command: req.body,
+    authToken: req.installData.authToken
+  }).then(() => {
+    res.status(200).send();
+  }).catch((err) => {
+    log.error(err);
+    res.status(500).send(String(err));
   });
 });
 

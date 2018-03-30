@@ -104,14 +104,14 @@ class SmartThingsClient {
       request({
         method: 'POST',
         url: `https://api.smartthings.com/v1/devices/${params.deviceId}/commands`,
-        header: {
-          'Authorization': 'Bearer ' + params.authToken
+        headers: {
+          'Authorization': `Bearer ${params.authToken}`
         },
         json: true,
         body: [params.command]
       }, (err, resp, body) => {
         if (!rejectErrors(err, resp, body, reject)) {
-          resolve(JSON.parse(body));
+          resolve(body);
         }
       })
     });
