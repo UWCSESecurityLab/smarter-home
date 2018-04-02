@@ -16,7 +16,6 @@ import {
 } from '../redux/actions';
 import FCM, { FCMEvent } from 'react-native-fcm';
 import PropTypes from 'prop-types';
-import ORIGIN from '../origin';
 import DeviceListItem from './DeviceList/DeviceListItem';
 import SwitchStatus from './DeviceList/SwitchStatus';
 import LockStatus from './DeviceList/LockStatus';
@@ -39,7 +38,7 @@ class Home extends React.Component {
       .catch(() => console.error('Permissions rejected'));
 
     FCM.getFCMToken()
-      .then(this.sendTokenToServer)
+      .then(SmartAppClient.updateNotificationToken)
       .catch(console.error);
 
     FCM.on(FCMEvent.Notification, async (notification) => {
@@ -63,9 +62,8 @@ class Home extends React.Component {
       }
     });
 
-    this.refreshToken()
-      .then(this.getDeviceDescriptions)
-      .then((response) => response.json())
+    SmartAppClient.refreshAccessToken()
+      .then(SmartAppClient.getDeviceDescriptions)
       .then((descriptions) => {
         this.props.dispatch(updateDeviceDescription(descriptions))
       }).then(this.updateAllDevices)
@@ -77,19 +75,6 @@ class Home extends React.Component {
 
   signOut() {
     this.props.dispatch(navigate(Views.LOGIN));
-  }
-
-  sendTokenToServer(token) {
-    return fetch(`${ORIGIN}/notificationToken?token=${token}`, {
-      method: 'POST',
-      credentials: 'same-origin'
-    });
-  }
-
-  getDeviceDescriptions() {
-    return fetch(`${ORIGIN}/deviceDescriptions`, {
-      credentials: 'same-origin'
-    });
   }
 
   updateAllDevices() {
@@ -104,12 +89,6 @@ class Home extends React.Component {
       statuses.forEach((status) => {
         this.props.dispatch(updateDeviceStatus(status.deviceId, status.status));
       });
-    });
-  }
-
-  refreshToken() {
-    return fetch(`${ORIGIN}/refresh`, {
-      credentials: 'same-origin'
     });
   }
 
