@@ -58,7 +58,7 @@ class SwitchStatus extends React.Component {
     }
     return (
       <TouchableHighlight onPress={this.toggle}>
-        <View style={buttonStyle} onClick={this.toggle}>
+        <View style={buttonStyle}>
           <Text style={StatusStyles.status}>
             { status
               ? status.components.main.switch.switch.value
