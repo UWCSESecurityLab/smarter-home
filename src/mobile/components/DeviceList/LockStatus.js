@@ -3,7 +3,7 @@ import { TouchableHighlight, Text, View } from 'react-native';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import StatusStyles from './StatusStyles';
-import SmartAppClient from '../../SmartAppClient';
+import { SmartAppClient } from 'common';
 import { updateDeviceStatus } from '../../redux/actions';
 
 class LockStatus extends React.Component {

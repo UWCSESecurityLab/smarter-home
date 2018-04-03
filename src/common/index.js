@@ -1,0 +1,1 @@
+export { default as SmartAppClient } from './lib/SmartAppClient';

@@ -1,6 +1,14 @@
 import ORIGIN from './origin';
 
 class SmartAppClient {
+  static login(username, password) {
+    let query = `username=${username}&password=${password}`;
+    return fetch(`${ORIGIN}/login?` + query, {
+      method: 'POST',
+      credentials: 'same-origin'
+    });
+  }
+
   static executeDeviceCommand(params) {
     return fetch(`${ORIGIN}/devices/${params.deviceId}/commands`, {
       method: 'POST',

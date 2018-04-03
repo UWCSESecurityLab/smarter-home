@@ -9,7 +9,7 @@ import {
 import { connect } from 'react-redux';
 import { navigate, Views } from '../redux/actions';
 import PropTypes from 'prop-types';
-import ORIGIN from '../origin';
+import { SmartAppClient } from 'common';
 
 class Login extends React.Component {
   constructor(props) {
@@ -24,23 +24,19 @@ class Login extends React.Component {
 
   login() {
     console.log('login');
-
-    let query = `username=${this.state.username}&password=${this.state.password}`;
-    fetch(`${ORIGIN}/login?` + query, {
-      method: 'POST',
-      credentials: 'same-origin'
-    }).then((response) => {
-      console.log(response);
-      if (!response.ok) {
-        this.setState({ error: 'Invalid username or password'});
-      } else {
-        this.setState({ error: '' });
-        console.log('Success');
-        this.props.dispatch(navigate(Views.HOME));
-      }
-    }).catch(() => {
-      this.setState({ error: 'Couldn\'t reach the Smart Notifications server.' });
-    });
+    SmartAppClient.login(this.state.username, this.state.password)
+      .then((response) => {
+        console.log(response);
+        if (!response.ok) {
+          this.setState({ error: 'Invalid username or password'});
+        } else {
+          this.setState({ error: '' });
+          console.log('Success');
+          this.props.dispatch(navigate(Views.HOME));
+        }
+      }).catch(() => {
+        this.setState({ error: 'Couldn\'t reach the Smart Notifications server.' });
+      });
   }
 
   render() {

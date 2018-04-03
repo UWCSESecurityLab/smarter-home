@@ -4,7 +4,7 @@ import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import StatusStyles from './StatusStyles';
 import { updateDeviceStatus } from '../../redux/actions';
-import SmartAppClient from '../../SmartAppClient';
+import { SmartAppClient } from 'common';
 
 class SwitchStatus extends React.Component {
   constructor(props, context) {

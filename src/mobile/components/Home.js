@@ -20,7 +20,7 @@ import DeviceListItem from './DeviceList/DeviceListItem';
 import SwitchStatus from './DeviceList/SwitchStatus';
 import LockStatus from './DeviceList/LockStatus';
 import ContactSensorStatus from './DeviceList/ContactSensorStatus';
-import SmartAppClient from '../SmartAppClient';
+import { SmartAppClient } from 'common';
 
 const BEACON_INSTANCE_ID = 'aabbccddeeff';
 

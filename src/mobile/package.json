@@ -7,6 +7,7 @@
     "test": "jest"
   },
   "dependencies": {
+    "common": "file:../common",
     "react": "16.2.0",
     "react-native": "^0.53.0",
     "react-native-fcm": "^14.1.0",
