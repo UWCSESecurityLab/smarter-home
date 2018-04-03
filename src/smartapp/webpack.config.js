@@ -1,7 +1,7 @@
 module.exports = {
   entry: {
-    login: './web/login.js',
-    home: './web/home.js',
+    login: ['babel-polyfill', './web/login.js'],
+    home: ['babel-polyfill', './web/home.js'],
     beacon: './web/beacon.js',
   },
   output: {

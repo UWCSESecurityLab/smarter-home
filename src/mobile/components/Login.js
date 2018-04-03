@@ -10,6 +10,9 @@ import { connect } from 'react-redux';
 import { navigate, Views } from '../redux/actions';
 import PropTypes from 'prop-types';
 import { SmartAppClient } from 'common';
+import smartAppHost from '../getSmartAppHost';
+
+let smartAppClient = new SmartAppClient(smartAppHost);
 
 class Login extends React.Component {
   constructor(props) {
@@ -24,7 +27,7 @@ class Login extends React.Component {
 
   login() {
     console.log('login');
-    SmartAppClient.login(this.state.username, this.state.password)
+    smartAppClient.login(this.state.username, this.state.password)
       .then((response) => {
         console.log(response);
         if (!response.ok) {

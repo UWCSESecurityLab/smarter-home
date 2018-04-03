@@ -21,7 +21,9 @@ import SwitchStatus from './DeviceList/SwitchStatus';
 import LockStatus from './DeviceList/LockStatus';
 import ContactSensorStatus from './DeviceList/ContactSensorStatus';
 import { SmartAppClient } from 'common';
+import smartAppHost from '../getSmartAppHost';
 
+const smartAppClient = new SmartAppClient(smartAppHost);
 const BEACON_INSTANCE_ID = 'aabbccddeeff';
 
 class Home extends React.Component {
@@ -39,7 +41,7 @@ class Home extends React.Component {
       .catch(() => console.error('Permissions rejected'));
 
     FCM.getFCMToken()
-      .then(SmartAppClient.updateNotificationToken)
+      .then((token) => smartAppClient.updateNotificationToken(token))
       .catch(console.error);
 
     FCM.on(FCMEvent.Notification, async (notification) => {
@@ -63,8 +65,8 @@ class Home extends React.Component {
       }
     });
 
-    SmartAppClient.refreshAccessToken()
-      .then(SmartAppClient.getDeviceDescriptions)
+    smartAppClient.refreshAccessToken()
+      .then(() => smartAppClient.getDeviceDescriptions())
       .then((descriptions) => {
         this.props.dispatch(updateDeviceDescription(descriptions))
       }).then(this.updateAllDevices)
@@ -82,11 +84,11 @@ class Home extends React.Component {
     let statusRequests = [];
     for (let deviceType in this.props.deviceDescs) {
       for (let device of this.props.deviceDescs[deviceType]) {
-        statusRequests.push(SmartAppClient.getDeviceStatus(device.deviceId))
+        statusRequests.push(smartAppClient.getDeviceStatus(device.deviceId))
       }
     }
 
-    Promise.all(statusRequests) .then((statuses) => {
+    Promise.all(statusRequests).then((statuses) => {
       statuses.forEach((status) => {
         this.props.dispatch(updateDeviceStatus(status.deviceId, status.status));
       });

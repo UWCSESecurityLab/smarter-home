@@ -13,6 +13,7 @@
     "bcrypt": "^1.0.3",
     "body-parser": "^1.18.2",
     "colors": "^1.1.2",
+    "common": "file:../common",
     "connect-ensure-login": "^0.1.1",
     "connect-mongo": "^2.0.1",
     "eddystone-beacon": "git://github.com/don/node-eddystone-beacon.git#673788ec6f51e66861f8f14bda7a181f59ddd8fa",
@@ -35,9 +36,12 @@
   },
   "devDependencies": {
     "babel-core": "^6.26.0",
+    "babel-eslint": "^8.2.2",
     "babel-loader": "^7.1.2",
+    "babel-polyfill": "^6.26.0",
     "babel-preset-env": "^1.6.1",
     "babel-preset-react": "^6.24.1",
+    "eslint": "^4.19.1",
     "eslint-plugin-react": "^7.7.0",
     "webpack": "^3.10.0"
   }

@@ -3,8 +3,11 @@ import { TouchableHighlight, Text, View } from 'react-native';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import StatusStyles from './StatusStyles';
-import { SmartAppClient } from 'common';
 import { updateDeviceStatus } from '../../redux/actions';
+import { SmartAppClient } from 'common';
+import smartAppHost from '../../getSmartAppHost';
+
+let smartAppClient = new SmartAppClient(smartAppHost);
 
 class LockStatus extends React.Component {
   constructor(props, context) {
@@ -28,7 +31,7 @@ class LockStatus extends React.Component {
     }
 
     try {
-      await SmartAppClient.executeDeviceCommand({
+      await smartAppClient.executeDeviceCommand({
         deviceId: this.props.deviceDesc.deviceId,
         command: {
           component: 'main',
@@ -37,7 +40,7 @@ class LockStatus extends React.Component {
         }
       });
 
-      let newStatus = await SmartAppClient.getDeviceStatus(
+      let newStatus = await smartAppClient.getDeviceStatus(
         this.props.deviceDesc.deviceId
       );
 

@@ -5,6 +5,9 @@ import PropTypes from 'prop-types';
 import StatusStyles from './StatusStyles';
 import { updateDeviceStatus } from '../../redux/actions';
 import { SmartAppClient } from 'common';
+import smartAppHost from '../../getSmartAppHost';
+
+let smartAppClient = new SmartAppClient(smartAppHost);
 
 class SwitchStatus extends React.Component {
   constructor(props, context) {
@@ -27,7 +30,7 @@ class SwitchStatus extends React.Component {
       return;
     }
     try {
-      await SmartAppClient.executeDeviceCommand({
+      await smartAppClient.executeDeviceCommand({
         deviceId: this.props.deviceDesc.deviceId,
         command: {
           component: 'main',
@@ -36,7 +39,7 @@ class SwitchStatus extends React.Component {
         }
       });
 
-      let newStatus = await SmartAppClient.getDeviceStatus(
+      let newStatus = await smartAppClient.getDeviceStatus(
         this.props.deviceDesc.deviceId
       );
 

@@ -1,16 +1,18 @@
-import ORIGIN from './origin';
-
 class SmartAppClient {
-  static login(username, password) {
+  constructor(host) {
+    this.host = host;
+  }
+
+  login(username, password) {
     let query = `username=${username}&password=${password}`;
-    return fetch(`${ORIGIN}/login?` + query, {
+    return fetch(`${this.host}/login?` + query, {
       method: 'POST',
       credentials: 'same-origin'
     });
   }
 
-  static executeDeviceCommand(params) {
-    return fetch(`${ORIGIN}/devices/${params.deviceId}/commands`, {
+  executeDeviceCommand(params) {
+    return fetch(`${this.host}/devices/${params.deviceId}/commands`, {
       method: 'POST',
       headers: {
         'content-type': 'application/json'
@@ -20,27 +22,27 @@ class SmartAppClient {
     });
   }
 
-  static getDeviceStatus(deviceId) {
-    return fetch(`${ORIGIN}/devices/${deviceId}/status`, {
+  getDeviceStatus(deviceId) {
+    return fetch(`${this.host}/devices/${deviceId}/status`, {
       credentials: 'same-origin'
     }).then((response) => response.json());
   }
 
-  static getDeviceDescriptions() {
-    return fetch(`${ORIGIN}/deviceDescriptions`, {
+  getDeviceDescriptions() {
+    return fetch(`${this.host}/deviceDescriptions`, {
       credentials: 'same-origin'
     }).then((response) => response.json());
   }
 
-  static updateNotificationToken(token) {
-    return fetch(`${ORIGIN}/notificationToken?token=${token}`, {
+  updateNotificationToken(token) {
+    return fetch(`${this.host}/notificationToken?token=${token}`, {
       method: 'POST',
       credentials: 'same-origin'
     });
   }
 
-  static refreshAccessToken() {
-    return fetch(`${ORIGIN}/refresh`, {
+  refreshAccessToken() {
+    return fetch(`${this.host}/refresh`, {
       credentials: 'same-origin'
     });
   }

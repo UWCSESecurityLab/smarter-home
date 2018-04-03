@@ -1,8 +1,10 @@
 import React from 'react';
 import xhr from 'xhr';
-
+import { SmartAppClient } from 'common';
 import * as firebase from 'firebase/app';
 import 'firebase/messaging';
+
+let smartAppClient = new SmartAppClient('http://localhost:5000');
 
 const config = {
   apiKey: "AIzaSyCmhR4iGFbCSY3JO3UFPwjkZjd16JiNUO8",
@@ -66,22 +68,15 @@ class Home extends React.Component {
       }).catch(() => {});
   }
 
-  sendTokenToServer(token) {
-    console.log('notification token');
-    console.log(token);
-    return new Promise((resolve, reject) => {
-      xhr.post({
-        url: '/notificationToken?token=' + token
-      }, (err, res, body) => {
-        if (err) {
-          reject(err);
-        } else if (res.statusCode !== 200) {
-          reject(body);
-        } else {
-          resolve();
-        }
-      });
-    });
+  async sendTokenToServer(token) {
+    try {
+      let res = await smartAppClient.updateNotificationToken(token);
+      if (res.status !== 200) {
+        throw res.json();
+      }
+    } catch(e) {
+      throw e;
+    }
   }
 
   enableNotifications() {
@@ -96,6 +91,7 @@ class Home extends React.Component {
           return Promise.reject('Permissions not enabled');
         }
       }).then(() => {
+        console.log('token sent to server');
         this.setState({ notificationsEnabled: true });
       }).catch(console.error);
   }

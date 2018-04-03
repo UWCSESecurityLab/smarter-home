@@ -10,6 +10,7 @@
     "common": "file:../common",
     "react": "16.2.0",
     "react-native": "^0.53.0",
+    "react-native-device-info": "^0.21.4",
     "react-native-fcm": "^14.1.0",
     "react-native-kontaktio": "^2.0.4",
     "react-redux": "^5.0.7",

@@ -1,7 +1,5 @@
 {
-  "parserOptions": {
-    "sourceType": "module"
-  },
+  "parser": "babel-eslint",
   "env": {
     "browser": true,
     "node": true
@@ -10,6 +8,9 @@
     "eslint:recommended",
     "plugin:react/recommended"
   ],
+  "parserOptions": {
+    "sourceType": "module"
+  },
   "rules": {
     "no-console": "off"
   }
