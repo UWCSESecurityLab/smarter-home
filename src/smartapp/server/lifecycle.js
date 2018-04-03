@@ -68,7 +68,8 @@ module.exports = {
     }
 
     if (deviceEvent.deviceEvent.capability === 'switch' ||
-        deviceEvent.deviceEvent.capability === 'lock') {
+        deviceEvent.deviceEvent.capability === 'lock' ||
+        deviceEvent.deviceEvent.capability === 'contactSensor') {
       User.findOne({}, (err, user) => {
         if (err) {
           log.error(err);

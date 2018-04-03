@@ -8,4 +8,4 @@ const EMULATOR_ORIGIN = 'http://10.0.2.2:5000'
 // Used for physical phone devices.
 const DEVICE_ORIGIN = 'http://selenium.dyn.cs.washington.edu:5000'
 
-export default EMULATOR_ORIGIN;
+export default DEVICE_ORIGIN;

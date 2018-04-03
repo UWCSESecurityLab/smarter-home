@@ -13,7 +13,8 @@ function view(state = Views.LOGIN, action) {
 
 let initial_device_desc_state = {
   doorLock: [],
-  switches: []
+  switches: [],
+  contactSensors: [],
 }
 
 function deviceDescs(state = initial_device_desc_state, action) {

@@ -19,6 +19,7 @@ import PropTypes from 'prop-types';
 import DeviceListItem from './DeviceList/DeviceListItem';
 import SwitchStatus from './DeviceList/SwitchStatus';
 import LockStatus from './DeviceList/LockStatus';
+import ContactSensorStatus from './DeviceList/ContactSensorStatus';
 import SmartAppClient from '../SmartAppClient';
 
 const BEACON_INSTANCE_ID = 'aabbccddeeff';
@@ -112,6 +113,16 @@ class Home extends React.Component {
     });
   }
 
+  renderContactSensors() {
+    return this.props.deviceDescs.contactSensors.map((contactSensor) => {
+      return (
+        <DeviceListItem key={contactSensor.deviceId} deviceDesc={contactSensor}>
+          <ContactSensorStatus deviceDesc={contactSensor}/>
+        </DeviceListItem>
+      );
+    });
+  }
+
   render() {
     return (
       <View>
@@ -122,6 +133,7 @@ class Home extends React.Component {
         <ScrollView>
           {this.renderDoorLocks()}
           {this.renderSwitches()}
+          {this.renderContactSensors()}
         </ScrollView>
         { this.state.notification === ''
           ? null

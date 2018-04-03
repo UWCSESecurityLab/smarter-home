@@ -102,7 +102,6 @@ function signatureIsVerified(req) {
 
 app.post('/', (req, res) => {
   log.blue('SmartThings Event', req.method + ' ' + req.originalUrl);
-
   if (!req.body) {
     res.status(400).send('Invalid request');
     return;
@@ -120,6 +119,7 @@ app.post('/', (req, res) => {
   //   return;
   // }
 
+  console.log(JSON.stringify(req.body, null, 2));
   switch (req.body.lifecycle) {
     case 'CONFIGURATION':
       lifecycle.handleConfiguration(req, res);
@@ -232,7 +232,7 @@ function getDeviceIds(installData, deviceTypes) {
 // in that device type.
 app.get('/deviceDescriptions',
         logEndpoint, ensureLogin('/login'), getInstallData, (req, res) => {
-  const deviceTypes = ['doorLock', 'switches'];
+  const deviceTypes = ['doorLock', 'switches', 'contactSensors'];
 
   // Fetch device descriptions
   let deviceIds = getDeviceIds(req.installData, deviceTypes);

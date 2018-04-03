@@ -5,21 +5,13 @@ module.exports = {
         name: 'Smart Notifications',
         description: 'Location-aware notifications',
         id: 'app',
-        permissions: [
-          'r:installedapps:*',
-          'l:devices',
-          'r:devices:*',
-          'w:devices:*',
-          'x:devices:*',
-          'r:schedules',
-          'r:locations:*'
-        ],
+        permissions: [],
         firstPageId: 'oauth'
       }
     }
   },
   pages: {
-    'oauth': {
+    oauth: {
       configurationData: {
         page: {
           pageId: 'oauth',
@@ -28,21 +20,21 @@ module.exports = {
           previousPageId: null,
           complete: false,
           sections: [{
-            'name': 'Connect with the Smart Notifications service',
-            'settings': [
+            name: 'Connect with the Smart Notifications service',
+            settings: [
               {
-                'id': 'oauth',
-                'name': 'Log in with your Smart Notifications account',
-                'description': 'Tap here to log in',
-                'type': 'OAUTH',
-                'urlTemplate': 'http://selenium.dyn.cs.washington.edu:5000/login?oauth=true'
+                id: 'oauth',
+                name: 'Log in with your Smart Notifications account',
+                description: 'Tap here to log in',
+                type: 'OAUTH',
+                urlTemplate: 'http://selenium.dyn.cs.washington.edu:5000/login?oauth=true'
               }
             ]
           }]
         }
       }
     },
-    'devices': {
+    devices: {
       configurationData: {
         page: {
           pageId: 'devices',
@@ -52,40 +44,46 @@ module.exports = {
           complete: true,
           sections: [
             {
-              'name': 'Get smart notifications about door locks opening and closing.',
-              'settings': [
+              name: 'Get smart notifications about door locks opening and closing.',
+              settings: [
                 {
-                  'id': 'doorLock',
-                  'name': 'Which door locks?',
-                  'description': 'Tap to set',
-                  'type': 'DEVICE',
-                  'required': false,
-                  'multiple': true,
-                  'capabilities': [
-                    'lock'
-                  ],
-                  'permissions': [
-                    'r', 'x'
-                  ]
+                  id: 'doorLock',
+                  name: 'Which door locks?',
+                  description: 'Tap to set',
+                  type: 'DEVICE',
+                  required: false,
+                  multiple: true,
+                  capabilities: ['lock'],
+                  permissions: ['r', 'x']
                 }
               ]
             },
             {
-              'name': 'Get smart notifications about switches turning on and off.',
-              'settings': [
+              name: 'Get smart notifications about switches turning on and off.',
+              settings: [
                 {
-                  'id': 'switches',
-                  'name': 'Which switches?',
-                  'description': 'Tap to set',
-                  'type': 'DEVICE',
-                  'required': false,
-                  'multiple': true,
-                  'capabilities': [
-                    'switch'
-                  ],
-                  'permissions': [
-                    'r', 'x'
-                  ]
+                  id: 'switches',
+                  name: 'Which switches?',
+                  description: 'Tap to set',
+                  type: 'DEVICE',
+                  required: false,
+                  multiple: true,
+                  capabilities: ['switch'],
+                  permissions: ['r', 'x']
+                }
+              ]
+            },
+            {
+              name: 'Get smart notifications about when your contact sensors open and close.',
+              settings: [
+                {
+                  id: 'contactSensors',
+                  description: 'Tap to set',
+                  type: 'DEVICE',
+                  required: false,
+                  multiple: true,
+                  capabilities: ['contactSensor'],
+                  permissions: ['r', 'x']
                 }
               ]
             }
