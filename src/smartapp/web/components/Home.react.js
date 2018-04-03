@@ -96,20 +96,21 @@ class Home extends React.Component {
       }).catch(console.error);
   }
 
-  refreshAccessToken() {
+  async refreshAccessToken() {
     this.setState({ refreshStatus: 'loading' });
-    xhr.get({
-      url: '/refresh'
-    }, (err, res, body) => {
-      if (err || res.statusCode !== 200) {
-        this.setState({ refreshStatus: 'error' });
-        return;
+    try {
+      let res = await smartAppClient.refreshAccessToken();
+      if (res.status !== 200) {
+        throw res.status;
       }
+      let token = await res.json();
       this.setState({
         refreshStatus: 'success',
-        accessToken: JSON.parse(body).access_token
+        accessToken: token.access_token
       });
-    });
+    } catch (e) {
+      this.setState({ refreshStatus: 'error' });
+    }
   }
 
   updateDeviceId(e) {
