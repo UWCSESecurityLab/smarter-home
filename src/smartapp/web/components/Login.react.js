@@ -115,4 +115,4 @@ Login.propTypes = {
   oauth: PropTypes.bool
 }
 
-module.exports = Login;
+export default Login;

@@ -1,4 +1,5 @@
 const bodyParser = require('body-parser');
+const compression = require('compression');
 const ensureLogin = require('connect-ensure-login').ensureLoggedIn;
 const express = require('express');
 const eddystone = require('eddystone-beacon');
@@ -27,6 +28,7 @@ db.once('open', function() {
 });
 
 let app = express();
+app.use(compression());
 app.set('view engine', 'ejs');
 app.set('views', __dirname + '/../web/views');
 app.use(express.static('dist'));

@@ -117,4 +117,4 @@ class Register extends React.Component {
   }
 }
 
-module.exports = Register;
+export default Register;

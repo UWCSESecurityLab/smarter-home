@@ -1,9 +1,0 @@
-{
-  "presets": ["react",
-    ["env", {
-      "targets": {
-        "browsers": ["since 2015"]
-      }
-    }]
-  ]
-}
