@@ -26,7 +26,6 @@ class Login extends React.Component {
   }
 
   login() {
-    console.log('login');
     smartAppClient.login(this.state.username, this.state.password)
       .then((response) => {
         console.log(response);

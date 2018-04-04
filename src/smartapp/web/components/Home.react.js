@@ -1,5 +1,4 @@
 import React from 'react';
-import xhr from 'xhr';
 import { SmartAppClient } from 'common';
 import * as firebase from 'firebase/app';
 import 'firebase/messaging';

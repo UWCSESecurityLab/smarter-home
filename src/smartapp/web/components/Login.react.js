@@ -1,6 +1,8 @@
 import React from 'react';
-import xhr from 'xhr';
-import qs from 'querystring';
+import PropTypes from 'prop-types';
+import { SmartAppClient } from 'common';
+
+let smartAppClient = new SmartAppClient('http://localhost:5000');
 
 class Login extends React.Component {
   constructor(props, context) {
@@ -21,27 +23,22 @@ class Login extends React.Component {
     e.preventDefault();
     this.setState({ loading: true });
 
-    let query = qs.stringify({
-      username: this.state.username,
-      password: this.state.password,
-      oauth: this.props.oauth
-    });
-
-    xhr.post({
-      url: 'http://localhost:5000/login?' + query
-    }, (err, res, body) => {
-      if (err) {
-        this.setState({ error: 'NETWORK', loading: false});
-        return;
-      }
-      if (res.statusCode === 401) {
-        this.setState({ error: 'BAD_USER_PW', loading: false});
-        return;
-      } else if (res.statusCode === 200) {
-        window.location.href = body;
+    smartAppClient.login(
+      this.state.username,
+      this.state.password,
+      this.props.oauth
+    ).then((response) => {
+      if (response.status === 401) {
+        this.setState({ error: 'BAD_USER_PW', loading: false });
+      } else if (!response.ok) {
+        this.setState({ error: 'UNKNOWN', loading: false });
       } else {
-        this.setState({ error: 'UNKNOWN', loading: false});
+        response.text().then((text) => {
+          window.location.href = text;
+        });
       }
+    }).catch(() => {
+      this.setState({ error: 'NETWORK', loading: false});
     });
   }
 
@@ -112,6 +109,10 @@ class Login extends React.Component {
       </div>
     );
   }
+}
+
+Login.propTypes = {
+  oauth: PropTypes.bool
 }
 
 module.exports = Login;

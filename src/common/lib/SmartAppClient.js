@@ -3,19 +3,42 @@ class SmartAppClient {
     this.host = host;
   }
 
-  login(username, password) {
-    let query = `username=${username}&password=${password}`;
-    return fetch(`${this.host}/login?` + query, {
+  login(username, password, oauth) {
+    return fetch(`${this.host}/login`, {
       method: 'POST',
-      credentials: 'same-origin'
+      credentials: 'same-origin',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        username: username,
+        password: password,
+        oauth: oauth ? 'true' : 'false'
+      })
+    });
+  }
+
+  register(username, password, confirmPassword) {
+    return fetch(`${this.host}/register`, {
+      method: 'POST',
+      credentials: 'same-origin',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        username: username,
+        password: password,
+        confirm: confirmPassword
+      })
     });
   }
 
   executeDeviceCommand(params) {
     return fetch(`${this.host}/devices/${params.deviceId}/commands`, {
       method: 'POST',
+      mode: 'no-cors',
       headers: {
-        'content-type': 'application/json'
+        'Content-Type': 'application/json'
       },
       credentials: 'same-origin',
       body: JSON.stringify(params.command)

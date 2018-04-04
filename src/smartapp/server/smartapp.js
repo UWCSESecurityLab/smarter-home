@@ -150,7 +150,7 @@ app.get('/login', logEndpoint, (req, res) => {
 });
 
 app.post('/login', logEndpoint, passport.authenticate('local'), (req, res) => {
-  if (req.query.oauth == 'true') {
+  if (req.body.oauth == 'true') {
     res.send('https://api.smartthings.com/oauth/callback?token=' + req.user.id);
   } else {
     res.send('/home');
@@ -158,17 +158,19 @@ app.post('/login', logEndpoint, passport.authenticate('local'), (req, res) => {
 });
 
 app.post('/register', logEndpoint, (req, res) => {
-  if (!req.query.username || !req.query.password || !req.query.confirm) {
+  console.log(req.body);
+  console.log(req.headers);
+  if (!req.body.username || !req.body.password || !req.body.confirm) {
     res.status(400).json({ message: 'MISSING_FIELD' });
     return;
   }
 
-  if (req.query.password !== req.query.confirm) {
+  if (req.body.password !== req.body.confirm) {
     res.status(400).json({ message: 'PW_MISMATCH' });
     return;
   }
 
-  auth.createUser(req.query.username, req.query.password).then(() => {
+  auth.createUser(req.body.username, req.body.password).then(() => {
     res.status(200);
     res.send();
   }).catch((err) => {

@@ -1,5 +1,7 @@
 import React from 'react';
-import xhr from 'xhr';
+import { SmartAppClient } from 'common';
+
+let smartAppClient = new SmartAppClient('http://localhost:5000');
 
 class Register extends React.Component {
   constructor(props, context) {
@@ -18,7 +20,7 @@ class Register extends React.Component {
     this.updateConfirmPassword = this.updateConfirmPassword.bind(this);
   }
 
-  register(e) {
+  async register(e) {
     e.preventDefault();
     this.setState({ loading: true });
 
@@ -30,29 +32,33 @@ class Register extends React.Component {
       this.setState({ error: 'PW_TOO_SHORT', loading: false });
     }
 
-    xhr.post({
-      url: `http://localhost:5000/register?username=${this.state.username}&password=${this.state.password}&confirm=${this.state.confirmPassword}`
-    }, (err, resp, body) => {
-      if (err) {
-        this.setState({ error: 'NETWORK', loading: false});
+    try {
+      let res = await smartAppClient.register(
+        this.state.username,
+        this.state.password,
+        this.state.confirmPassword);
+
+      if (res.status === 400) {
+        let body = await res.json();
+        this.setState({ error: body.message, loading: false });
         return;
-      } else if (resp.statusCode === 400) {
-        if (body.message == 'ACCOUNT_EXISTS') {
-          this.setState({ error: 'ACCOUNT_EXISTS', loading: false});
-        }
-      } else if (resp.statusCode == 200) {
-        xhr.post({
-          url: `http://localhost:5000/login?username=${this.state.username}&password=${this.state.password}`
-        }, (err, resp) => {
-          if (err || resp.statusCode !== 200) {
-            this.setState({ error: 'UNKNOWN', loading: false });
-          }
-          window.location.href = '/home';
-        });
+      }
+
+      if (res.status !== 200) {
+        this.setState({ error: 'UNKNOWN', loading: false });
+        return;
+      }
+
+      let login = await smartAppClient.login(
+        this.state.username, this.state.password);
+      if (login.ok) {
+        window.location.href = '/home';
       } else {
         this.setState({ error: 'UNKNOWN', loading: false });
       }
-    });
+    } catch (e) {
+      this.setState({ error: 'NETWORK', loading: false});
+    }
   }
 
   updateUsername(e) {
