@@ -18,9 +18,9 @@ messaging.setBackgroundMessageHandler(function(payload) {
   let message = JSON.parse(payload.data.smartapp);
   console.log('[firebase-messaging-sw.js] Received background message ', payload);
   // Customize notification here
-  const notificationTitle = 'Device ' + message.value;
+  const notificationTitle = message.device + ' ' + message.value;
   const notificationOptions = {
-    body: 'deviceId: ' + message.device,
+    body: 'Smarter Home',
     icon: '/firebase-logo.png'
   };
 

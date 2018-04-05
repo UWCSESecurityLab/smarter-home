@@ -50,7 +50,7 @@ module.exports = {
     res.send();
   },
 
-  handleEvent: function(req, res) {
+  handleEvent: async function(req, res) {
     // if (req.body.eventData.events.find((event) => {
     //   if (!event || !event.timerEvent || !event.timerEvent.name ) {
     //     return false;
@@ -66,27 +66,32 @@ module.exports = {
     if (!deviceEvent) {
       return;
     }
+    let supportedCapabilities = ['switch', 'lock', 'contactSensor'];
+    if (!supportedCapabilities.includes(deviceEvent.deviceEvent.capability)) {
+      return;
+    }
 
-    if (deviceEvent.deviceEvent.capability === 'switch' ||
-        deviceEvent.deviceEvent.capability === 'lock' ||
-        deviceEvent.deviceEvent.capability === 'contactSensor') {
-      User.findOne({}, (err, user) => {
-        if (err) {
-          log.error(err);
-          return;
-        }
+    try {
+      let user = await User.findOne({}).exec();
+      let installData = await InstallData.findOne({}).exec();
 
-        if (!user.notificationToken) {
-          log.error('No notification token found');
-          return;
-        }
+      if (!user.notificationToken) {
+        log.error('No notification token found');
+        return;
+      }
 
-        fcmClient.sendNotification({
-          device: deviceEvent.deviceEvent.deviceId,
-          capability: deviceEvent.deviceEvent.capability,
-          value: deviceEvent.deviceEvent.value
-        }, user.notificationToken);
+      let description = await SmartThingsClient.getDeviceDescription({
+        deviceId: deviceEvent.deviceEvent.deviceId,
+        authToken: installData.authToken
       });
+
+      fcmClient.sendNotification({
+        device: description.label,
+        capability: deviceEvent.deviceEvent.capability,
+        value: deviceEvent.deviceEvent.value
+      }, user.notificationToken);
+    } catch(e) {
+      log.error(e);
     }
   },
 

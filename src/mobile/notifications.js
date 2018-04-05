@@ -26,19 +26,19 @@ DeviceEventEmitter.addListener('eddystoneDidDisappear', ({ eddystone, namespace 
 
 FCM.on(FCMEvent.Notification, async (notification) => {
   console.log('FCMEvent.Notification');
-  if (_beacon) {
+  // if (_beacon) {
     console.log('_beacon is true');
     let data = JSON.parse(notification.smartapp);
-    let title = data.capability + ' ' + data.value;
+    let title = data.device + ' ' + data.value;
 
     FCM.presentLocalNotification({
       id: new Date().valueOf().toString(),
       title: title,
-      body: data.device,
+      body: 'SmarterHome',
       sound: 'default',
       priority: 'low'
     });
-  } else {
-    console.log('_beacon is false');
-  }
+  // } else {
+  //   console.log('_beacon is false');
+  // }
 });
