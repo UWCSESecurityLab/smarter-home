@@ -6,6 +6,8 @@ let initial_device_desc_state = {
   contactSensors: [],
 }
 
+// Export individual reducers because react-native's metro bundler can't
+// bundle external modules in local packages (like redux)
 export function deviceDescs(state = initial_device_desc_state, action) {
   switch (action.type) {
     case Actions.UPDATE_DEVICE_DESC:

@@ -38,7 +38,7 @@ ContactSensorStatus.propTypes = {
 
 function mapStateToProps(state) {
   return {
-    deviceStatus: state.deviceStatus
+    deviceStatus: state.devices.deviceStatus
   }
 }
 

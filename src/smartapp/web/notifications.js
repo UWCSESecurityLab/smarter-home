@@ -81,4 +81,3 @@ messaging.onMessage((payload) => {
 });
 
 updateToken().catch(console.error);
-

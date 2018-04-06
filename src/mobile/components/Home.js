@@ -164,8 +164,8 @@ Home.propTypes = {
 
 const mapStateToProps = (state) => {
   return {
-    deviceDescs: state.deviceDescs,
-    deviceStatus: state.deviceStatus
+    deviceDescs: state.devices.deviceDescs,
+    deviceStatus: state.devices.deviceStatus
   }
 };
 

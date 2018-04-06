@@ -42,7 +42,7 @@ const styles = StyleSheet.create({
 
 const mapStateToProps = (state) => {
   return {
-    deviceStatus: state.deviceStatus
+    deviceStatus: state.devices.deviceStatus
   }
 };
 

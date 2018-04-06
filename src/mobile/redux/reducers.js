@@ -14,11 +14,12 @@ function view(state = Views.LOGIN, action) {
 
 const reducers = combineReducers({
   view: view,
-  deviceDescs: CommonReducers.deviceDescs,
-  deviceStatus: CommonReducers.deviceStatus
+  devices: combineReducers({
+    deviceDescs: CommonReducers.deviceDescs,
+    deviceStatus: CommonReducers.deviceStatus
+  })
 });
 
 const store = createStore(reducers);
 
-export { reducers };
 export { store };

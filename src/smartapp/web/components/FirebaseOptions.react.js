@@ -58,9 +58,9 @@ FirebaseOptions.propTypes = {
 
 function mapStateToProps(state) {
   return {
-    fcmToken: state.fcmToken,
-    notificationsEnabled: state.notificationsEnabled,
-    notificationData: state.notificationData
+    fcmToken: state.fcm.fcmToken,
+    notificationsEnabled: state.fcm.notificationsEnabled,
+    notificationData: state.fcm.notificationData
   };
 }
 

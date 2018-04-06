@@ -1,13 +1,10 @@
 import { combineReducers, createStore } from 'redux';
-import {
-  UPDATE_FCM_TOKEN,
-  UPDATE_NOTIFICATIONS_ENABLED,
-  UPDATE_NOTIFICATION_DATA
-} from './actions';
+import * as Actions from './actions';
+import { CommonReducers } from 'common';
 
 function fcmToken(state = '', action) {
   switch (action.type) {
-    case UPDATE_FCM_TOKEN:
+    case Actions.UPDATE_FCM_TOKEN:
       return action.fcmToken;
     default:
       return state;
@@ -16,7 +13,7 @@ function fcmToken(state = '', action) {
 
 function notificationsEnabled(state = false, action) {
   switch (action.type) {
-    case UPDATE_NOTIFICATIONS_ENABLED:
+    case Actions.UPDATE_NOTIFICATIONS_ENABLED:
       return action.enabled;
     default:
       return state;
@@ -25,20 +22,25 @@ function notificationsEnabled(state = false, action) {
 
 function notificationData(state = null, action) {
   switch (action.type) {
-    case UPDATE_NOTIFICATION_DATA:
+    case Actions.UPDATE_NOTIFICATION_DATA:
       return action.data;
     default:
       return state;
   }
 }
 
-const reducers = combineReducers({
+const fcmReducers = combineReducers({
   fcmToken: fcmToken,
   notificationsEnabled: notificationsEnabled,
   notificationData: notificationData
 });
 
-const store = createStore(reducers);
+const store = createStore(combineReducers({
+  fcm: fcmReducers,
+  devices: combineReducers({
+    deviceDescs: CommonReducers.deviceDescs,
+    deviceStatus: CommonReducers.deviceStatus
+  })
+}));
 
 export { store };
-export { reducers };

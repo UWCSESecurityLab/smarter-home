@@ -4,6 +4,7 @@ import * as notifications from '../notifications';
 import { store } from '../redux/reducers';
 import FirebaseOptions from './FirebaseOptions.react';
 import SmartThingsOptions from './SmartThingsOptions.react';
+import Devices from './Devices.react';
 
 class Home extends React.Component {
   constructor(props, context) {
@@ -39,6 +40,7 @@ class Home extends React.Component {
           <section>
             <h1>SmarterHome Control Panel</h1>
           </section>
+          <Devices/>
           <SmartThingsOptions/>
           <FirebaseOptions/>
           <section>
