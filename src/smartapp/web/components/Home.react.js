@@ -1,7 +1,7 @@
 import React from 'react';
 import { Provider } from 'react-redux'
 import { SmartAppClient } from 'common';
-import * as fcmHelper from '../fcmHelper';
+import * as notifications from '../notifications';
 import { store } from '../redux/reducers';
 import FirebaseOptions from './FirebaseOptions.react';
 
@@ -22,7 +22,7 @@ class Home extends React.Component {
 
   componentDidMount() {
     // Check if there's a cached token on load
-    fcmHelper.updateToken();
+    notifications.updateToken();
   }
 
   async refreshAccessToken() {

@@ -1,7 +1,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
-import * as fcmHelper from '../fcmHelper';
+import * as notifications from '../notifications';
 
 class FirebaseOptions extends React.Component {
   constructor(props, context) {
@@ -10,8 +10,8 @@ class FirebaseOptions extends React.Component {
 
   async enableNotifications() {
     try {
-      await fcmHelper.enableNotifications();
-      await fcmHelper.updateToken();
+      await notifications.enableNotifications();
+      await notifications.updateToken();
     } catch (e) {
       console.error(e);
     }
