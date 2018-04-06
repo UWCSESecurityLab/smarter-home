@@ -1,11 +1,9 @@
 import React from 'react';
 import { Provider } from 'react-redux'
-import { SmartAppClient } from 'common';
 import * as notifications from '../notifications';
 import { store } from '../redux/reducers';
 import FirebaseOptions from './FirebaseOptions.react';
-
-let smartAppClient = new SmartAppClient('http://localhost:5000');
+import SmartThingsOptions from './SmartThingsOptions.react';
 
 class Home extends React.Component {
   constructor(props, context) {
@@ -15,7 +13,6 @@ class Home extends React.Component {
       deviceId: ''
     };
 
-    this.refreshAccessToken = this.refreshAccessToken.bind(this);
     this.updateDeviceId = this.updateDeviceId.bind(this);
     this.goToDeviceStatus = this.goToDeviceStatus.bind(this);
   }
@@ -23,23 +20,6 @@ class Home extends React.Component {
   componentDidMount() {
     // Check if there's a cached token on load
     notifications.updateToken();
-  }
-
-  async refreshAccessToken() {
-    this.setState({ refreshStatus: 'loading' });
-    try {
-      let res = await smartAppClient.refreshAccessToken();
-      if (res.status !== 200) {
-        throw res.status;
-      }
-      let token = await res.json();
-      this.setState({
-        refreshStatus: 'success',
-        accessToken: token.access_token
-      });
-    } catch (e) {
-      this.setState({ refreshStatus: 'error' });
-    }
   }
 
   updateDeviceId(e) {
@@ -53,37 +33,13 @@ class Home extends React.Component {
   }
 
   render() {
-    let refreshStatus;
-    if (this.state.refreshStatus === 'loading') {
-      refreshStatus = <span className="spinner" id="spinner" aria-hidden="true"></span>;
-    } else if (this.state.refreshStatus === 'error') {
-      refreshStatus = <span className="x-mark">✗</span>
-    } else if (this.state.refreshStatus === 'success') {
-      refreshStatus = <span className="check-mark">✓</span>
-    } else {
-      refreshStatus = null;
-    }
-
     return (
       <Provider store={store}>
         <div className="container">
           <section>
             <h1>SmarterHome Control Panel</h1>
           </section>
-          <section>
-            <h3>SmartThings Configuration</h3>
-            <div>
-              <button id="refresh" onClick={this.refreshAccessToken}>⟳</button>
-              <span id="refresh-label" >Refresh Access Token</span>
-              {refreshStatus}
-              { this.state.accessToken
-                ? <div className="code-container" id="access-token">
-                    <code>{this.state.accessToken}</code>
-                  </div>
-                : null
-              }
-            </div>
-          </section>
+          <SmartThingsOptions/>
           <FirebaseOptions/>
           <section>
             <h3>Endpoints</h3>
@@ -103,7 +59,6 @@ class Home extends React.Component {
                 <button onClick={this.goToDeviceStatus}>Go</button>
               </li>
             </ul>
-
           </section>
         </div>
       </Provider>
