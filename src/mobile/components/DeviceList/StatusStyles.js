@@ -6,17 +6,17 @@ const styles = StyleSheet.create({
     borderColor: '#dddddd',
     borderWidth: 0.5,
     borderRadius: 4,
-    paddingVertical: 10,
-    paddingHorizontal: 20,
-    width: 130
+    paddingVertical: 6,
+    paddingHorizontal: 12,
+    width: 110
   },
   buttonInactive: {
     borderColor: '#dddddd',
     borderWidth: 0.5,
     borderRadius: 4,
-    paddingVertical: 10,
-    paddingHorizontal: 20,
-    width: 130,
+    paddingVertical: 6,
+    paddingHorizontal: 8,
+    width: 110,
   },
   status: {
     fontSize: 16,

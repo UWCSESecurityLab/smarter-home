@@ -177,7 +177,8 @@ const styles = StyleSheet.create({
   },
   notification: {
     marginTop: 20,
-    fontSize: 24
+    fontSize: 18,
+    marginLeft: 20
   },
   beacon: {
     marginTop: 20,

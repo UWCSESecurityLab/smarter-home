@@ -28,7 +28,7 @@ const styles = StyleSheet.create({
   device: {
     borderBottomColor: '#bbb',
     borderBottomWidth: StyleSheet.hairlineWidth,
-    paddingVertical: 15,
+    paddingVertical: 10,
     paddingHorizontal: 20,
     display: 'flex',
     flexDirection: 'row',
@@ -36,7 +36,7 @@ const styles = StyleSheet.create({
     alignItems: 'center'
   },
   deviceName: {
-    fontSize: 18
+    fontSize: 16
   }
 });
 
