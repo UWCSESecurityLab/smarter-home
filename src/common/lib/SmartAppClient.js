@@ -36,7 +36,6 @@ class SmartAppClient {
   executeDeviceCommand(params) {
     return fetch(`${this.host}/devices/${params.deviceId}/commands`, {
       method: 'POST',
-      mode: 'no-cors',
       headers: {
         'Content-Type': 'application/json'
       },

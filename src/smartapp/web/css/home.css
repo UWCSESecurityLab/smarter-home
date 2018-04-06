@@ -66,3 +66,27 @@ section {
 #access-token {
   margin-top: 16px;
 }
+
+.device-li {
+  padding: 6px 6px;
+  border-top: 1px solid #EEEEEE;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.device-toggle {
+  font-size: 11pt;
+  padding: 6px 12px;
+  border-radius: 4px;
+  border: none;
+  width: 100px;
+}
+
+.toggle-active {
+  background: #73C046;
+}
+
+.toggle-inactive {
+  background: #dddddd;
+}
