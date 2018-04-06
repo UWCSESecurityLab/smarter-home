@@ -1,5 +1,11 @@
-import { NAVIGATE, UPDATE_DEVICE_DESC, UPDATE_DEVICE_STATUS, Views } from './actions';
-import { combineReducers } from 'redux';
+import {
+  NAVIGATE,
+  UPDATE_DEVICE_DESC,
+  UPDATE_DEVICE_STATUS,
+  Views
+} from './actions';
+
+import { combineReducers, createStore } from 'redux';
 
 // Defines which screen in the app is being displayed.
 function view(state = Views.LOGIN, action) {
@@ -41,4 +47,7 @@ const reducers = combineReducers({
   deviceStatus: deviceStatus
 });
 
-export default reducers;
+const store = createStore(reducers);
+
+export { reducers };
+export { store };
