@@ -46,7 +46,11 @@ class Home extends React.Component {
       let data = JSON.parse(notification.smartapp);
       let title = data.capability + ' ' + data.value;
       this.setState({ notification: title });
-      this.updateAllDevices();
+      smartAppClient.getDeviceStatus(data.deviceId)
+        .then((newStatus) => {
+          this.props.dispatch(
+            CommonActions.updateDeviceStatus(newStatus.deviceId, newStatus.status));
+        });
     });
 
     DeviceEventEmitter.addListener('eddystoneDidAppear', ({ eddystone, namespace }) => {

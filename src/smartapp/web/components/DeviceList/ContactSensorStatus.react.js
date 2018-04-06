@@ -10,6 +10,10 @@ class ContactSensorStatus extends React.Component {
   render() {
     const status = this.props.deviceStatus[this.props.deviceDesc.deviceId];
     let buttonStyle;
+    if (status && !status.components) {
+      console.log(status);
+    }
+
     if (status && status.components.main.contactSensor.contact.value === 'open') {
       buttonStyle = 'toggle-active';
     } else {

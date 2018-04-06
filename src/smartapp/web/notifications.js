@@ -8,7 +8,7 @@ import {
   updateNotificationData
 } from './redux/actions';
 
-import { SmartAppClient } from 'common';
+import { CommonActions, SmartAppClient } from 'common';
 
 // This script initializes Firebase when imported, handles incoming messages,
 // and exposes helper functions for updating the Firebase tokens and enabling
@@ -76,8 +76,13 @@ messaging.onTokenRefresh(() => {
 
 // Handle notifications
 messaging.onMessage((payload) => {
-  console.log(payload);
+  let data = JSON.parse(payload.data.smartapp);
   store.dispatch(updateNotificationData(payload));
+  smartAppClient.getDeviceStatus(data.deviceId)
+    .then((newStatus) => {
+      store.dispatch(
+        CommonActions.updateDeviceStatus(newStatus.deviceId, newStatus.status));
+    });
 });
 
 updateToken().catch(console.error);

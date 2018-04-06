@@ -87,6 +87,7 @@ module.exports = {
 
       fcmClient.sendNotification({
         device: description.label,
+        deviceId: deviceEvent.deviceEvent.deviceId,
         capability: deviceEvent.deviceEvent.capability,
         value: deviceEvent.deviceEvent.value
       }, user.notificationToken);
