@@ -10,9 +10,7 @@ import {
 import { connect } from 'react-redux';
 import {
   navigate,
-  Views,
-  updateDeviceDescription,
-  updateDeviceStatus
+  Views
 } from '../redux/actions';
 import FCM, { FCMEvent } from 'react-native-fcm';
 import PropTypes from 'prop-types';
@@ -20,7 +18,7 @@ import DeviceListItem from './DeviceList/DeviceListItem';
 import SwitchStatus from './DeviceList/SwitchStatus';
 import LockStatus from './DeviceList/LockStatus';
 import ContactSensorStatus from './DeviceList/ContactSensorStatus';
-import { SmartAppClient } from 'common';
+import { CommonActions, SmartAppClient } from 'common';
 import smartAppHost from '../getSmartAppHost';
 
 const smartAppClient = new SmartAppClient(smartAppHost);
@@ -68,7 +66,7 @@ class Home extends React.Component {
     smartAppClient.refreshAccessToken()
       .then(() => smartAppClient.getDeviceDescriptions())
       .then((descriptions) => {
-        this.props.dispatch(updateDeviceDescription(descriptions))
+        this.props.dispatch(CommonActions.updateDeviceDescription(descriptions))
       }).then(this.updateAllDevices)
       .catch((err) => {
         console.error(err);
@@ -90,7 +88,7 @@ class Home extends React.Component {
 
     Promise.all(statusRequests).then((statuses) => {
       statuses.forEach((status) => {
-        this.props.dispatch(updateDeviceStatus(status.deviceId, status.status));
+        this.props.dispatch(CommonActions.updateDeviceStatus(status.deviceId, status.status));
       });
     });
   }

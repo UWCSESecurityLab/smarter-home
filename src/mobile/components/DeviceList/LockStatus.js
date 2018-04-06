@@ -3,8 +3,7 @@ import { TouchableHighlight, Text, View } from 'react-native';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import StatusStyles from './StatusStyles';
-import { updateDeviceStatus } from '../../redux/actions';
-import { SmartAppClient } from 'common';
+import { CommonActions, SmartAppClient } from 'common';
 import smartAppHost from '../../getSmartAppHost';
 
 let smartAppClient = new SmartAppClient(smartAppHost);
@@ -45,7 +44,7 @@ class LockStatus extends React.Component {
       );
 
       this.props.dispatch(
-        updateDeviceStatus(newStatus.deviceId, newStatus.status)
+        CommonActions.updateDeviceStatus(newStatus.deviceId, newStatus.status)
       );
     } catch(e) {
       console.error(e.stack);
