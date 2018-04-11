@@ -8,13 +8,16 @@ const LocalStrategy = require('passport-local').Strategy;
 const mongoose = require('mongoose');
 const passport = require('passport');
 const session = require('express-session');
+const uuid = require('uuid/v4');
+
 const MongoStore = require('connect-mongo')(session);
-const SmartThingsClient = require('./SmartThingsClient');
 
 const auth = require('./auth');
 const InstallData = require('./db/installData');
 const lifecycle = require('./lifecycle');
 const log = require('./log');
+const Room = require('./db/room');
+const SmartThingsClient = require('./SmartThingsClient');
 const User = require('./db/user');
 
 const APP_CONFIG = require('../config/config.json');
@@ -289,6 +292,95 @@ app.post('/devices/:deviceId/commands',
   }).catch((err) => {
     log.error(err);
     res.status(500).send(String(err));
+  });
+});
+
+// Retrieve all of the rooms
+app.get('/rooms',
+         logEndpoint,
+         // ensureLogin('/login'),
+         getInstallData, (req, res) => {
+  Room.find({ installedAppId: req.installData.installedApp.installedAppId })
+    .then((rooms) => {
+      res.status(200).json(rooms);
+    }).catch((err) => {
+      log.error(err);
+      res.status(500).send(err);
+    });
+});
+
+// Generates an eddystone-compatible namespace from uuid-v4.
+function generateEddystoneNamespace(uuidv4) {
+  return uuidv4.slice(0, 8) + uuidv4.slice(24);
+}
+
+// Create a new room
+app.post('/rooms/create',
+         logEndpoint,
+         // ensureLogin('/login'),
+        getInstallData, (req, res) => {
+  const roomId = uuid();
+  const beaconNamespace = generateEddystoneNamespace(roomId);
+  const room = new Room({
+    installedAppId: req.installData.installedApp.installedAppId,
+    roomId: roomId,
+    name: req.body.name,
+    beaconNamespace: beaconNamespace,
+    devices: []
+  });
+
+  room.save().then(() => {
+    res.status(200).json({
+      roomId: roomId,
+      beaconNamespace: beaconNamespace
+    });
+  }).catch((err) => {
+    res.status(500).send(err);
+  });
+});
+
+// Add a device to a room
+app.post('/rooms/:roomId/addDevice',
+         logEndpoint,
+         // ensureLogin('/login'),
+         getInstallData, (req, res) => {
+  if (!req.installData.installedApp.permissions
+        .includes('r:devices:' + req.body.deviceId)) {
+    res.status(400).send('Can\'t find device with id ' + req.body.deviceId);
+    return;
+  }
+
+  Room.findOne({
+    installedAppId: req.installData.installedApp.installedAppId,
+    roomId: req.params.roomId
+  }).then((room) => {
+    console.log(room);
+    room.devices.push(req.body.deviceId);
+    return room.save();
+  }).then(() => {
+    res.status(200).send();
+  }).catch((err) => {
+    console.log(err);
+    res.status(500).send(err);
+  });
+});
+
+// Remove a device from a room
+app.post('/rooms/:roomId/removeDevice',
+         logEndpoint,
+         // ensureLogin('/login'),
+         getInstallData, (req, res) => {
+  Room.findOneAndUpdate({
+    installedAppId: req.installData.installedApp.installedAppId,
+    roomId: req.params.roomId
+  }, {
+    '$pull': { 'devices': req.body.deviceId }
+  }).exec().then((result) => {
+    console.log(result);
+    res.status(200).send();
+  }).catch((err) => {
+    log.error(err);
+    res.status(500).send(err);
   });
 });
 
