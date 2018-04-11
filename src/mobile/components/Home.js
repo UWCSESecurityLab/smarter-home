@@ -20,6 +20,7 @@ import LockStatus from './DeviceList/LockStatus';
 import ContactSensorStatus from './DeviceList/ContactSensorStatus';
 import { CommonActions, SmartAppClient } from 'common';
 import smartAppHost from '../getSmartAppHost';
+import refreshIcon from '../ic_autorenew_white_24dp_2x.png';
 
 const smartAppClient = new SmartAppClient(smartAppHost);
 const BEACON_INSTANCE_ID = 'aabbccddeeff';
@@ -78,6 +79,10 @@ class Home extends React.Component {
       });
   }
 
+  refreshAccessToken() {
+    smartAppClient.refreshAccessToken();
+  }
+
   signOut() {
     this.props.dispatch(navigate(Views.LOGIN));
   }
@@ -133,6 +138,13 @@ class Home extends React.Component {
         <ToolbarAndroid
           title={'SmarterHome'}
           titleColor="#ffffff"
+          actions={[{
+            title: 'Refresh',
+            icon: refreshIcon,
+            show: 'always',
+            showWithText: false
+          }]}
+          onActionSelected={this.refreshAccessToken}
           style={styles.toolbar}/>
         <ScrollView>
           {this.renderDoorLocks()}
