@@ -9,33 +9,51 @@ import SwitchStatus from './DeviceList/SwitchStatus.react';
 
 const smartAppClient = new SmartAppClient('http://localhost:5000');
 
+// Flattens |homeConfig|, an object of arrays, into a single array containing
+// all the deviceIds of the devices in the home.
+function getDeviceIds(homeConfig) {
+  return Object.values(homeConfig).reduce((accumulator, current) => {
+    return accumulator.concat(current)
+  });
+}
+
 class Devices extends React.Component {
   constructor(props, context) {
     super(props, context);
-    this.updateAllDevices = this.updateAllDevices.bind(this);
+    // this.fetchAllDeviceDescriptions = this.fetchAllDeviceDescriptions.bind(this);
+    // this.fetchAllDeviceStatuses = this.fetchAllDeviceStatuses.bind(this);
   }
 
   componentDidMount() {
     smartAppClient.refreshAccessToken()
-      .then(() => smartAppClient.getDeviceDescriptions())
-      .then((descriptions) => {
-        this.props.dispatch(CommonActions.updateDeviceDescription(descriptions))
-      }).then(this.updateAllDevices)
-      .catch((err) => {
+      // Fetch home config
+      .then(() => smartAppClient.getHomeConfig())
+      .then((config) => {
+        console.log(config);
+        this.props.dispatch(CommonActions.updateHomeConfig(config));
+        this.fetchAllDeviceDescriptions(config);
+        this.fetchAllDeviceStatuses(config);
+      }).catch((err) => {
         console.error(err);
         this.setState({ error: err });
       });
   }
 
-  updateAllDevices() {
-    let statusRequests = [];
-    for (let deviceType in this.props.deviceDescs) {
-      for (let device of this.props.deviceDescs[deviceType]) {
-        statusRequests.push(smartAppClient.getDeviceStatus(device.deviceId))
-      }
-    }
+  fetchAllDeviceDescriptions(homeConfig) {
+    Promise.all(getDeviceIds(homeConfig).map((deviceId) => {
+      return smartAppClient.getDeviceDescription(deviceId);
+    })).then((descs) => {
+      console.log(descs);
+      descs.forEach((desc) => {
+        this.props.dispatch(CommonActions.updateDeviceDescription(desc.deviceId, desc));
+      });
+    });
+  }
 
-    Promise.all(statusRequests).then((statuses) => {
+  fetchAllDeviceStatuses(homeConfig) {
+    Promise.all(getDeviceIds(homeConfig).map((deviceId) => {
+      return smartAppClient.getDeviceStatus(deviceId);
+    })).then((statuses) => {
       statuses.forEach((status) => {
         this.props.dispatch(CommonActions.updateDeviceStatus(status.deviceId, status.status));
       });
@@ -43,30 +61,39 @@ class Devices extends React.Component {
   }
 
   renderDoorLocks() {
-    return this.props.deviceDescs.doorLock.map((lock) => {
+    if (!this.props.homeConfig) {
+      return null;
+    }
+    return this.props.homeConfig.doorLocks.map((lock) => {
       return (
-        <DeviceListItem key={lock.deviceId} deviceDesc={lock}>
-          <LockStatus deviceDesc={lock}/>
+        <DeviceListItem key={lock} deviceId={lock}>
+          <LockStatus deviceId={lock}/>
         </DeviceListItem>
       );
     });
   }
 
   renderSwitches() {
-    return this.props.deviceDescs.switches.map((switch_) => {
+    if (!this.props.homeConfig) {
+      return null;
+    }
+    return this.props.homeConfig.switches.map((switch_) => {
       return (
-        <DeviceListItem key={switch_.deviceId} deviceDesc={switch_}>
-          <SwitchStatus deviceDesc={switch_}/>
+        <DeviceListItem key={switch_} deviceId={switch_}>
+          <SwitchStatus deviceId={switch_}/>
         </DeviceListItem>
       );
     });
   }
 
   renderContactSensors() {
-    return this.props.deviceDescs.contactSensors.map((contactSensor) => {
+    if (!this.props.homeConfig) {
+      return null;
+    }
+    return this.props.homeConfig.contactSensors.map((contactSensor) => {
       return (
-        <DeviceListItem key={contactSensor.deviceId} deviceDesc={contactSensor}>
-          <ContactSensorStatus deviceDesc={contactSensor}/>
+        <DeviceListItem key={contactSensor} deviceId={contactSensor}>
+          <ContactSensorStatus deviceId={contactSensor}/>
         </DeviceListItem>
       );
     });
@@ -85,15 +112,17 @@ class Devices extends React.Component {
 }
 
 Devices.propTypes = {
-  deviceDescs: PropTypes.object,
+  deviceDesc: PropTypes.object,
   deviceStatus: PropTypes.object,
-  dispatch: PropTypes.func
+  dispatch: PropTypes.func,
+  homeConfig: PropTypes.object
 }
 
 function mapStateToProps(state) {
   return {
-    deviceDescs: state.devices.deviceDescs,
-    deviceStatus: state.devices.deviceStatus
+    deviceDesc: state.devices.deviceDesc,
+    deviceStatus: state.devices.deviceStatus,
+    homeConfig: state.devices.homeConfig
   };
 }
 export default connect(mapStateToProps)(Devices);

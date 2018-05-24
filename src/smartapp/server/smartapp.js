@@ -223,48 +223,21 @@ app.get('/listDevices',
   });
 });
 
-function getDeviceIds(installData, deviceTypes) {
-  let installedDevices = installData.installedApp.config;
-  let ids = [];
-  for (let deviceType of deviceTypes) {
-    for (let device of installedDevices[deviceType]) {
-      ids.push(device.deviceConfig.deviceId);
-    }
-  }
-  return ids;
-}
-
-// Get all of the descriptions of devices.
-// Responds with a dictionary of device type -> array of device descriptions
-// in that device type.
-app.get('/deviceDescriptions',
+app.get('/homeConfig',
         logEndpoint, ensureLogin('/login'), getInstallData, (req, res) => {
-  const deviceTypes = ['doorLock', 'switches', 'contactSensors'];
+  const deviceTypes = ['doorLocks', 'switches', 'contactSensors'];
 
-  // Fetch device descriptions
-  let deviceIds = getDeviceIds(req.installData, deviceTypes);
-  let descriptionRequests = deviceIds.map((deviceId) => {
-    return SmartThingsClient.getDeviceDescription({
-      deviceId: deviceId,
-      authToken: req.installData.authToken
+  let stConfig = req.installData.installedApp.config;
+  let ourConfig = {};
+
+  // Remove extraneous information from device entries, just preserve the
+  // device ids.
+  for (let deviceType of deviceTypes) {
+    ourConfig[deviceType] = stConfig[deviceType].map((entry) => {
+      return entry.deviceConfig.deviceId;
     });
-  });
-
-  Promise.all(descriptionRequests).then((descriptions) => {
-    // Store device descriptions in same structure as installData
-    let dashboard = {};
-    let installedDevices = req.installData.installedApp.config;
-    for (let deviceType of deviceTypes) {
-      dashboard[deviceType] = installedDevices[deviceType].map((device) => {
-        return descriptions.find((description) => {
-          return description.deviceId === device.deviceConfig.deviceId;
-        });
-      });
-    }
-    res.json(dashboard);
-  }).catch((err) => {
-    res.status(500).send(err);
-  });
+  }
+  res.json(ourConfig);
 });
 
 // Get the status of a device
@@ -277,6 +250,18 @@ app.get('/devices/:deviceId/status',
     res.json(status);
   }).catch((err) => {
     log.error(err);
+    res.status(500).send(err);
+  });
+});
+
+app.get('/devices/:deviceId/description',
+        logEndpoint, ensureLogin('/login'), getInstallData, (req, res) => {
+  SmartThingsClient.getDeviceDescription({
+    deviceId: req.params.deviceId,
+    authToken: req.installData.authToken
+  }).then((description) => {
+    res.json(description);
+  }).catch((err) => {
     res.status(500).send(err);
   });
 });

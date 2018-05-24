@@ -51,8 +51,8 @@ class Home extends React.Component {
                 Beacon Simulator
               </li>
               <li>
-                <a href="/deviceDescriptions" target="_blank">/deviceDescriptions</a> -
-                Device Descriptions
+                <a href="/homeConfig" target="_blank">/homeConfig</a> -
+                Home Configuration
               </li>
               <li>
                 Device Status - /device/:deviceId/status

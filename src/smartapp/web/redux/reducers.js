@@ -38,8 +38,9 @@ const fcmReducers = combineReducers({
 const store = createStore(combineReducers({
   fcm: fcmReducers,
   devices: combineReducers({
-    deviceDescs: CommonReducers.deviceDescs,
-    deviceStatus: CommonReducers.deviceStatus
+    deviceDesc: CommonReducers.deviceDesc,
+    deviceStatus: CommonReducers.deviceStatus,
+    homeConfig: CommonReducers.homeConfig
   })
 }));
 

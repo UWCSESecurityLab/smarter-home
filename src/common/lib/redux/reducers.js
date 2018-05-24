@@ -1,17 +1,27 @@
 import * as Actions from './actions';
 
-let initial_device_desc_state = {
-  doorLock: [],
+let initial_home_config_state = {
+  doorLocks: [],
   switches: [],
   contactSensors: [],
 }
 
 // Export individual reducers because react-native's metro bundler can't
 // bundle external modules in local packages (like redux)
-export function deviceDescs(state = initial_device_desc_state, action) {
+export function homeConfig(state = initial_home_config_state, action) {
+  switch (action.type) {
+    case Actions.UPDATE_HOME_CONFIG:
+      console.log(action);
+      return action.config
+    default:
+      return state;
+  }
+}
+
+export function deviceDesc(state = {}, action) {
   switch (action.type) {
     case Actions.UPDATE_DEVICE_DESC:
-      return action.desc;
+      return Object.assign({}, state, { [action.id]: action.desc });
     default:
       return state;
   }

@@ -47,7 +47,7 @@ module.exports = {
               name: 'Get smart notifications about door locks opening and closing.',
               settings: [
                 {
-                  id: 'doorLock',
+                  id: 'doorLocks',
                   name: 'Which door locks?',
                   description: 'Tap to set',
                   type: 'DEVICE',

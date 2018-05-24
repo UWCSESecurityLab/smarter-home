@@ -50,8 +50,14 @@ class SmartAppClient {
     }).then((response) => response.json());
   }
 
-  getDeviceDescriptions() {
-    return fetch(`${this.host}/deviceDescriptions`, {
+  getHomeConfig() {
+    return fetch(`${this.host}/homeConfig`, {
+      credentials: 'same-origin'
+    }).then((response) => response.json());
+  }
+
+  getDeviceDescription(deviceId) {
+    return fetch(`${this.host}/devices/${deviceId}/description`, {
       credentials: 'same-origin'
     }).then((response) => response.json());
   }
