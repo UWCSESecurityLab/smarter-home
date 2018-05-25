@@ -15,7 +15,7 @@ class LockStatus extends React.Component {
   }
 
   async toggle() {
-    const status = this.props.deviceStatus[this.props.deviceDesc.deviceId];
+    const status = this.props.deviceStatus[this.props.deviceId];
     if (!status) {
       return;
     }
@@ -31,7 +31,7 @@ class LockStatus extends React.Component {
 
     try {
       await smartAppClient.executeDeviceCommand({
-        deviceId: this.props.deviceDesc.deviceId,
+        deviceId: this.props.deviceId,
         command: {
           component: 'main',
           capability: 'lock',
@@ -39,9 +39,7 @@ class LockStatus extends React.Component {
         }
       });
 
-      let newStatus = await smartAppClient.getDeviceStatus(
-        this.props.deviceDesc.deviceId
-      );
+      let newStatus = await smartAppClient.getDeviceStatus(this.props.deviceId);
 
       this.props.dispatch(
         CommonActions.updateDeviceStatus(newStatus.deviceId, newStatus.status)
@@ -52,7 +50,7 @@ class LockStatus extends React.Component {
   }
 
   render() {
-    const status = this.props.deviceStatus[this.props.deviceDesc.deviceId];
+    const status = this.props.deviceStatus[this.props.deviceId];
     let buttonStyle;
     if (status && status.components.main.lock.lock.value === 'unlocked') {
       buttonStyle = StatusStyles.buttonActive;
@@ -75,7 +73,7 @@ class LockStatus extends React.Component {
 }
 
 LockStatus.propTypes = {
-  deviceDesc: PropTypes.object,
+  deviceId: PropTypes.string,
   deviceStatus: PropTypes.object,
   dispatch: PropTypes.func
 }

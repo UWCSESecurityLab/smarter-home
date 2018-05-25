@@ -15,7 +15,7 @@ class SwitchStatus extends React.Component {
   }
 
   async toggle() {
-    const status = this.props.deviceStatus[this.props.deviceDesc.deviceId];
+    const status = this.props.deviceStatus[this.props.deviceId];
     if (!status) {
       return;
     }
@@ -30,7 +30,7 @@ class SwitchStatus extends React.Component {
     }
     try {
       await smartAppClient.executeDeviceCommand({
-        deviceId: this.props.deviceDesc.deviceId,
+        deviceId: this.props.deviceId,
         command: {
           component: 'main',
           capability: 'switch',
@@ -38,9 +38,7 @@ class SwitchStatus extends React.Component {
         }
       });
 
-      let newStatus = await smartAppClient.getDeviceStatus(
-        this.props.deviceDesc.deviceId
-      );
+      let newStatus = await smartAppClient.getDeviceStatus(this.props.deviceId);
 
       this.props.dispatch(
         CommonActions.updateDeviceStatus(newStatus.deviceId, newStatus.status)
@@ -51,7 +49,7 @@ class SwitchStatus extends React.Component {
   }
 
   render() {
-    const status = this.props.deviceStatus[this.props.deviceDesc.deviceId];
+    const status = this.props.deviceStatus[this.props.deviceId];
     let buttonStyle;
     if (status && status.components.main.switch.switch.value === 'on') {
       buttonStyle = StatusStyles.buttonActive;
@@ -74,7 +72,7 @@ class SwitchStatus extends React.Component {
 }
 
 SwitchStatus.propTypes = {
-  deviceDesc: PropTypes.object,
+  deviceId: PropTypes.string,
   deviceStatus: PropTypes.object,
   dispatch: PropTypes.func
 }

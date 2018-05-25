@@ -21,9 +21,17 @@ import ContactSensorStatus from './DeviceList/ContactSensorStatus';
 import { CommonActions, SmartAppClient } from 'common';
 import smartAppHost from '../getSmartAppHost';
 import refreshIcon from '../ic_autorenew_white_24dp_2x.png';
-
+console.log('smartAppHost = ' + smartAppHost);
 const smartAppClient = new SmartAppClient(smartAppHost);
 const BEACON_INSTANCE_ID = 'aabbccddeeff';
+
+// Flattens |homeConfig|, an object of arrays, into a single array containing
+// all the deviceIds of the devices in the home.
+function getDeviceIds(homeConfig) {
+  return Object.values(homeConfig).reduce((accumulator, current) => {
+    return accumulator.concat(current)
+  });
+}
 
 class Home extends React.Component {
   constructor(props) {
@@ -31,7 +39,6 @@ class Home extends React.Component {
     this.state = { notification: '', beacon: false, error: '' };
 
     this.signOut = this.signOut.bind(this);
-    this.updateAllDevices = this.updateAllDevices.bind(this);
   }
 
   componentDidMount() {
@@ -69,33 +76,35 @@ class Home extends React.Component {
     });
 
     smartAppClient.refreshAccessToken()
-      .then(() => smartAppClient.getDeviceDescriptions())
-      .then((descriptions) => {
-        this.props.dispatch(CommonActions.updateDeviceDescription(descriptions))
-      }).then(this.updateAllDevices)
-      .catch((err) => {
+      .then(() => smartAppClient.getHomeConfig())
+      .then((config) => {
+        this.props.dispatch(CommonActions.updateHomeConfig(config));
+        this.fetchAllDeviceDescriptions(config);
+        this.fetchAllDeviceStatuses(config);
+      }).catch((err) => {
         console.error(err);
         this.setState({ error: err });
       });
-  }
-
-  refreshAccessToken() {
-    smartAppClient.refreshAccessToken();
   }
 
   signOut() {
     this.props.dispatch(navigate(Views.LOGIN));
   }
 
-  updateAllDevices() {
-    let statusRequests = [];
-    for (let deviceType in this.props.deviceDescs) {
-      for (let device of this.props.deviceDescs[deviceType]) {
-        statusRequests.push(smartAppClient.getDeviceStatus(device.deviceId))
-      }
-    }
+  fetchAllDeviceDescriptions(homeConfig) {
+    Promise.all(getDeviceIds(homeConfig).map((deviceId) => {
+      return smartAppClient.getDeviceDescription(deviceId);
+    })).then((descs) => {
+      descs.forEach((desc) => {
+        this.props.dispatch(CommonActions.updateDeviceDescription(desc.deviceId, desc));
+      });
+    });
+  }
 
-    Promise.all(statusRequests).then((statuses) => {
+  fetchAllDeviceStatuses(homeConfig) {
+    Promise.all(getDeviceIds(homeConfig).map((deviceId) => {
+      return smartAppClient.getDeviceStatus(deviceId);
+    })).then((statuses) => {
       statuses.forEach((status) => {
         this.props.dispatch(CommonActions.updateDeviceStatus(status.deviceId, status.status));
       });
@@ -103,30 +112,30 @@ class Home extends React.Component {
   }
 
   renderDoorLocks() {
-    return this.props.deviceDescs.doorLock.map((lock) => {
+    return this.props.homeConfig.doorLocks.map((lock) => {
       return (
-        <DeviceListItem key={lock.deviceId} deviceDesc={lock}>
-          <LockStatus deviceDesc={lock}/>
+        <DeviceListItem key={lock} deviceId={lock}>
+          <LockStatus deviceId={lock}/>
         </DeviceListItem>
       );
     });
   }
 
   renderSwitches() {
-    return this.props.deviceDescs.switches.map((switch_) => {
+    return this.props.homeConfig.switches.map((switch_) => {
       return (
-        <DeviceListItem key={switch_.deviceId} deviceDesc={switch_}>
-          <SwitchStatus deviceDesc={switch_}/>
+        <DeviceListItem key={switch_} deviceId={switch_}>
+          <SwitchStatus deviceId={switch_}/>
         </DeviceListItem>
       );
     });
   }
 
   renderContactSensors() {
-    return this.props.deviceDescs.contactSensors.map((contactSensor) => {
+    return this.props.homeConfig.contactSensors.map((contactSensor) => {
       return (
-        <DeviceListItem key={contactSensor.deviceId} deviceDesc={contactSensor}>
-          <ContactSensorStatus deviceDesc={contactSensor}/>
+        <DeviceListItem key={contactSensor} deviceId={contactSensor}>
+          <ContactSensorStatus deviceId={contactSensor}/>
         </DeviceListItem>
       );
     });
@@ -144,13 +153,15 @@ class Home extends React.Component {
             show: 'always',
             showWithText: false
           }]}
-          onActionSelected={this.refreshAccessToken}
+          onActionSelected={smartAppClient.refreshAccessToken}
           style={styles.toolbar}/>
-        <ScrollView>
-          {this.renderDoorLocks()}
-          {this.renderSwitches()}
-          {this.renderContactSensors()}
-        </ScrollView>
+        { this.props.homeConfig
+          ? <ScrollView>
+              {this.renderDoorLocks()}
+              {this.renderSwitches()}
+              {this.renderContactSensors()}
+            </ScrollView>
+          : null }
         { this.state.notification === ''
           ? null
           : <Text style={styles.notification}>
@@ -173,15 +184,17 @@ class Home extends React.Component {
 }
 
 Home.propTypes = {
-  deviceDescs: PropTypes.object,
+  deviceDesc: PropTypes.object,
   deviceStatus: PropTypes.object,
-  dispatch: PropTypes.func
+  dispatch: PropTypes.func,
+  homeConfig: PropTypes.object
 };
 
 const mapStateToProps = (state) => {
   return {
-    deviceDescs: state.devices.deviceDescs,
-    deviceStatus: state.devices.deviceStatus
+    deviceDesc: state.devices.deviceDesc,
+    deviceStatus: state.devices.deviceStatus,
+    homeConfig: state.devices.homeConfig
   }
 };
 

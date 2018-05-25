@@ -15,8 +15,9 @@ function view(state = Views.LOGIN, action) {
 const reducers = combineReducers({
   view: view,
   devices: combineReducers({
-    deviceDescs: CommonReducers.deviceDescs,
-    deviceStatus: CommonReducers.deviceStatus
+    deviceDesc: CommonReducers.deviceDesc,
+    deviceStatus: CommonReducers.deviceStatus,
+    homeConfig: CommonReducers.homeConfig
   })
 });
 

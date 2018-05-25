@@ -10,7 +10,7 @@ class ContactSensorStatus extends React.Component {
   }
 
   render() {
-    const status = this.props.deviceStatus[this.props.deviceDesc.deviceId];
+    const status = this.props.deviceStatus[this.props.deviceId];
     let buttonStyle;
     if (status && status.components.main.contactSensor.contact.value === 'open') {
       buttonStyle = StatusStyles.buttonActive;
@@ -31,7 +31,7 @@ class ContactSensorStatus extends React.Component {
 }
 
 ContactSensorStatus.propTypes = {
-  deviceDesc: PropTypes.object,
+  deviceId: PropTypes.string,
   deviceStatus: PropTypes.object,
   dispatch: PropTypes.func
 }

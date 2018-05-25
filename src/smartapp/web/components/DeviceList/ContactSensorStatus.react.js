@@ -9,7 +9,6 @@ class ContactSensorStatus extends React.Component {
 
   render() {
     const status = this.props.deviceStatus[this.props.deviceId];
-
     let buttonStyle;
     if (status && !status.components) {
       console.log(status);
@@ -19,7 +18,6 @@ class ContactSensorStatus extends React.Component {
     } else {
       buttonStyle = 'toggle-inactive';
     }
-
     return (
       <button className={'device-toggle ' + buttonStyle}>
         <span className="device-status">

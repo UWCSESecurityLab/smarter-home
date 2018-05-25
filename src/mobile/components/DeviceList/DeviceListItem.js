@@ -8,9 +8,14 @@ class DeviceListItem extends React.Component {
     super(props, context);
   }
   render() {
+    let label = ''
+    if (this.props.deviceDesc[this.props.deviceId]) {
+      label = this.props.deviceDesc[this.props.deviceId].label;
+    }
+
     return (
       <View style={styles.device}>
-        <Text style={styles.deviceName}>{this.props.deviceDesc.label}</Text>
+        <Text style={styles.deviceName}>{label}</Text>
         {this.props.children}
       </View>
     );
@@ -20,7 +25,7 @@ class DeviceListItem extends React.Component {
 DeviceListItem.propTypes = {
   children: PropTypes.node,
   deviceDesc: PropTypes.object,   // The SmartThings description for this device
-  deviceStatus: PropTypes.object, // Bound to deviceStatus reducer
+  deviceId: PropTypes.string,
   dispatch: PropTypes.func        // Bound to Redux dispatch function
 }
 
@@ -42,7 +47,7 @@ const styles = StyleSheet.create({
 
 const mapStateToProps = (state) => {
   return {
-    deviceStatus: state.devices.deviceStatus
+    deviceDesc: state.devices.deviceDesc
   }
 };
 

@@ -29,7 +29,6 @@ class Devices extends React.Component {
       // Fetch home config
       .then(() => smartAppClient.getHomeConfig())
       .then((config) => {
-        console.log(config);
         this.props.dispatch(CommonActions.updateHomeConfig(config));
         this.fetchAllDeviceDescriptions(config);
         this.fetchAllDeviceStatuses(config);
@@ -61,9 +60,6 @@ class Devices extends React.Component {
   }
 
   renderDoorLocks() {
-    if (!this.props.homeConfig) {
-      return null;
-    }
     return this.props.homeConfig.doorLocks.map((lock) => {
       return (
         <DeviceListItem key={lock} deviceId={lock}>
@@ -74,9 +70,6 @@ class Devices extends React.Component {
   }
 
   renderSwitches() {
-    if (!this.props.homeConfig) {
-      return null;
-    }
     return this.props.homeConfig.switches.map((switch_) => {
       return (
         <DeviceListItem key={switch_} deviceId={switch_}>
@@ -87,9 +80,6 @@ class Devices extends React.Component {
   }
 
   renderContactSensors() {
-    if (!this.props.homeConfig) {
-      return null;
-    }
     return this.props.homeConfig.contactSensors.map((contactSensor) => {
       return (
         <DeviceListItem key={contactSensor} deviceId={contactSensor}>
@@ -103,9 +93,14 @@ class Devices extends React.Component {
     return (
       <section>
         <h3>My Home</h3>
-        {this.renderDoorLocks()}
-        {this.renderSwitches()}
-        {this.renderContactSensors()}
+        { this.props.homeConfig
+          ? <div>
+              {this.renderDoorLocks()}
+              {this.renderSwitches()}
+              {this.renderContactSensors()}
+            </div>
+          : null
+        }
       </section>
     );
   }
