@@ -20,8 +20,6 @@ function getDeviceIds(homeConfig) {
 class Devices extends React.Component {
   constructor(props, context) {
     super(props, context);
-    // this.fetchAllDeviceDescriptions = this.fetchAllDeviceDescriptions.bind(this);
-    // this.fetchAllDeviceStatuses = this.fetchAllDeviceStatuses.bind(this);
   }
 
   componentDidMount() {
@@ -92,7 +90,10 @@ class Devices extends React.Component {
   render() {
     return (
       <section>
-        <h3>My Home</h3>
+        <div className="devices-header">
+          <h3>My Home</h3>
+          <button className="btn btn-green" id="edit-rooms">Edit Rooms</button>
+        </div>
         { this.props.homeConfig
           ? <div>
               {this.renderDoorLocks()}

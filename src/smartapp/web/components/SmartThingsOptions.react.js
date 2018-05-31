@@ -46,7 +46,7 @@ class SmartThingsOptions extends React.Component {
       <section>
         <h3>SmartThings Configuration</h3>
         <div>
-          <button id="refresh" onClick={this.refreshAccessToken}>⟳</button>
+          <button id="refresh" className="btn btn-green" onClick={this.refreshAccessToken}>⟳</button>
           <span id="refresh-label" >Refresh Access Token</span>
           {refreshStatus}
           { this.state.accessToken

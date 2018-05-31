@@ -39,14 +39,27 @@ section {
   justify-content: center;
 }
 
-#refresh {
+.btn {
   font-size: 12pt;
   color: #fff;
-  background: rgb(64, 158, 64);
   padding: 3px 9px;
   border-radius: 6px;
+}
+
+.btn-green {
+  background: rgb(64, 158, 64);
   border: 1px solid rgb(64, 144, 64);
+}
+.btn-green:hover {
+  background: rgb(71, 175, 71);
+}
+.btn-green:active {
+  background: rgb(40, 99, 40);
+}
+
+#refresh {
   margin-right: 15px;
+  padding: 3px 9px;
 }
 
 #refresh-label {
@@ -65,6 +78,16 @@ section {
 
 #access-token {
   margin-top: 16px;
+}
+
+.devices-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+#edit-rooms {
+  padding: 6px 12px;
 }
 
 .device-li {
