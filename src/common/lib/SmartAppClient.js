@@ -74,6 +74,45 @@ class SmartAppClient {
       credentials: 'same-origin'
     });
   }
+
+  createRoom(name) {
+    return fetch(`${this.host}/rooms/create`, {
+      method: 'POST',
+      credentials: 'same-origin',
+      body: JSON.stringify({ name: name })
+    }).then((response) => { response.json() });
+  }
+
+  deleteRoom(roomId) {
+    return fetch(`${this.host}/rooms/${roomId}/delete`, {
+      method: 'POST',
+      credentials: 'same-origin',
+    }).then((response) => response.json());
+  }
+
+  updateRoomName(roomId, name) {
+    return fetch(`${this.host}/rooms/${roomId}/updateName`, {
+      method: 'POST',
+      credentials: 'same-origin',
+      body: JSON.stringify({ name: name })
+    }).then((response) => { response.json() });
+  }
+
+  addDeviceToRoom(roomId, deviceId) {
+    return fetch(`${this.host}/rooms/${roomId}/addDevice`, {
+      method: 'POST',
+      credentials: 'same-origin',
+      body: { deviceId: deviceId }
+    }).then((response) => response.json());
+  }
+
+  removeDeviceFromRoom(roomId, deviceId) {
+    return fetch(`${this.host}/rooms/${roomId}/removeDevice`, {
+      method: 'POST',
+      credentials: 'same-origin',
+      body: { deviceId: deviceId }
+    }).then((response) => response.json());
+  }
 }
 
 export default SmartAppClient;

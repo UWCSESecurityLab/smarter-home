@@ -283,7 +283,7 @@ app.post('/devices/:deviceId/commands',
 // Retrieve all of the rooms
 app.get('/rooms',
          logEndpoint,
-         // ensureLogin('/login'),
+         ensureLogin('/login'),
          getInstallData, (req, res) => {
   Room.find({ installedAppId: req.installData.installedApp.installedAppId })
     .then((rooms) => {
@@ -302,7 +302,7 @@ function generateEddystoneNamespace(uuidv4) {
 // Create a new room
 app.post('/rooms/create',
          logEndpoint,
-         // ensureLogin('/login'),
+         ensureLogin('/login'),
         getInstallData, (req, res) => {
   const roomId = uuid();
   const beaconNamespace = generateEddystoneNamespace(roomId);
@@ -324,10 +324,41 @@ app.post('/rooms/create',
   });
 });
 
+app.post('/rooms/:roomId/delete',
+         logEndpoint,
+         ensureLogin('/login'),
+         getInstallData, (req, res) => {
+  Room.findOneAndRemove({
+    installedAppId: req.installData.installedApp.installedAppId,
+    roomId: req.params.roomId
+  }).then((room) => {
+    res.status(200).send(room);
+  }).catch((err) => {
+    console.log(err);
+    res.status(500).send();
+  })
+});
+
+app.post('/rooms/:roomId/updateName',
+         logEndpoint,
+         ensureLogin('/login'),
+         getInstallData, (req, res) => {
+  Room.findOneAndUpdate({
+      installedAppId: req.installData.installedApp.installedAppId,
+      roomId: req.params.roomId
+    }, { '$set': { 'name': req.body.name }
+  }).then(() => {
+    res.status(200).send();
+  }).catch((err) => {
+    console.log(err);
+    res.status(500).send();
+  });
+});
+
 // Add a device to a room
 app.post('/rooms/:roomId/addDevice',
          logEndpoint,
-         // ensureLogin('/login'),
+         ensureLogin('/login'),
          getInstallData, (req, res) => {
   if (!req.installData.installedApp.permissions
         .includes('r:devices:' + req.body.deviceId)) {
@@ -353,7 +384,7 @@ app.post('/rooms/:roomId/addDevice',
 // Remove a device from a room
 app.post('/rooms/:roomId/removeDevice',
          logEndpoint,
-         // ensureLogin('/login'),
+         ensureLogin('/login'),
          getInstallData, (req, res) => {
   Room.findOneAndUpdate({
     installedAppId: req.installData.installedApp.installedAppId,

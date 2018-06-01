@@ -40,7 +40,8 @@ const store = createStore(combineReducers({
   devices: combineReducers({
     deviceDesc: CommonReducers.deviceDesc,
     deviceStatus: CommonReducers.deviceStatus,
-    homeConfig: CommonReducers.homeConfig
+    homeConfig: CommonReducers.homeConfig,
+    rooms: CommonReducers.rooms
   })
 }));
 
