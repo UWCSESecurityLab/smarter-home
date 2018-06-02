@@ -33,6 +33,11 @@ section {
   max-width: 800px;
   width: 80%;
 }
+@media (max-width: 800px) {
+  .container {
+    width: 100%;
+  }
+}
 
 #react {
   display: flex;
@@ -91,7 +96,7 @@ section {
 }
 
 .device-li {
-  padding: 6px 6px;
+  padding: 6px 6px 6px 12px;
   border-top: 1px solid #EEEEEE;
   display: flex;
   align-items: center;
@@ -112,4 +117,10 @@ section {
 
 .toggle-inactive {
   background: #dddddd;
+}
+
+.room-label {
+  padding: 10px 8px;
+  border-top: 1px solid #EEEEEE;
+  background-color: #f5f5f5;
 }

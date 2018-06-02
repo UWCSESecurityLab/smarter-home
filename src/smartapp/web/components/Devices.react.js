@@ -24,9 +24,12 @@ class Devices extends React.Component {
 
   componentDidMount() {
     smartAppClient.refreshAccessToken()
-      // Fetch home config
-      .then(() => smartAppClient.getHomeConfig())
-      .then((config) => {
+      .then(() => {
+        // Fetch rooms and homeConfig, in parallel
+        this.fetchRooms();
+        return smartAppClient.getHomeConfig();
+      }).then((config) => {
+        // Once homeConfig has been fetched, fetch device descs and statuses
         this.props.dispatch(CommonActions.updateHomeConfig(config));
         this.fetchAllDeviceDescriptions(config);
         this.fetchAllDeviceStatuses(config);
@@ -40,7 +43,6 @@ class Devices extends React.Component {
     Promise.all(getDeviceIds(homeConfig).map((deviceId) => {
       return smartAppClient.getDeviceDescription(deviceId);
     })).then((descs) => {
-      console.log(descs);
       descs.forEach((desc) => {
         this.props.dispatch(CommonActions.updateDeviceDescription(desc.deviceId, desc));
       });
@@ -57,34 +59,64 @@ class Devices extends React.Component {
     });
   }
 
-  renderDoorLocks() {
-    return this.props.homeConfig.doorLocks.map((lock) => {
-      return (
-        <DeviceListItem key={lock} deviceId={lock}>
-          <LockStatus deviceId={lock}/>
-        </DeviceListItem>
-      );
+  fetchRooms() {
+    smartAppClient.getRooms().then((rooms) => {
+      this.props.dispatch(CommonActions.addRooms(rooms.map((room) => {
+         return { [room.roomId]: room }
+      })));
     });
   }
 
-  renderSwitches() {
-    return this.props.homeConfig.switches.map((switch_) => {
-      return (
-        <DeviceListItem key={switch_} deviceId={switch_}>
-          <SwitchStatus deviceId={switch_}/>
-        </DeviceListItem>
-      );
-    });
+  renderDevice(deviceId) {
+    let status = null;
+    if (this.props.homeConfig.contactSensors.includes(deviceId)) {
+      status = <ContactSensorStatus deviceId={deviceId}/>
+    } else if (this.props.homeConfig.switches.includes(deviceId)) {
+      status = <SwitchStatus deviceId={deviceId}/>
+    } else if (this.props.homeConfig.doorLocks.includes(deviceId)) {
+      status = <LockStatus deviceId={deviceId}/>
+    }
+
+    return (
+      <DeviceListItem key={deviceId} deviceId={deviceId}>
+        {status}
+      </DeviceListItem>
+    );
   }
 
-  renderContactSensors() {
-    return this.props.homeConfig.contactSensors.map((contactSensor) => {
-      return (
-        <DeviceListItem key={contactSensor} deviceId={contactSensor}>
-          <ContactSensorStatus deviceId={contactSensor}/>
-        </DeviceListItem>
-      );
+  renderRoom(room) {
+    let devices = room.devices.map((deviceId) => {
+      return this.renderDevice(deviceId);
     });
+
+    return (
+      <div>
+        <div className="room-label" key={room.roomId}>{room.name}</div>
+        {devices}
+      </div>
+    );
+  }
+
+  renderAllDevices() {
+    let rooms = Object.values(this.props.rooms).map((room) => this.renderRoom(room));
+    let devicesInRooms = Object.values(this.props.rooms).length > 0
+      ? Object.values(this.props.rooms)
+          .map((room) => room.devices)
+          .reduce((accumulator, devices) => accumulator.concat(devices))
+      : [];
+
+    let allDevices = getDeviceIds(this.props.homeConfig);
+    let unorganizedDevices = allDevices.filter((deviceId) => {
+      return !devicesInRooms.includes(deviceId);
+    });
+    rooms.push(this.renderRoom({
+      name: 'Unorganized Devices',
+      devices: unorganizedDevices,
+      roomId: 'Unorganized'
+    }));
+    return (
+      <div>{rooms}</div>
+    )
   }
 
   render() {
@@ -94,12 +126,8 @@ class Devices extends React.Component {
           <h3>My Home</h3>
           <button className="btn btn-green" id="edit-rooms">Edit Rooms</button>
         </div>
-        { this.props.homeConfig
-          ? <div>
-              {this.renderDoorLocks()}
-              {this.renderSwitches()}
-              {this.renderContactSensors()}
-            </div>
+        { Object.keys(this.props.homeConfig).length > 0
+          ? this.renderAllDevices()
           : null
         }
       </section>
@@ -111,14 +139,16 @@ Devices.propTypes = {
   deviceDesc: PropTypes.object,
   deviceStatus: PropTypes.object,
   dispatch: PropTypes.func,
-  homeConfig: PropTypes.object
+  homeConfig: PropTypes.object,
+  rooms: PropTypes.object
 }
 
 function mapStateToProps(state) {
   return {
     deviceDesc: state.devices.deviceDesc,
     deviceStatus: state.devices.deviceStatus,
-    homeConfig: state.devices.homeConfig
+    homeConfig: state.devices.homeConfig,
+    rooms: state.devices.rooms,
   };
 }
 export default connect(mapStateToProps)(Devices);

@@ -37,10 +37,19 @@ export function deviceStatus(state = {}, action) {
 
 export function rooms(state = {}, action) {
   switch (action.type) {
+    case Actions.ADD_ROOMS: {
+      return Object.assign({}, state, ...action.rooms);
+    }
+    case Actions.REMOVE_ROOM: {
+      let newState = Object.assign({}, state);
+      delete newState[action.roomId];
+      return newState;
+    }
     case Actions.UPDATE_ROOM_NAME: {
       return Object.assign({}, state, {
         [action.roomId]: Object.assign({}, state[action.roomId], {
           name: action.name,
+          // need to deep copy devices array even if not modifying
           devices: state[action.roomId].devices.slice()
         })
       });

@@ -75,12 +75,18 @@ class SmartAppClient {
     });
   }
 
+  getRooms() {
+    return fetch(`${this.host}/rooms`, {
+      credentials: 'same-origin'
+    }).then((response) => response.json());
+  }
+
   createRoom(name) {
     return fetch(`${this.host}/rooms/create`, {
       method: 'POST',
       credentials: 'same-origin',
       body: JSON.stringify({ name: name })
-    }).then((response) => { response.json() });
+    }).then((response) => response.json());
   }
 
   deleteRoom(roomId) {
@@ -95,7 +101,7 @@ class SmartAppClient {
       method: 'POST',
       credentials: 'same-origin',
       body: JSON.stringify({ name: name })
-    }).then((response) => { response.json() });
+    }).then((response) => response.json());
   }
 
   addDeviceToRoom(roomId, deviceId) {
