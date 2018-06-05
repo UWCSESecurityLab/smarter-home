@@ -28,12 +28,19 @@ export function updateRoomName(roomId, name) {
   return { type: UPDATE_ROOM_NAME, roomId: roomId, name: name };
 }
 
-export const ADD_DEVICE_TO_ROOM = 'ADD_DEVICE_TO_ROOM';
-export function addDeviceToRoom(roomId, deviceId) {
-  return { type: ADD_DEVICE_TO_ROOM, roomId: roomId, deviceId: deviceId };
+export const REORDER_DEVICE_IN_ROOM = 'REORDER_DEVICE_IN_ROOM';
+export function reorderDeviceInRoom(roomId, startIndex, endIndex) {
+  return { type: REORDER_DEVICE_IN_ROOM, roomId: roomId, startIndex: endIndex };
 }
 
-export const REMOVE_DEVICE_FROM_ROOM = 'UPDATE_ROOM_DEVICES';
-export function removeDeviceFromRoom(roomId, deviceId) {
-  return { type: REMOVE_DEVICE_FROM_ROOM, roomId: roomId, deviceId: deviceId };
+export const MOVE_DEVICE_BETWEEN_ROOMS = 'MOVE_DEVICE_BETWEEN_ROOMS';
+export function moveDeviceBetweenRooms(
+    srcRoomId, destRoomId, srcIndex, destIndex) {
+  return {
+    type: MOVE_DEVICE_BETWEEN_ROOMS,
+    srcRoomId: srcRoomId,
+    destRoomId: destRoomId,
+    srcIndex: srcIndex,
+    destIndex: destIndex
+  };
 }

@@ -54,27 +54,24 @@ export function rooms(state = {}, action) {
         })
       });
     }
-    case Actions.ADD_DEVICE_TO_ROOM: {
-      let devicesClone = state[action.roomId].devices.slice();
-      if (!devicesClone.includes(action.deviceId)) {
-        devicesClone.push(action.deviceId);
-      }
+    case Actions.REORDER_DEVICE_IN_ROOM: {
+      const devicesClone = Array.from(state[action.roomId].devices);
+      const [removed] = devicesClone.splice(action.startIndex, 1);
+      devicesClone.splice(action.endIndex, 0, removed);
       return Object.assign({}, state, {
         [action.roomId]: Object.assign({}, state[action.roomId], {
           devices: devicesClone
         })
       });
     }
-    case Actions.REMOVE_DEVICE_FROM_ROOM: {
-      let devicesClone = state[action.roomId].devices.slice();
-      let index = devicesClone.indexOf(action.deviceId);
-      if (index !== 0) {
-        devicesClone[action.id].devices.splice(index, 1);
-      }
+    case Actions.MOVE_DEVICE_BETWEEN_ROOMS: {
+      const srcClone = Array.from(state[action.srcRoomId].devices);
+      const destClone = Array.from(state[action.destRoomId].devices);
+      const [removed] = srcClone.splice(action.srcIndex, 1);
+      destClone.splice(action.destIndex, 0, removed);
       return Object.assign({}, state, {
-        [action.roomId]: Object.assign({}, state[action.roomId], {
-          devices: devicesClone
-        })
+        [action.srcRoomId]: Object.assign({}, state[action.srcRoomId], { devices: srcClone }),
+        [action.destRoomId]: Object.assign({}, state[action.destRoomId], { devices: destClone })
       });
     }
     default:

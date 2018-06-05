@@ -1,6 +1,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
+import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import { CommonActions, SmartAppClient } from 'common';
 import ContactSensorStatus from './DeviceList/ContactSensorStatus.react';
 import DeviceListItem from './DeviceList/DeviceListItem.react';
@@ -67,7 +68,26 @@ class Devices extends React.Component {
     });
   }
 
-  renderDevice(deviceId) {
+  onDragEnd(result) {
+    let {src, dest} = result;
+    if (!dest) {
+      return;
+    }
+    if (src.droppableId === dest.droppableId) {
+      CommonActions.reorderDeviceInRoom(src.droppableId, src.index, dest.index);
+      // TODO: remote reorder
+    } else {
+      CommonActions.moveDeviceBetweenRooms(
+        src.droppableId,
+        dest.droppableId,
+        src.index,
+        dest.index
+      );
+      // TODO: remote move
+    }
+  }
+
+  renderDevice(deviceId, index) {
     let status = null;
     if (this.props.homeConfig.contactSensors.includes(deviceId)) {
       status = <ContactSensorStatus deviceId={deviceId}/>
@@ -78,22 +98,35 @@ class Devices extends React.Component {
     }
 
     return (
-      <DeviceListItem key={deviceId} deviceId={deviceId}>
-        {status}
-      </DeviceListItem>
+      <Draggable draggableId={deviceId} index={index} key={deviceId}>
+        {(provided, snapshot) => (
+          <div ref={provided.innerRef}
+            {...provided.draggableProps}
+            {...provided.dragHandleProps}>
+            <DeviceListItem deviceId={deviceId}>
+            {status}
+            </DeviceListItem>
+          </div>
+        )}
+      </Draggable>
     );
   }
 
   renderRoom(room) {
-    let devices = room.devices.map((deviceId) => {
-      return this.renderDevice(deviceId);
+    let devices = room.devices.map((deviceId, index) => {
+      return this.renderDevice(deviceId, index);
     });
 
     return (
-      <div>
-        <div className="room-label" key={room.roomId}>{room.name}</div>
-        {devices}
-      </div>
+      <Droppable droppableId={room.roomId} key={room.roomId}>
+        {(provided, snapshot) => (
+          <div ref={provided.innerRef} {...provided.droppableProps}>
+            <div className="room-label">{room.name}</div>
+            {devices}
+            {provided.placeholder}
+          </div>
+        )}
+      </Droppable>
     );
   }
 
@@ -121,16 +154,18 @@ class Devices extends React.Component {
 
   render() {
     return (
-      <section>
-        <div className="devices-header">
-          <h3>My Home</h3>
-          <button className="btn btn-green" id="edit-rooms">Edit Rooms</button>
-        </div>
-        { Object.keys(this.props.homeConfig).length > 0
-          ? this.renderAllDevices()
-          : null
-        }
-      </section>
+      <DragDropContext>
+        <section>
+          <div className="devices-header">
+            <h3>My Home</h3>
+            <button className="btn btn-green" id="edit-rooms">Edit Rooms</button>
+          </div>
+          { Object.keys(this.props.homeConfig).length > 0
+            ? this.renderAllDevices()
+            : null
+          }
+        </section>
+      </DragDropContext>
     );
   }
 }
