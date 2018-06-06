@@ -30,7 +30,11 @@ export function updateRoomName(roomId, name) {
 
 export const REORDER_DEVICE_IN_ROOM = 'REORDER_DEVICE_IN_ROOM';
 export function reorderDeviceInRoom(roomId, startIndex, endIndex) {
-  return { type: REORDER_DEVICE_IN_ROOM, roomId: roomId, startIndex: endIndex };
+  return {
+    type: REORDER_DEVICE_IN_ROOM,
+    roomId: roomId,
+    startIndex: startIndex,
+    endIndex: endIndex };
 }
 
 export const MOVE_DEVICE_BETWEEN_ROOMS = 'MOVE_DEVICE_BETWEEN_ROOMS';

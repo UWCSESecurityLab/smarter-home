@@ -3,7 +3,9 @@ const fcmClient = require('./fcmClient');
 const InstallData = require('./db/installData');
 const log = require('./log');
 const SmartThingsClient = require('./SmartThingsClient');
+const Room = require('./db/room');
 const User = require('./db/user');
+const uuid = require('uuid/v4');
 
 module.exports = {
   handleConfiguration: function(req, res) {
@@ -26,6 +28,7 @@ module.exports = {
       //     authToken: data.authToken
       //   });
       // })
+      .then(() => createFirstRoom(req.body.installData))
       .then(() => {
         log.log('Install successful');
         res.json({
@@ -142,4 +145,30 @@ function subscribeToAuthorizedDevices(installData) {
   });
 
   return Promise.all(requests);
+}
+
+// Generates an eddystone-compatible namespace from uuid-v4.
+function generateEddystoneNamespace(uuidv4) {
+  return uuidv4.slice(0, 8) + uuidv4.slice(24);
+}
+
+function createFirstRoom(installData) {
+  const roomId = uuid();
+  const beaconNamespace = generateEddystoneNamespace(roomId);
+
+  const devices = Object.values(installData.installedApp.config)
+  .reduce((accumulator, current) => {
+    return accumulator.concat(current)
+  })
+  .map((entry) => entry.deviceConfig.deviceId);
+
+  const room = new Room({
+    installedAppId: installData.installedApp.installedAppId,
+    roomId: roomId,
+    name: 'Home',
+    beaconNamespace: beaconNamespace,
+    devices: devices
+  });
+
+  room.save();
 }

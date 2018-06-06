@@ -21,6 +21,7 @@ function getDeviceIds(homeConfig) {
 class Devices extends React.Component {
   constructor(props, context) {
     super(props, context);
+    this.onDragEnd = this.onDragEnd.bind(this);
   }
 
   componentDidMount() {
@@ -69,20 +70,24 @@ class Devices extends React.Component {
   }
 
   onDragEnd(result) {
-    let {src, dest} = result;
-    if (!dest) {
+    let { source, destination } = result;
+    if (!destination) {
       return;
     }
-    if (src.droppableId === dest.droppableId) {
-      CommonActions.reorderDeviceInRoom(src.droppableId, src.index, dest.index);
+    if (source.droppableId === destination.droppableId) {
+      this.props.dispatch(CommonActions.reorderDeviceInRoom(
+        source.droppableId,
+        source.index,
+        destination.index
+      ));
       // TODO: remote reorder
     } else {
-      CommonActions.moveDeviceBetweenRooms(
-        src.droppableId,
-        dest.droppableId,
-        src.index,
-        dest.index
-      );
+      this.props.dispatch(CommonActions.moveDeviceBetweenRooms(
+        source.droppableId,
+        destination.droppableId,
+        source.index,
+        destination.index
+      ));
       // TODO: remote move
     }
   }
@@ -131,22 +136,8 @@ class Devices extends React.Component {
   }
 
   renderAllDevices() {
-    let rooms = Object.values(this.props.rooms).map((room) => this.renderRoom(room));
-    let devicesInRooms = Object.values(this.props.rooms).length > 0
-      ? Object.values(this.props.rooms)
-          .map((room) => room.devices)
-          .reduce((accumulator, devices) => accumulator.concat(devices))
-      : [];
-
-    let allDevices = getDeviceIds(this.props.homeConfig);
-    let unorganizedDevices = allDevices.filter((deviceId) => {
-      return !devicesInRooms.includes(deviceId);
-    });
-    rooms.push(this.renderRoom({
-      name: 'Unorganized Devices',
-      devices: unorganizedDevices,
-      roomId: 'Unorganized'
-    }));
+    let rooms = Object.values(this.props.rooms)
+      .map((room) => this.renderRoom(room));
     return (
       <div>{rooms}</div>
     )
@@ -154,7 +145,7 @@ class Devices extends React.Component {
 
   render() {
     return (
-      <DragDropContext>
+      <DragDropContext onDragEnd={this.onDragEnd}>
         <section>
           <div className="devices-header">
             <h3>My Home</h3>
