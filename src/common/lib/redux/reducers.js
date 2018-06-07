@@ -38,7 +38,7 @@ export function deviceStatus(state = {}, action) {
 export function rooms(state = {}, action) {
   switch (action.type) {
     case Actions.ADD_ROOMS: {
-      return Object.assign({}, state, ...action.rooms);
+      return Object.assign({}, ...action.rooms, state);
     }
     case Actions.REMOVE_ROOM: {
       let newState = Object.assign({}, state);

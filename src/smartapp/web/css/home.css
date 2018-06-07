@@ -102,6 +102,10 @@ section {
   align-items: center;
   justify-content: space-between;
 }
+.device-li-edit {
+  margin-right: 8px;
+  color: #848484;
+}
 
 .device-toggle {
   font-size: 11pt;
@@ -120,7 +124,19 @@ section {
 }
 
 .room-label {
+  display: flex;
+  justify-content: space-between;
   padding: 10px 8px;
   border-top: 1px solid #EEEEEE;
   background-color: #f5f5f5;
+}
+
+.room-label-edit {
+  border-bottom: 1px solid #3c98ca;
+  border-left: none;
+  border-right: none;
+  border-top: none;
+  font-size: inherit;
+  background: inherit;
+  padding: 2px;
 }

@@ -1,6 +1,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
+import uuid from 'uuid/v4';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import { CommonActions, SmartAppClient } from 'common';
 import ContactSensorStatus from './DeviceList/ContactSensorStatus.react';
@@ -21,7 +22,13 @@ function getDeviceIds(homeConfig) {
 class Devices extends React.Component {
   constructor(props, context) {
     super(props, context);
+    this.state = {
+      edit: false
+    }
+    this.addRoom = this.addRoom.bind(this);
     this.onDragEnd = this.onDragEnd.bind(this);
+    this.onRoomNameChange = this.onRoomNameChange.bind(this);
+    this.removeRoom = this.removeRoom.bind(this);
   }
 
   componentDidMount() {
@@ -69,6 +76,29 @@ class Devices extends React.Component {
     });
   }
 
+  addRoom() {
+    const roomId = uuid();
+    this.props.dispatch(CommonActions.addRooms([{
+      [roomId]: {
+        installedAppId: null,
+        roomId: roomId,
+        name: 'New Room',
+        beaconNamespace: null,
+        devices: []
+      }
+    }]));
+  }
+
+  removeRoom(e) {
+    this.props.dispatch(CommonActions.removeRoom(e.target.name));
+  }
+
+  onRoomNameChange(e) {
+    const roomId = e.target.name;
+    const newName = e.target.value;
+    this.props.dispatch(CommonActions.updateRoomName(roomId, newName));
+  }
+
   onDragEnd(result) {
     let { source, destination } = result;
     if (!destination) {
@@ -103,13 +133,14 @@ class Devices extends React.Component {
     }
 
     return (
-      <Draggable draggableId={deviceId} index={index} key={deviceId}>
+      <Draggable draggableId={deviceId} index={index} key={deviceId}
+                 isDragDisabled={!this.state.edit}>
         {(provided, snapshot) => (
           <div ref={provided.innerRef}
             {...provided.draggableProps}
             {...provided.dragHandleProps}>
-            <DeviceListItem deviceId={deviceId}>
-            {status}
+            <DeviceListItem deviceId={deviceId} draggable={this.state.edit}>
+              {status}
             </DeviceListItem>
           </div>
         )}
@@ -126,8 +157,23 @@ class Devices extends React.Component {
       <Droppable droppableId={room.roomId} key={room.roomId}>
         {(provided, snapshot) => (
           <div ref={provided.innerRef} {...provided.droppableProps}>
-            <div className="room-label">{room.name}</div>
-            {devices}
+            { this.state.edit
+              ? <div className="room-label">
+                  <input name={room.roomId}
+                         value={room.name}
+                         onChange={this.onRoomNameChange}
+                         className="room-label-edit">
+                  </input>
+                  <button className="btn btn-green" onClick={this.removeRoom} name={room.roomId}>
+                    -
+                  </button>
+                </div>
+              : <div className="room-label">{room.name}</div>
+            }
+            { devices.length > 0
+              ? devices
+              : <div>&nbsp;</div>
+            }
             {provided.placeholder}
           </div>
         )}
@@ -144,12 +190,35 @@ class Devices extends React.Component {
   }
 
   render() {
+    let headerButtons;
+    if (this.state.edit) {
+      headerButtons = (
+        <div>
+          <button className="btn btn-green"
+                  onClick={this.addRoom}>
+            Add +
+          </button>
+          <button className="btn btn-green"
+                  onClick={() => { this.setState({ edit: false })}}>
+            Done Editing
+          </button>
+        </div>
+      );
+    } else {
+      headerButtons = (
+        <button className="btn btn-green" id="edit-rooms"
+                onClick={() => { this.setState({ edit: true }) }}>
+          Edit Rooms
+        </button>
+      );
+    }
+
     return (
       <DragDropContext onDragEnd={this.onDragEnd}>
         <section>
           <div className="devices-header">
             <h3>My Home</h3>
-            <button className="btn btn-green" id="edit-rooms">Edit Rooms</button>
+            { headerButtons }
           </div>
           { Object.keys(this.props.homeConfig).length > 0
             ? this.renderAllDevices()
