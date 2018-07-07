@@ -4,13 +4,15 @@
   "description": "",
   "main": "smartapp.js",
   "scripts": {
+    "build": "webpack --config webpack.config.js",
+    "watch": "webpack --watch --config webpack.config.js",
     "test": "echo \"Error: no test specified\" && exit 1",
     "delete": "node scripts/delete-installed.js"
   },
   "author": "",
   "license": "",
   "dependencies": {
-    "bcrypt": "^1.0.3",
+    "bcrypt": "^3.0.0",
     "body-parser": "^1.18.2",
     "colors": "^1.1.2",
     "common": "file:../common",
@@ -21,20 +23,21 @@
     "ejs": "^2.5.7",
     "express": "^4.16.2",
     "express-session": "^1.15.6",
-    "firebase": "^4.10.1",
-    "googleapis": "^26.0.1",
+    "firebase": "^5.2.0",
+    "googleapis": "^32.0.0",
     "http-signature": "^1.2.0",
     "mongoose": "^5.0.4",
     "passport": "^0.4.0",
     "passport-local": "^1.0.0",
     "prop-types": "^15.6.1",
     "react": "^16.3.1",
-    "react-beautiful-dnd": "^7.1.3",
+    "react-beautiful-dnd": "^8.0.2",
     "react-dom": "^16.3.1",
     "react-redux": "^5.0.7",
-    "redux": "^3.7.2",
+    "redux": "^4.0.0",
     "request": "^2.83.0",
-    "xhr": "^2.4.1"
+    "xhr": "^2.4.1",
+    "xpc-connection": "taoyuan/node-xpc-connection"
   },
   "devDependencies": {
     "babel-core": "^6.26.0",
@@ -43,8 +46,9 @@
     "babel-polyfill": "^6.26.0",
     "babel-preset-env": "^1.6.1",
     "babel-preset-react": "^6.24.1",
-    "eslint": "^4.19.1",
+    "eslint": "^5.0.1",
     "eslint-plugin-react": "^7.7.0",
-    "webpack": "^3.10.0"
+    "webpack": "^4.15.1",
+    "webpack-cli": "^3.0.8"
   }
 }

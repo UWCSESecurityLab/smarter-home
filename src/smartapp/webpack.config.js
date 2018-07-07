@@ -9,6 +9,7 @@ module.exports = [{
     path: __dirname + '/dist'
   },
   devtool: 'source-map',
+  mode: 'development',
   // Loaders configuration -> ADDED IN THIS STEP
   // We are telling webpack to use "babel-loader" for .js and .jsx files
   module: {
@@ -61,6 +62,7 @@ module.exports = [{
     path: __dirname + '/dist'
   },
   devtool: 'source-map',
+  mode: 'development',
   module: {
     rules: [{
       test: /\.js$/,
