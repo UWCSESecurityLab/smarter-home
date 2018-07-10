@@ -2,7 +2,6 @@ const bodyParser = require('body-parser');
 const compression = require('compression');
 const ensureLogin = require('connect-ensure-login').ensureLoggedIn;
 const express = require('express');
-const eddystone = require('eddystone-beacon');
 const httpSignature = require('http-signature');
 const LocalStrategy = require('passport-local').Strategy;
 const mongoose = require('mongoose');
@@ -408,32 +407,6 @@ app.get('/refresh', logEndpoint, ensureLogin('/login'),
     res.status(500).send(err);
   });
 });
-
-app.get('/beacon', logEndpoint, (req, res) => {
-  res.render('beacon');
-});
-
-app.get('/beacon/on', logEndpoint, (req, res) => {
-  try {
-    eddystone.advertiseUid('00010203040506070809','aabbccddeeff');
-  } catch (e) {
-    log.error(e);
-    res.status(400).send(e);
-  }
-  res.status(200).send();
-
-});
-
-app.get('/beacon/off', logEndpoint, (req, res) => {
-  try {
-    eddystone.stop();
-  } catch (e) {
-    log.error(e);
-    res.status(400).send(e);
-  }
-  res.status(200).send();
-});
-
 
 app.listen(5000);
 log.log('Listening on port 5000');

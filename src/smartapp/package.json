@@ -19,7 +19,6 @@
     "compression": "^1.7.2",
     "connect-ensure-login": "^0.1.1",
     "connect-mongo": "^2.0.1",
-    "eddystone-beacon": "git://github.com/don/node-eddystone-beacon.git#673788ec6f51e66861f8f14bda7a181f59ddd8fa",
     "ejs": "^2.5.7",
     "express": "^4.16.2",
     "express-session": "^1.15.6",
@@ -36,8 +35,7 @@
     "react-redux": "^5.0.7",
     "redux": "^4.0.0",
     "request": "^2.83.0",
-    "xhr": "^2.4.1",
-    "xpc-connection": "taoyuan/node-xpc-connection"
+    "xhr": "^2.4.1"
   },
   "devDependencies": {
     "babel-core": "^6.26.0",
