@@ -8,7 +8,7 @@ const mongoose = require('mongoose');
 const request = require('request');
 
 // The Smart Notifications app.
-const APP_ID = '83972ef3-95f9-4f47-9a58-c305a5f3b565';
+const APP_ID = 'b2805fef-c5e3-46db-b53d-e478539a5ed5';
 
 const SECLAB_LOC = '1f7b9dce-985b-47a7-9814-ed10f3b71f2f';
 const SHRI_LOC = 'b709e26c-a379-4bc4-8000-53b014a7e7fe';
