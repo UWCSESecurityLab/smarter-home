@@ -1,6 +1,7 @@
 import React from 'react';
 import Login from './Login.react';
 import Register from './Register.react';
+import PropTypes from 'prop-types';
 
 class Authenticate extends React.Component {
   constructor(props, context) {
@@ -22,7 +23,7 @@ class Authenticate extends React.Component {
     if (this.state.mode === 'LOGIN') {
       return (
         <div id="authenticate">
-          <Login oauth={this.props.oauth}/>
+          <Login oauth={this.props.oauth} oauthState={this.props.oauthState}/>
           { this.props.oauth ?
             null :
             <a className="switch-mode" onClick={this.switchToRegister}>Create an account</a>
@@ -40,6 +41,11 @@ class Authenticate extends React.Component {
       console.log(this.state.mode);
     }
   }
+}
+
+Authenticate.propTypes = {
+  oauth: PropTypes.bool,
+  oauthState: PropTypes.string
 }
 
 export default Authenticate;

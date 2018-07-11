@@ -6,5 +6,8 @@ import qs from 'querystring';
 let query = qs.parse(location.search.slice(1));
 console.log(query);
 ReactDOM.render(
-  <Authenticate oauth={!!query.oauth && query.oauth == 'true'}/>,
+  <Authenticate
+    oauth={!!query.oauth && query.oauth == 'true'}
+    oauthState={query.state}
+  />,
   document.getElementById('react'));

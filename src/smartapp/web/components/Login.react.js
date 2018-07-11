@@ -26,7 +26,8 @@ class Login extends React.Component {
     smartAppClient.login(
       this.state.username,
       this.state.password,
-      this.props.oauth
+      this.props.oauth,
+      this.props.oauthState
     ).then((response) => {
       if (response.status === 401) {
         this.setState({ error: 'BAD_USER_PW', loading: false });
@@ -112,7 +113,8 @@ class Login extends React.Component {
 }
 
 Login.propTypes = {
-  oauth: PropTypes.bool
+  oauth: PropTypes.bool,
+  oauthState: PropTypes.string
 }
 
 export default Login;

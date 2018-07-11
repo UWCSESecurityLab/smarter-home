@@ -27,7 +27,7 @@ module.exports = {
                 name: 'Log in with your Smart Notifications account',
                 description: 'Tap here to log in',
                 type: 'OAUTH',
-                urlTemplate: 'http://selenium.dyn.cs.washington.edu:5000/login?oauth=true'
+                urlTemplate: 'http://kadara.cs.washington.edu/login?oauth=true'
               }
             ]
           }]

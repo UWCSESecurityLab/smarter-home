@@ -101,6 +101,18 @@ module.exports = {
 
   handleUpdateTokens: function(req, res) {
     SmartThingsClient.renewTokens(req.body.eventData.installedApp.installedAppId);
+  },
+
+  handleOAuthCallback: function(req, res) {
+    let userId = req.body.oauthCallbackData.urlPath.split('=')[1];
+    let installedAppId = req.body.oauthCallbackData.installedAppId;
+
+    User.findOneAndUpdate({ id: userId }, { '$set': {'installedAppId': installedAppId}})
+      .then(() => {
+        log.log(`Added user ${userId} to app ${installedAppId}`);
+      }).catch((err) => {
+        log.error(err);
+      });
   }
 }
 

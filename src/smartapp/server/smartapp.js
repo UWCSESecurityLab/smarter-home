@@ -139,6 +139,7 @@ app.post('/', (req, res) => {
       res.status(200).json({ eventData: {} });
       break;
     case 'OAUTH_CALLBACK':
+      lifecycle.handleOAuthCallback(req, res);
       res.status(200).json({ oAuthCallbackData: {} });
       break;
     case 'UNINSTALL':
@@ -155,7 +156,7 @@ app.get('/login', logEndpoint, (req, res) => {
 
 app.post('/login', logEndpoint, passport.authenticate('local'), (req, res) => {
   if (req.body.oauth == 'true') {
-    res.send('https://api.smartthings.com/oauth/callback?token=' + req.user.id);
+    res.send(`https://api.smartthings.com/oauth/callback?state=${req.body.oauthState}&token=${req.user.id}`);
   } else {
     res.send('/home');
   }

@@ -3,18 +3,22 @@ class SmartAppClient {
     this.host = 'https://kadara.cs.washington.edu';
   }
 
-  login(username, password, oauth) {
+  login(username, password, oauth, oauthState) {
+    let args = {
+      username: username,
+      password: password,
+      oauth: oauth ? 'true' : 'false'
+    };
+    if (oauthState) {
+      args.oauthState = oauthState;
+    }
     return fetch(`${this.host}/login`, {
       method: 'POST',
       credentials: 'same-origin',
       headers: {
         'Content-Type': 'application/json'
       },
-      body: JSON.stringify({
-        username: username,
-        password: password,
-        oauth: oauth ? 'true' : 'false'
-      })
+      body: JSON.stringify(args)
     });
   }
 
