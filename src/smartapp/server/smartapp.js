@@ -2,6 +2,7 @@ const bodyParser = require('body-parser');
 const compression = require('compression');
 const ensureLogin = require('connect-ensure-login').ensureLoggedIn;
 const express = require('express');
+const fs = require('fs');
 const httpSignature = require('http-signature');
 const LocalStrategy = require('passport-local').Strategy;
 const mongoose = require('mongoose');
@@ -19,8 +20,7 @@ const Room = require('./db/room');
 const SmartThingsClient = require('./SmartThingsClient');
 const User = require('./db/user');
 
-const APP_CONFIG = require('../config/config.json');
-const PUBLIC_KEY = APP_CONFIG.app.webhookSmartApp.publicKey;
+const PUBLIC_KEY = fs.readFileSync('./config/key.pub', 'utf8');
 
 mongoose.connect('mongodb://localhost/test');
 let db = mongoose.connection;
@@ -117,11 +117,11 @@ app.post('/', (req, res) => {
     return;
   }
 
-  // if (!signatureIsVerified(req)) {
-  //   res.status(403);
-  //   res.send('Unauthorized');
-  //   return;
-  // }
+  if (!signatureIsVerified(req)) {
+    res.status(403);
+    res.send('Unauthorized');
+    return;
+  }
 
   console.log(JSON.stringify(req.body, null, 2));
   switch (req.body.lifecycle) {
