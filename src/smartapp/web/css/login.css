@@ -58,3 +58,16 @@ button:disabled {
   padding: 30px 20px;
   max-width: 85%;
 }
+
+#big-check {
+  color: green;
+  border: 3px solid green;
+  width: 96px;
+  height: 96px;
+  border-radius: 48px;
+  text-align: center;
+  vertical-align: middle;
+  line-height: 96px;
+  font-size: 40pt;
+  margin: auto;
+}

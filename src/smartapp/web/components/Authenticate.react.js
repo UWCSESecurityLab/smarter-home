@@ -9,6 +9,7 @@ class Authenticate extends React.Component {
     this.state = { mode: 'LOGIN' };
     this.switchToRegister = this.switchToRegister.bind(this);
     this.switchToLogin = this.switchToLogin.bind(this);
+    this.switchToSuccess = this.switchToSuccess.bind(this);
   }
 
   switchToRegister() {
@@ -17,6 +18,10 @@ class Authenticate extends React.Component {
 
   switchToLogin() {
     this.setState({ mode: 'LOGIN' });
+  }
+
+  switchToSuccess() {
+    this.setState({ mode: 'REGISTER_SUCCESS' });
   }
 
   render() {
@@ -33,10 +38,18 @@ class Authenticate extends React.Component {
     } else if (this.state.mode === 'REGISTER') {
       return (
         <div id="authenticate">
-          <Register/>
+          <Register onSuccess={this.switchToSuccess}/>
           <a className="switch-mode" onClick={this.switchToLogin}>Already have an account? Log in</a>
         </div>
       );
+    } else if (this.state.mode === 'REGISTER_SUCCESS') {
+      return (
+        <div id="authenticate">
+          <div id="big-check">✓</div>
+          <h2>Registration Successful</h2>
+          <div>To continue, install the SmarterHome app in SmartThings.</div>
+        </div>
+      )
     } else {
       console.log(this.state.mode);
     }

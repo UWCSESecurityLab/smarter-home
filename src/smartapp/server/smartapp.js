@@ -79,8 +79,9 @@ function logEndpoint(req, res, next) {
 
 // Middleware that attaches a user's SmartThings InstallData to the request.
 function getInstallData(req, res, next) {
-  // TODO: look up actual user's installData once SmartThings OAuth works.
-  InstallData.findOne({}, (err, installData) => {
+  InstallData.findOne({
+    'installedApp.installedAppId': req.session.installedAppId
+  }, (err, installData) => {
     if (err) {
       res.status(500).json({ message: 'DB_ERROR' });
       return;
@@ -110,7 +111,6 @@ app.post('/', (req, res) => {
     res.status(400).send('Invalid request');
     return;
   }
-
 
   if (req.body.lifecycle === 'PING') {
     lifecycle.handlePing(req, res);
@@ -158,13 +158,12 @@ app.post('/login', logEndpoint, passport.authenticate('local'), (req, res) => {
   if (req.body.oauth == 'true') {
     res.send(`https://api.smartthings.com/oauth/callback?state=${req.body.oauthState}&token=${req.user.id}`);
   } else {
+    req.session.installedAppId = req.user.installedAppId;
     res.send('/home');
   }
 });
 
 app.post('/register', logEndpoint, (req, res) => {
-  console.log(req.body);
-  console.log(req.headers);
   if (!req.body.username || !req.body.password || !req.body.confirm) {
     res.status(400).json({ message: 'MISSING_FIELD' });
     return;
@@ -195,11 +194,6 @@ app.get('/home', logEndpoint, ensureLogin('/login'), (req, res) => {
 // Registers the FCM notification token with the current user.
 app.post('/notificationToken',
          logEndpoint, ensureLogin('/login'), (req, res) => {
-  // if (!req.user.notificationTokens.includes(req.query.token)) {
-  //   res.status(200).send();
-  //   return;
-  // }
-
   req.user.notificationToken = req.query.token;
   req.user.save((err) => {
     if (err) {
@@ -285,7 +279,7 @@ app.get('/rooms',
          logEndpoint,
          ensureLogin('/login'),
          getInstallData, (req, res) => {
-  Room.find({ installedAppId: req.installData.installedApp.installedAppId })
+  Room.find({ installedAppId: req.session.installedAppId })
     .then((rooms) => {
       res.status(200).json(rooms);
     }).catch((err) => {
@@ -307,7 +301,7 @@ app.post('/rooms/create',
   const roomId = uuid();
   const beaconNamespace = generateEddystoneNamespace(roomId);
   const room = new Room({
-    installedAppId: req.installData.installedApp.installedAppId,
+    installedAppId: req.session.installedAppId,
     roomId: roomId,
     name: req.body.name,
     beaconNamespace: beaconNamespace,
@@ -329,7 +323,7 @@ app.post('/rooms/:roomId/delete',
          ensureLogin('/login'),
          getInstallData, (req, res) => {
   Room.findOneAndRemove({
-    installedAppId: req.installData.installedApp.installedAppId,
+    installedAppId: req.session.installedAppId,
     roomId: req.params.roomId
   }).then((room) => {
     res.status(200).send(room);
@@ -344,7 +338,7 @@ app.post('/rooms/:roomId/updateName',
          ensureLogin('/login'),
          getInstallData, (req, res) => {
   Room.findOneAndUpdate({
-      installedAppId: req.installData.installedApp.installedAppId,
+      installedAppId: req.session.installedAppId,
       roomId: req.params.roomId
     }, { '$set': { 'name': req.body.name }
   }).then(() => {
@@ -367,7 +361,7 @@ app.post('/rooms/:roomId/addDevice',
   }
 
   Room.findOne({
-    installedAppId: req.installData.installedApp.installedAppId,
+    installedAppId: req.session.installedAppId,
     roomId: req.params.roomId
   }).then((room) => {
     console.log(room);
@@ -387,7 +381,7 @@ app.post('/rooms/:roomId/removeDevice',
          ensureLogin('/login'),
          getInstallData, (req, res) => {
   Room.findOneAndUpdate({
-    installedAppId: req.installData.installedApp.installedAppId,
+    installedAppId: req.session.installedAppId,
     roomId: req.params.roomId
   }, {
     '$pull': { 'devices': req.body.deviceId }

@@ -1,5 +1,6 @@
 import React from 'react';
 import { SmartAppClient } from 'common';
+import PropTypes from 'prop-types';
 
 let smartAppClient = new SmartAppClient();
 
@@ -49,13 +50,7 @@ class Register extends React.Component {
         return;
       }
 
-      let login = await smartAppClient.login(
-        this.state.username, this.state.password);
-      if (login.ok) {
-        window.location.href = '/home';
-      } else {
-        this.setState({ error: 'UNKNOWN', loading: false });
-      }
+      this.props.onSuccess();
     } catch (e) {
       this.setState({ error: 'NETWORK', loading: false});
     }
@@ -115,6 +110,10 @@ class Register extends React.Component {
       </div>
     );
   }
+}
+
+Register.propTypes = {
+  onSuccess: PropTypes.func
 }
 
 export default Register;
