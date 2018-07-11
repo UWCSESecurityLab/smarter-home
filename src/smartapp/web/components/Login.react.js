@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { SmartAppClient } from 'common';
 
-let smartAppClient = new SmartAppClient('http://localhost:5000');
+let smartAppClient = new SmartAppClient();
 
 class Login extends React.Component {
   constructor(props, context) {

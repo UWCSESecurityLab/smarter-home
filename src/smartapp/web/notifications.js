@@ -16,7 +16,7 @@ import { CommonActions, SmartAppClient } from 'common';
 // The token, notification data, and permission status are all bound to the
 // redux state.
 
-let smartAppClient = new SmartAppClient('http://localhost:5000');
+let smartAppClient = new SmartAppClient();
 // Initialize Firebase
 const config = {
   apiKey: "AIzaSyCmhR4iGFbCSY3JO3UFPwjkZjd16JiNUO8",

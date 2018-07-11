@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import { CommonActions, SmartAppClient } from 'common';
 
-let smartAppClient = new SmartAppClient('http://localhost:5000');
+let smartAppClient = new SmartAppClient();
 
 class LockStatus extends React.Component {
   constructor(props, context) {

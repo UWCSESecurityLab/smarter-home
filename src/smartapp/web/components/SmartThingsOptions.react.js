@@ -1,7 +1,7 @@
 import React from 'react';
 import { SmartAppClient } from 'common';
 
-let smartAppClient = new SmartAppClient('http://localhost:5000');
+let smartAppClient = new SmartAppClient();
 
 class SmartThingsOptions extends React.Component {
   constructor(props, context) {

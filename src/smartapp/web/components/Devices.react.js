@@ -9,7 +9,7 @@ import DeviceListItem from './DeviceList/DeviceListItem.react';
 import LockStatus from './DeviceList/LockStatus.react';
 import SwitchStatus from './DeviceList/SwitchStatus.react';
 
-const smartAppClient = new SmartAppClient('http://localhost:5000');
+const smartAppClient = new SmartAppClient();
 
 // Flattens |homeConfig|, an object of arrays, into a single array containing
 // all the deviceIds of the devices in the home.

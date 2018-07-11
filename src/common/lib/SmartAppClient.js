@@ -1,6 +1,6 @@
 class SmartAppClient {
-  constructor(host) {
-    this.host = host;
+  constructor() {
+    this.host = 'https://kadara.cs.washington.edu';
   }
 
   login(username, password, oauth) {
