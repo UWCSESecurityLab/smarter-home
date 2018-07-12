@@ -1,3 +1,9 @@
+function handleJsonResponse(response) {
+  return response.json().then(json => {
+    return response.ok ? json : Promise.reject(json);
+  });
+}
+
 class SmartAppClient {
   constructor() {
     this.host = 'https://kadara.cs.washington.edu';
@@ -76,7 +82,7 @@ class SmartAppClient {
   refreshAccessToken() {
     return fetch(`${this.host}/refresh`, {
       credentials: 'same-origin'
-    });
+    }).then(handleJsonResponse);
   }
 
   getRooms() {
