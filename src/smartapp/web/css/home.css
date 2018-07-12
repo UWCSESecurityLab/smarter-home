@@ -140,3 +140,22 @@ section {
   background: inherit;
   padding: 2px;
 }
+
+#error-exclamation {
+  color: #b80000;
+  border: 3px solid #b80000;
+  width: 96px;
+  height: 96px;
+  border-radius: 55px;
+  text-align: center;
+  vertical-align: middle;
+  line-height: 96px;
+  font-size: 40pt;
+  margin: auto;
+}
+
+#error-msg {
+  width: 100%;
+  margin-top: 10px;
+  text-align: center;
+}

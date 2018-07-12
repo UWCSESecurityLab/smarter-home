@@ -23,7 +23,8 @@ class Devices extends React.Component {
   constructor(props, context) {
     super(props, context);
     this.state = {
-      edit: false
+      edit: false,
+      error: ''
     }
     this.addRoom = this.addRoom.bind(this);
     this.onDragEnd = this.onDragEnd.bind(this);
@@ -43,6 +44,9 @@ class Devices extends React.Component {
         this.fetchAllDeviceDescriptions(config);
         this.fetchAllDeviceStatuses(config);
       }).catch((err) => {
+        if (err.error == 'USER_NOT_LINKED') {
+          this.setState({ error: 'SmarterThings is not linked to a home!' });
+        }
         console.error(err);
         this.setState({ error: err });
       });
@@ -220,6 +224,14 @@ class Devices extends React.Component {
             <h3>My Home</h3>
             { headerButtons }
           </div>
+          { this.state.error !== ''
+            ? <div>
+                <div id="error-exclamation">!</div>
+                <div id="error-msg">Error: This account is not linked to a home</div>
+              </div>
+            : null
+          }
+
           { Object.keys(this.props.homeConfig).length > 0
             ? this.renderAllDevices()
             : null

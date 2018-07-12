@@ -86,6 +86,11 @@ function getInstallData(req, res, next) {
       res.status(500).json({ message: 'DB_ERROR' });
       return;
     }
+    if (!installData) {
+      res.status(404).json({ message: 'NOT_FOUND' });
+      return;
+    }
+
     req.installData = installData;
     next();
   });
@@ -396,7 +401,14 @@ app.post('/rooms/:roomId/removeDevice',
 
 app.get('/refresh', logEndpoint, ensureLogin('/login'),
         (req, res) => {
-  SmartThingsClient.renewTokens().then((tokens) => {
+  if (!req.session.installedAppId) {
+    res.status(403).json({
+      error: 'USER_NOT_LINKED',
+      message: 'User is not associated with an installedApp'
+    });
+    return;
+  }
+  SmartThingsClient.renewTokens(req.session.installedAppId).then((tokens) => {
     res.status(200).json(tokens);
   }).catch((err) => {
     res.status(500).send(err);

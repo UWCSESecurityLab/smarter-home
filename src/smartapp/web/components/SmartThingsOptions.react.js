@@ -16,11 +16,7 @@ class SmartThingsOptions extends React.Component {
   async refreshAccessToken() {
     this.setState({ refreshStatus: 'loading' });
     try {
-      let res = await smartAppClient.refreshAccessToken();
-      if (res.status !== 200) {
-        throw res.status;
-      }
-      let token = await res.json();
+      let token = await smartAppClient.refreshAccessToken();
       this.setState({
         refreshStatus: 'success',
         accessToken: token.access_token

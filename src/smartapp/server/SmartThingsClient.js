@@ -145,12 +145,18 @@ class SmartThingsClient {
 
   static renewTokens(installedAppId) {
     return new Promise((resolve, reject) => {
-      InstallData.findOne({}, (err, installData) => {
+      InstallData.findOne({'installedApp.installedAppId': installedAppId }, (err, installData) => {
         if (err) {
           log.red('DB Error', 'installed app not found');
           reject(err);
           return;
         }
+        if (!installData) {
+          log.red('DB Error', 'installed app not found');
+          reject(installedAppId + ' not found');
+          return;
+        }
+
         let credentials = new Buffer(
           CONFIG.oauthClientId + ':' + CONFIG.oauthClientSecret)
           .toString('base64');
