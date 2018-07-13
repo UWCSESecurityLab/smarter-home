@@ -20,7 +20,7 @@ const Room = require('./db/room');
 const SmartThingsClient = require('./SmartThingsClient');
 const User = require('./db/user');
 
-const PUBLIC_KEY = fs.readFileSync('./config/key.pub', 'utf8');
+const PUBLIC_KEY = require('../config/smartapp-config.js').key;
 
 mongoose.connect('mongodb://localhost/test');
 let db = mongoose.connection;

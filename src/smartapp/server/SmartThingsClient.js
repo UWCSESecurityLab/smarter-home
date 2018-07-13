@@ -2,7 +2,7 @@ const InstallData = require('./db/installData');
 const log = require('./log');
 const request = require('request');
 
-const CONFIG = require('../config/config.json');
+const CONFIG = require('../config/smartapp-config.js').app;
 
 // Helper function for handling errors from the API.
 function rejectErrors(err, resp, body, reject) {
@@ -157,15 +157,15 @@ class SmartThingsClient {
           return;
         }
 
-        let credentials = new Buffer(
-          CONFIG.oauthClientId + ':' + CONFIG.oauthClientSecret)
-          .toString('base64');
         log.green('SmartThings Request', 'https://auth-global.api.smartthings.com/oauth/token');
         request({
           method: 'POST',
           url: 'https://auth-global.api.smartthings.com/oauth/token',
+          auth: {
+            user: CONFIG.oauthClientId,
+            pass: CONFIG.oauthClientSecret
+          },
           headers: {
-            'Authorization': `Basic ${credentials}`,
             'Content-Type': 'application/x-www-form-urlencoded'
           },
           form: {
