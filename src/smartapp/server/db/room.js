@@ -7,7 +7,9 @@ let roomSchema = mongoose.Schema({
   roomId: String,          // Unique identifier for this room.
   name: String,            // User-defined string for room.
   beaconNamespace: String, // The namespace for all beacons in this room
-  devices: [String]        // List of device ids for devices in this room.
+  devices: [String],       // List of device ids for devices in this room.
+  default: Boolean         // Whether this is the 'default' room that unassigned
+                           // devices go into and can't be deleted
 });
 
 let Room = mongoose.model('Room', roomSchema);

@@ -310,7 +310,8 @@ app.post('/rooms/create',
     roomId: roomId,
     name: req.body.name,
     beaconNamespace: beaconNamespace,
-    devices: []
+    devices: [],
+    default: false
   });
 
   room.save().then(() => {
@@ -329,9 +330,14 @@ app.post('/rooms/:roomId/delete',
          getInstallData, (req, res) => {
   Room.findOneAndRemove({
     installedAppId: req.session.installedAppId,
-    roomId: req.params.roomId
+    roomId: req.params.roomId,
+    default: false
   }).then((room) => {
-    res.status(200).send(room);
+    if (room) {
+      res.status(200).send(room);
+    } else {
+      res.status(404).send({ error: 'NOT_FOUND' });
+    }
   }).catch((err) => {
     console.log(err);
     res.status(500).send();

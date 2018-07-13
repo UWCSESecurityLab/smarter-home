@@ -179,7 +179,8 @@ function createFirstRoom(installData) {
     roomId: roomId,
     name: 'Home',
     beaconNamespace: beaconNamespace,
-    devices: devices
+    devices: devices,
+    default: true
   });
 
   room.save();
