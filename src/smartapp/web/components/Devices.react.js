@@ -169,8 +169,9 @@ class Devices extends React.Component {
                          className="room-label-edit">
                   </input>
                   { room.default ? null :
-                    <button className="btn btn-green" onClick={this.removeRoom} name={room.roomId}>
-                      -
+                    <button className="btn-transparent-round" onClick={this.removeRoom} name={room.roomId}>
+                      <i className="material-icons">clear</i>
+                      <span className="btn-hover-expand">Remove</span>
                     </button>
                   }
                 </div>
