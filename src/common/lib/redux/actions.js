@@ -13,9 +13,14 @@ export function updateHomeConfig(config) {
   return { type: UPDATE_HOME_CONFIG, config: config };
 }
 
-export const ADD_ROOMS = 'ADD_ROOMS';
-export function addRooms(rooms) {
-  return { type: ADD_ROOMS, rooms: rooms };
+export const SET_ROOMS = 'SET_ROOMS'
+export function setRooms(rooms) {
+  return { type: SET_ROOMS, rooms: rooms };
+}
+
+export const ADD_ROOM = 'ADD_ROOM';
+export function addRoom(room) {
+  return { type: ADD_ROOM, room: room };
 }
 
 export const REMOVE_ROOM = 'REMOVE_ROOM';

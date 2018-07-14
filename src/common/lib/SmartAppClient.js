@@ -91,43 +91,59 @@ class SmartAppClient {
     }).then((response) => response.json());
   }
 
-  createRoom(name) {
+  createRoom(name, roomId) {
     return fetch(`${this.host}/rooms/create`, {
       method: 'POST',
       credentials: 'same-origin',
-      body: JSON.stringify({ name: name })
-    }).then((response) => response.json());
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ name: name, roomId: roomId })
+    }).then(handleJsonResponse);
   }
 
   deleteRoom(roomId) {
     return fetch(`${this.host}/rooms/${roomId}/delete`, {
       method: 'POST',
       credentials: 'same-origin',
-    }).then((response) => response.json());
+    }).then(handleJsonResponse);
   }
 
   updateRoomName(roomId, name) {
     return fetch(`${this.host}/rooms/${roomId}/updateName`, {
       method: 'POST',
       credentials: 'same-origin',
+      headers: {
+        'Content-Type': 'application/json'
+      },
       body: JSON.stringify({ name: name })
-    }).then((response) => response.json());
+    }).then(handleJsonResponse);
   }
 
-  addDeviceToRoom(roomId, deviceId) {
-    return fetch(`${this.host}/rooms/${roomId}/addDevice`, {
+  reorderDeviceInRoom(roomId, srcIdx, destIdx) {
+    return fetch(`${this.host}/rooms/${roomId}/reorderDeviceInRoom`, {
       method: 'POST',
       credentials: 'same-origin',
-      body: { deviceId: deviceId }
-    }).then((response) => response.json());
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ srcIdx: srcIdx, destIdx: destIdx })
+    }).then(handleJsonResponse);
   }
 
-  removeDeviceFromRoom(roomId, deviceId) {
-    return fetch(`${this.host}/rooms/${roomId}/removeDevice`, {
+  moveDeviceBetweenRooms(srcRoom, destRoom, srcIdx, destIdx) {
+    return fetch(`${this.host}/rooms/moveDeviceBetweenRooms`, {
       method: 'POST',
       credentials: 'same-origin',
-      body: { deviceId: deviceId }
-    }).then((response) => response.json());
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        srcRoom: srcRoom,
+        destRoom: destRoom,
+        srcIdx: srcIdx,
+        destIdx: destIdx })
+    }).then(handleJsonResponse);
   }
 }
 
