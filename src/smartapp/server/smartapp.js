@@ -22,7 +22,7 @@ const User = require('./db/user');
 
 const PUBLIC_KEY = require('../config/smartapp-config.js').key;
 
-mongoose.connect('mongodb://localhost/test');
+mongoose.connect('mongodb://localhost:27017,localhost:27018,localhost:27019/test?replicaSet=rs');
 let db = mongoose.connection;
 db.on('error', console.error.bind(console, 'connection error:'));
 db.once('open', function() {

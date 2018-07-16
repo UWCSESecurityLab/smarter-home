@@ -28,5 +28,10 @@ installedAppId with our system's user account.
 - `SmartThingsClient.js`: Code for accessing the SmartThings API
 
 ### Runbook
-- `$ mongod`: Start database
-- `$ node server/smartapp.js`: Start server
+To start the SmartApp, run the following commands in separate processes/terminals:
+```
+$ npm run watch                  # Webpack watch for compiling frontend
+$ nodemon server/smartapp.js     # Run the express app
+$ sudo caddy                     # Run the web server
+$ run-rs -v 4.0.0 --keep --shell # Run mongod with local replica set (for txns)
+```
