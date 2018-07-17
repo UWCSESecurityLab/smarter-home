@@ -1,7 +1,5 @@
 import React from 'react';
-import { Provider } from 'react-redux'
 import * as notifications from '../notifications';
-import { store } from '../redux/reducers';
 import FirebaseOptions from './FirebaseOptions.react';
 import SmartThingsOptions from './SmartThingsOptions.react';
 import Devices from './Devices.react';
@@ -35,38 +33,35 @@ class Home extends React.Component {
 
   render() {
     return (
-      <Provider store={store}>
-        <div className="container">
-          <section>
-            <h1>SmarterHome Control Panel</h1>
-          </section>
-          <Devices/>
-          <SmartThingsOptions/>
-          <FirebaseOptions/>
-          <section>
-            <h3>Endpoints</h3>
-            <ul>
-              <li>
-                <a href="/beacon" target="_blank">/beacon</a> -
-                Beacon Simulator
-              </li>
-              <li>
-                <a href="/homeConfig" target="_blank">/homeConfig</a> -
-                Home Configuration
-              </li>
-              <li>
-                Device Status - /device/:deviceId/status
-                <br/>
-                <input placeholder="deviceId" value={this.state.deviceId} onChange={this.updateDeviceId}/>
-                <button onClick={this.goToDeviceStatus}>Go</button>
-              </li>
-            </ul>
-          </section>
-        </div>
-      </Provider>
+      <div className="container">
+        <section>
+          <h1>SmarterHome Control Panel</h1>
+        </section>
+        <Devices/>
+        <SmartThingsOptions/>
+        <FirebaseOptions/>
+        <section>
+          <h3>Endpoints</h3>
+          <ul>
+            <li>
+              <a href="/beacon" target="_blank">/beacon</a> -
+              Beacon Simulator
+            </li>
+            <li>
+              <a href="/homeConfig" target="_blank">/homeConfig</a> -
+              Home Configuration
+            </li>
+            <li>
+              Device Status - /device/:deviceId/status
+              <br/>
+              <input placeholder="deviceId" value={this.state.deviceId} onChange={this.updateDeviceId}/>
+              <button onClick={this.goToDeviceStatus}>Go</button>
+            </li>
+          </ul>
+        </section>
+      </div>
     );
   }
-
 }
 
 export default Home;
