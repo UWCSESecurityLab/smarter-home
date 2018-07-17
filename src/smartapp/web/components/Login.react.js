@@ -1,6 +1,8 @@
 import React from 'react';
+import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import { SmartAppClient } from 'common';
+import NavActions from '../redux/navigate-actions';
 
 let smartAppClient = new SmartAppClient();
 
@@ -34,9 +36,10 @@ class Login extends React.Component {
       } else if (!response.ok) {
         this.setState({ error: 'UNKNOWN', loading: false });
       } else {
-        response.text().then((text) => {
-          window.location.href = text;
-        });
+        this.props.dispatch(NavActions.loginSuccess());
+        // response.text().then((text) => {
+        //   window.location.href = text;
+        // });
       }
     }).catch(() => {
       this.setState({ error: 'NETWORK', loading: false});
@@ -113,8 +116,9 @@ class Login extends React.Component {
 }
 
 Login.propTypes = {
+  dispatch: PropTypes.func,
   oauth: PropTypes.bool,
   oauthState: PropTypes.string
 }
 
-export default Login;
+export default connect()(Login);

@@ -9,4 +9,5 @@ A React Native mobile app for smart notifications and more.
 - Debug in Chrome: ^M, click "Start Remote JS Debugging"
 - Debug React component tree: `$ react-devtools`
 
-
+## Updating react-native versions
+Use the react-native-git-upgrade package: https://facebook.github.io/react-native/docs/upgrading.html
