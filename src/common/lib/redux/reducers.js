@@ -46,7 +46,14 @@ export function rooms(state = {}, action) {
     case Actions.REMOVE_ROOM: {
       let newState = Object.assign({}, state);
       delete newState[action.roomId];
-      return newState;
+      // Move devices from the deleted room to the default room
+      let defaultRoom = Object.values(state).find((room) => room.default);
+      let newDevices = defaultRoom.devices.concat(state[action.roomId].devices);
+      return Object.assign({}, newState, {
+        [defaultRoom.roomId]: Object.assign({}, newState[defaultRoom.roomId], {
+          devices: newDevices
+        })
+      });
     }
     case Actions.UPDATE_ROOM_NAME: {
       return Object.assign({}, state, {

@@ -326,20 +326,13 @@ app.post('/rooms/:roomId/delete',
          logEndpoint,
          ensureLogin('/login'),
          getInstallData, (req, res) => {
-  Room.findOneAndRemove({
-    installedAppId: req.session.installedAppId,
-    roomId: req.params.roomId,
-    default: false
-  }).then((room) => {
-    if (room) {
-      res.status(200).send(room);
-    } else {
-      res.status(404).send({ error: 'NOT_FOUND' });
-    }
+  RoomTransaction.deleteRoom(req.params.roomId).then(() => {
+    log.log('Successfully deleted room ' + req.params.roomId);
+    res.status(200).send({});
   }).catch((err) => {
     console.log(err);
-    res.status(500).json(err);
-  })
+    res.status(500).send(err);
+  });
 });
 
 app.post('/rooms/:roomId/updateName',

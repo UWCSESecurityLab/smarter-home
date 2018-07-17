@@ -25,10 +25,42 @@ async function moveDeviceBetweenRooms(srcRoom, destRoom, srcIdx, destIdx) {
   } catch(e) {
     console.log(e);
     session.abortTransaction();
+    throw e;
+  }
+}
+
+async function deleteRoom(roomId) {
+  let session = await mongoose.startSession()
+  session.startTransaction();
+  try {
+    let [deletedRoom, defaultRoom] = await Promise.all([
+      Room.findOne({ roomId: roomId }).session(session),
+      Room.findOne({ default: true }).session(session)
+    ]);
+    assert.ok(deletedRoom.$session());
+    assert.ok(defaultRoom.$session());
+    console.log(defaultRoom.devices);
+    console.log(deletedRoom.devices);
+    defaultRoom.devices = defaultRoom.devices.concat(deletedRoom.devices);
+    console.log(defaultRoom.devices);
+
+    [defaultRoom, ] = await Promise.all([
+      defaultRoom.save(),
+      Room.deleteOne({ roomId: roomId }).session(session)
+    ]);
+
+    assert.ok(defaultRoom.$session());
+
+    session.commitTransaction();
+  } catch (e) {
+    console.log(e);
+    session.abortTransaction();
+    throw e;
   }
 }
 
 
 module.exports = {
+  deleteRoom: deleteRoom,
   moveDeviceBetweenRooms: moveDeviceBetweenRooms
 }
