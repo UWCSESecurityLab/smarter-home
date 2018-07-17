@@ -1,7 +1,6 @@
 import React from 'react';
-import { connect, Provider } from 'react-redux';
+import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
-import { store } from '../redux/reducers';
 import Authenticate from './Authenticate.react';
 import Home from './Home.react';
 import * as Views from '../views';
@@ -12,22 +11,20 @@ class App extends React.Component {
   }
 
   render() {
-    let currentView = (() => {
-      switch (this.props.view) {
-        case Views.AUTH:
-          return <Authenticate/>
-        case Views.DEVICES:
-          return <Home/>
-        default:
-          return <Authenticate/>
-      }
-    });
+    let activeView;
+    switch (this.props.view) {
+      case Views.AUTH:
+        activeView = <Authenticate/>;
+        break;
+      case Views.DEVICES:
+        activeView = <Home/>;
+        break;
+      default:
+        activeView = <Authenticate/>;
 
-    return (
-      <Provider store={store}>
-        {currentView}
-      </Provider>
-    );
+    }
+
+    return activeView;
   }
 }
 

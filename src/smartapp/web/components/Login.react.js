@@ -2,7 +2,7 @@ import React from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import { SmartAppClient } from 'common';
-import NavActions from '../redux/navigate-actions';
+import * as NavActions from '../redux/navigate-actions';
 
 let smartAppClient = new SmartAppClient();
 
@@ -36,12 +36,14 @@ class Login extends React.Component {
       } else if (!response.ok) {
         this.setState({ error: 'UNKNOWN', loading: false });
       } else {
+        console.log(NavActions)
         this.props.dispatch(NavActions.loginSuccess());
         // response.text().then((text) => {
         //   window.location.href = text;
         // });
       }
-    }).catch(() => {
+    }).catch((e) => {
+      console.error(e);
       this.setState({ error: 'NETWORK', loading: false});
     });
   }
