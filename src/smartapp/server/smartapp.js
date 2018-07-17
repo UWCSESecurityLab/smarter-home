@@ -2,7 +2,6 @@ const bodyParser = require('body-parser');
 const compression = require('compression');
 const ensureLogin = require('connect-ensure-login').ensureLoggedIn;
 const express = require('express');
-const fs = require('fs');
 const httpSignature = require('http-signature');
 const LocalStrategy = require('passport-local').Strategy;
 const mongoose = require('mongoose');
@@ -17,6 +16,7 @@ const InstallData = require('./db/installData');
 const lifecycle = require('./lifecycle');
 const log = require('./log');
 const Room = require('./db/room');
+const RoomTransaction = require('./db/room-transaction');
 const SmartThingsClient = require('./SmartThingsClient');
 const User = require('./db/user');
 
@@ -303,11 +303,11 @@ app.post('/rooms/create',
          logEndpoint,
          ensureLogin('/login'),
         getInstallData, (req, res) => {
-  const roomId = uuid();
-  const beaconNamespace = generateEddystoneNamespace(roomId);
+  console.log(req.body);
+  const beaconNamespace = generateEddystoneNamespace(req.body.roomId);
   const room = new Room({
     installedAppId: req.session.installedAppId,
-    roomId: roomId,
+    roomId: req.body.roomId,
     name: req.body.name,
     beaconNamespace: beaconNamespace,
     devices: [],
@@ -315,12 +315,10 @@ app.post('/rooms/create',
   });
 
   room.save().then(() => {
-    res.status(200).json({
-      roomId: roomId,
-      beaconNamespace: beaconNamespace
-    });
+    log.log('Successfully created room');
+    res.status(200).json(room);
   }).catch((err) => {
-    res.status(500).send(err);
+    res.status(500).json(err);
   });
 });
 
@@ -340,7 +338,7 @@ app.post('/rooms/:roomId/delete',
     }
   }).catch((err) => {
     console.log(err);
-    res.status(500).send();
+    res.status(500).json(err);
   })
 });
 
@@ -353,55 +351,51 @@ app.post('/rooms/:roomId/updateName',
       roomId: req.params.roomId
     }, { '$set': { 'name': req.body.name }
   }).then(() => {
-    res.status(200).send();
+    log.log('Successfully updated name');
+    res.status(200).json({});
   }).catch((err) => {
     console.log(err);
-    res.status(500).send();
+    res.status(500).json(err);
   });
 });
 
-// Add a device to a room
-app.post('/rooms/:roomId/addDevice',
+app.post('/rooms/:roomId/reorderDeviceInRoom',
          logEndpoint,
          ensureLogin('/login'),
          getInstallData, (req, res) => {
-  if (!req.installData.installedApp.permissions
-        .includes('r:devices:' + req.body.deviceId)) {
-    res.status(400).send('Can\'t find device with id ' + req.body.deviceId);
-    return;
-  }
-
   Room.findOne({
     installedAppId: req.session.installedAppId,
     roomId: req.params.roomId
   }).then((room) => {
-    console.log(room);
-    room.devices.push(req.body.deviceId);
+    const devicesClone = Array.from(room.devices);
+    const [removed] = devicesClone.splice(req.body.srcIdx, 1);
+    devicesClone.splice(req.body.destIdx, 0, removed);
+    room.devices = devicesClone;
     return room.save();
-  }).then(() => {
-    res.status(200).send();
+  }).then((room) => {
+    log.log('Successfully reordered devices');
+    res.status(200).send(room);
   }).catch((err) => {
     console.log(err);
     res.status(500).send(err);
   });
 });
 
-// Remove a device from a room
-app.post('/rooms/:roomId/removeDevice',
+app.post('/rooms/moveDeviceBetweenRooms',
          logEndpoint,
          ensureLogin('/login'),
          getInstallData, (req, res) => {
-  Room.findOneAndUpdate({
-    installedAppId: req.session.installedAppId,
-    roomId: req.params.roomId
-  }, {
-    '$pull': { 'devices': req.body.deviceId }
-  }).exec().then((result) => {
-    console.log(result);
-    res.status(200).send();
+  RoomTransaction.moveDeviceBetweenRooms(
+    req.body.srcRoom,
+    req.body.destRoom,
+    req.body.srcIdx,
+    req.body.destIdx
+  ).then(() => {
+    log.log('Successfully moved device between rooms');
+    res.status(200).send({});
   }).catch((err) => {
-    log.error(err);
-    res.status(500).send(err);
+   console.log(err);
+   res.status(500).send(err);
   });
 });
 

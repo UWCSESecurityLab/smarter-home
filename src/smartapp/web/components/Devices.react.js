@@ -74,33 +74,50 @@ class Devices extends React.Component {
 
   fetchRooms() {
     smartAppClient.getRooms().then((rooms) => {
-      this.props.dispatch(CommonActions.addRooms(rooms.map((room) => {
+      this.props.dispatch(CommonActions.setRooms(rooms.map((room) => {
          return { [room.roomId]: room }
       })));
     });
   }
 
   addRoom() {
+    const name = 'New Room'
     const roomId = uuid();
-    this.props.dispatch(CommonActions.addRooms([{
+    this.props.dispatch(CommonActions.addRoom({
       [roomId]: {
         installedAppId: null,
         roomId: roomId,
-        name: 'New Room',
+        name: name,
         beaconNamespace: null,
         devices: []
       }
-    }]));
+    }));
+    smartAppClient.createRoom(name, roomId).catch((err) => {
+      console.error(err);
+      // TODO: display error
+      this.fetchRooms();
+    });
   }
 
   removeRoom(e) {
-    this.props.dispatch(CommonActions.removeRoom(e.target.name));
+    const roomId = e.target.name;
+    this.props.dispatch(CommonActions.removeRoom(roomId));
+    smartAppClient.deleteRoom(roomId).catch((err) => {
+      console.error(err);
+      // TODO: display error
+      this.fetchRooms();
+    });
   }
 
   onRoomNameChange(e) {
     const roomId = e.target.name;
     const newName = e.target.value;
     this.props.dispatch(CommonActions.updateRoomName(roomId, newName));
+    smartAppClient.updateRoomName(roomId, newName).catch((err) => {
+      console.error(err);
+      // TODO: display error
+      this.fetchRooms();
+    });
   }
 
   onDragEnd(result) {
@@ -114,7 +131,16 @@ class Devices extends React.Component {
         source.index,
         destination.index
       ));
-      // TODO: remote reorder
+      smartAppClient.reorderDeviceInRoom(
+        source.droppableId,
+        source.index,
+        destination.index
+      ).catch((err) => {
+        console.error(err);
+        // TODO: display error
+        this.fetchRooms();
+      });
+
     } else {
       this.props.dispatch(CommonActions.moveDeviceBetweenRooms(
         source.droppableId,
@@ -122,7 +148,16 @@ class Devices extends React.Component {
         source.index,
         destination.index
       ));
-      // TODO: remote move
+      smartAppClient.moveDeviceBetweenRooms(
+        source.droppableId,
+        destination.droppableId,
+        source.index,
+        destination.index
+      ).catch((err) => {
+        console.error(err);
+        // TODO: display error
+        this.fetchRooms();
+      });
     }
   }
 
@@ -169,8 +204,9 @@ class Devices extends React.Component {
                          className="room-label-edit">
                   </input>
                   { room.default ? null :
-                    <button className="btn btn-green" onClick={this.removeRoom} name={room.roomId}>
-                      -
+                    <button className="btn-transparent-round" onClick={this.removeRoom} name={room.roomId}>
+                      <i className="material-icons">clear</i>
+                      <span className="btn-hover-expand">Remove</span>
                     </button>
                   }
                 </div>
