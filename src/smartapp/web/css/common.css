@@ -1,0 +1,78 @@
+body {
+  background: #5FC4FA;
+  font-family: Roboto, sans-serif;
+}
+@media (max-width: 800px) {
+  body {
+    margin: 0;
+  }
+}
+
+h1 {
+  font-size: 22pt;
+  font-weight: lighter;
+}
+
+h2 {
+  font-weight: lighter;
+}
+
+h3 {
+  color: #318bbb;
+  font-weight: lighter;
+  font-size: 16pt;
+}
+
+input {
+  font-size: 11pt;
+  border: none;
+  border-bottom: 1px solid rgb(185, 231, 255);
+  width: 80%;
+  padding: 6px 3px;
+  margin: 6px 0;
+}
+
+input:focus {
+  border: none;
+  border-bottom: 2px solid #5FC4FA;
+  outline: none;
+}
+
+.btn {
+  font-size: 12pt;
+  color: #fff;
+  padding: 3px 9px;
+  border-radius: 6px;
+}
+
+.btn-green {
+  color: white;
+  background: rgb(64, 158, 64);
+  border: 1px solid rgb(64, 144, 64);
+}
+.btn-green:hover {
+  background: rgb(71, 175, 71);
+}
+.btn-green:active {
+  background: rgb(40, 99, 40);
+}
+
+.btn-blue {
+  color: white;
+  background: #00a6ff;
+  border: 1px solid #0092e0;
+}
+.btn-blue:hover {
+  background: #50c2ff;
+}
+.btn-blue:active {
+  background: #0082c9;
+}
+.btn-blue:disabled {
+  background: #3b5b6d;
+}
+
+#react {
+  display: flex;
+  justify-content: center;
+}

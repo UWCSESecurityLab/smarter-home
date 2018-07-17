@@ -100,7 +100,7 @@ class Login extends React.Component {
           </div>
         </form>
         <div>
-          <button className="btn btn-primary" type="submit" form="login-form" disabled={this.state.loading}>
+          <button className="btn btn-blue" id="login-btn" type="submit" form="login-form" disabled={this.state.loading}>
             { this.state.loading
               ? 'Signing In...'
               : 'Sign In'
