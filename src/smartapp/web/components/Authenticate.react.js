@@ -1,6 +1,7 @@
 import React from 'react';
 import Login from './Login.react';
 import Register from './Register.react';
+import qs from 'query-string';
 import PropTypes from 'prop-types';
 
 class Authenticate extends React.Component {
@@ -26,10 +27,18 @@ class Authenticate extends React.Component {
 
   render() {
     if (this.state.mode === 'LOGIN') {
+      let isOAuth = this.props.location.pathname === '/oauth';
+      let oauthState = null;
+      if (isOAuth) {
+        oauthState = qs.parse(this.props.location.search).state;
+      }
+
+
       return (
         <div id="authenticate">
-          <Login oauth={this.props.oauth} oauthState={this.props.oauthState}/>
-          { this.props.oauth ?
+          <Login oauth={isOAuth}
+                oauthState={oauthState}/>
+          { isOAuth ?
             null :
             <a className="switch-mode" onClick={this.switchToRegister}>Create an account</a>
           }
@@ -54,11 +63,6 @@ class Authenticate extends React.Component {
       console.log(this.state.mode);
     }
   }
-}
-
-Authenticate.propTypes = {
-  oauth: PropTypes.bool,
-  oauthState: PropTypes.string
 }
 
 export default Authenticate;

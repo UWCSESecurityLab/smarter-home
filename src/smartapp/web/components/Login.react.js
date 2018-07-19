@@ -1,8 +1,8 @@
 import React from 'react';
-import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import { SmartAppClient } from 'common';
 import * as NavActions from '../redux/navigate-actions';
+import { Redirect } from 'react-router-dom';
 
 let smartAppClient = new SmartAppClient();
 
@@ -13,7 +13,8 @@ class Login extends React.Component {
       username: '',
       password: '',
       loading: false,
-      error: null
+      error: null,
+      authenticated: false
     };
 
     this.login = this.login.bind(this);
@@ -36,11 +37,13 @@ class Login extends React.Component {
       } else if (!response.ok) {
         this.setState({ error: 'UNKNOWN', loading: false });
       } else {
-        console.log(NavActions)
-        this.props.dispatch(NavActions.loginSuccess());
-        // response.text().then((text) => {
-        //   window.location.href = text;
-        // });
+        if (this.props.oauth) {
+          response.text().then((text) => {
+            window.location.href = text;
+          });
+        } else {
+          this.setState({ authenticated: true });
+        }
       }
     }).catch((e) => {
       console.error(e);
@@ -112,15 +115,15 @@ class Login extends React.Component {
           }
         </div>
         {error}
+        { this.state.authenticated ? <Redirect to='/home'/> : null }
       </div>
     );
   }
 }
 
 Login.propTypes = {
-  dispatch: PropTypes.func,
   oauth: PropTypes.bool,
   oauthState: PropTypes.string
 }
 
-export default connect()(Login);
+export default Login;

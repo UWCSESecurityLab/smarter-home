@@ -6,8 +6,8 @@ const httpSignature = require('http-signature');
 const LocalStrategy = require('passport-local').Strategy;
 const mongoose = require('mongoose');
 const passport = require('passport');
+const path = require('path');
 const session = require('express-session');
-const uuid = require('uuid/v4');
 
 const MongoStore = require('connect-mongo')(session);
 
@@ -31,7 +31,6 @@ db.once('open', function() {
 
 let app = express();
 app.use(compression());
-app.set('view engine', 'ejs');
 app.set('views', __dirname + '/../web/views');
 app.use(express.static('dist'));
 app.use(express.static('web/sw'));
@@ -155,10 +154,6 @@ app.post('/', (req, res) => {
   }
 });
 
-app.get('/login', logEndpoint, (req, res) => {
-  res.render('login');
-});
-
 app.post('/login', logEndpoint, passport.authenticate('local'), (req, res) => {
   if (req.body.oauth == 'true') {
     res.send(`https://api.smartthings.com/oauth/callback?state=${req.body.oauthState}&token=${req.user.id}`);
@@ -190,10 +185,6 @@ app.post('/register', logEndpoint, (req, res) => {
     }
     res.json(err);
   });
-});
-
-app.get('/home', logEndpoint, ensureLogin('/login'), (req, res) => {
-  res.render('home');
 });
 
 // Registers the FCM notification token with the current user.
@@ -406,6 +397,14 @@ app.get('/refresh', logEndpoint, ensureLogin('/login'),
   }).catch((err) => {
     res.status(500).send(err);
   });
+});
+
+app.get('/oauth', logEndpoint, (req, res) => {
+  res.sendFile(path.join(__dirname, '../web/html/oauth.html'));
+});
+
+app.get('*', logEndpoint, (req, res) => {
+  res.sendFile(path.join(__dirname, '../web/html/index.html'));
 });
 
 app.listen(5000);

@@ -1,8 +1,7 @@
 module.exports = [{
   entry: {
-    'login-legacy': ['babel-polyfill', './web/login.js'],
+    'oauth-legacy': ['babel-polyfill', './web/oauth.js'],
     'home-legacy': ['babel-polyfill', './web/home.js'],
-    'beacon-legacy': './web/beacon.js',
   },
   output: {
     filename: '[name].js',
@@ -53,9 +52,8 @@ module.exports = [{
 },
 {
   entry: {
-    'login': './web/login.js',
+    'oauth': './web/oauth.js',
     'home': './web/home.js',
-    'beacon': './web/beacon.js'
   },
   output: {
     filename: '[name].js',

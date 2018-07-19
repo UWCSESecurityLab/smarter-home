@@ -1,9 +1,10 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
+import { Route, Switch, withRouter } from 'react-router-dom';
 import Authenticate from './Authenticate.react';
 import Home from './Home.react';
-import * as Views from '../views';
+// import * as Views from '../views';
 
 class App extends React.Component {
   constructor(props) {
@@ -11,20 +12,13 @@ class App extends React.Component {
   }
 
   render() {
-    let activeView;
-    switch (this.props.view) {
-      case Views.AUTH:
-        activeView = <Authenticate/>;
-        break;
-      case Views.DEVICES:
-        activeView = <Home/>;
-        break;
-      default:
-        activeView = <Authenticate/>;
-
-    }
-
-    return activeView;
+    return (
+      <Switch>
+        <Route path="/login" component={Authenticate}/>
+        <Route path="/oauth" component={Authenticate}/>
+        <Route path="/home" component={Home}/>
+      </Switch>
+    );
   }
 }
 
@@ -38,4 +32,4 @@ function mapStateToProps(state) {
   }
 }
 
-export default connect(mapStateToProps)(App);
+export default withRouter(connect(mapStateToProps)(App));
