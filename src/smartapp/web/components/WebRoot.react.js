@@ -3,8 +3,11 @@ import { BrowserRouter as Router } from 'react-router-dom';
 import { Provider } from 'react-redux'
 import { store } from '../redux/reducers';
 import App from './App.react';
+import * as notifications from '../notifications';
 
-const EntryPoint = () => (
+notifications.updateToken();
+
+const WebRoot = () => (
   <Provider store={store}>
     <Router>
       <App/>
@@ -12,4 +15,4 @@ const EntryPoint = () => (
   </Provider>
 );
 
-export default EntryPoint;
+export default WebRoot;

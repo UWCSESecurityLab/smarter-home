@@ -1,7 +1,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
-import { Route, Switch, withRouter } from 'react-router-dom';
+import { Route, Switch, Redirect, withRouter } from 'react-router-dom';
 import Authenticate from './Authenticate.react';
 import Home from './Home.react';
 // import * as Views from '../views';
@@ -14,6 +14,9 @@ class App extends React.Component {
   render() {
     return (
       <Switch>
+        <Route exact path="/" render={() => (
+          <Redirect to='/login'/>
+        )}/>
         <Route path="/login" component={Authenticate}/>
         <Route path="/oauth" component={Authenticate}/>
         <Route path="/home" component={Home}/>
