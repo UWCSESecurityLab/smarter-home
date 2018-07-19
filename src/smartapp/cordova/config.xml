@@ -7,7 +7,7 @@
     <author email="dev@cordova.apache.org" href="http://cordova.io">
         Apache Cordova Team
     </author>
-    <content src="index.html" />
+    <content src="cordova.html" />
     <plugin name="cordova-plugin-whitelist" spec="1" />
     <access origin="*" />
     <allow-intent href="http://*/*" />
@@ -24,5 +24,5 @@
         <allow-intent href="itms-apps:*" />
     </platform>
     <engine name="ios" spec="^4.5.4" />
-    <engine name="android" spec="^7.0.0" />
+    <engine name="android" spec="^7.1.1" />
 </widget>

@@ -1,7 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { SmartAppClient } from 'common';
-import * as NavActions from '../redux/navigate-actions';
 import { Redirect } from 'react-router-dom';
 
 let smartAppClient = new SmartAppClient();
