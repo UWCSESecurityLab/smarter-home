@@ -1,3 +1,5 @@
+const uuid = require('uuid/v4');
+
 function handleJsonResponse(response) {
   return response.json().then(json => {
     return response.ok ? json : Promise.reject(json);
@@ -7,6 +9,12 @@ function handleJsonResponse(response) {
 class SmartAppClient {
   constructor() {
     this.host = 'https://kadara.cs.washington.edu';
+    this.sessionId = localStorage.getItem('sessionId');
+    if (!this.sessionId) {
+      this.sessionId = uuid();
+      localStorage.setItem('sessionId', this.sessionId);
+    }
+    console.log('Client session id: ' + this.sessionId);
   }
 
   login(username, password, oauth, oauthState) {
@@ -22,7 +30,8 @@ class SmartAppClient {
       method: 'POST',
       credentials: 'same-origin',
       headers: {
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
+        'Client-Session': this.sessionId
       },
       body: JSON.stringify(args)
     });
@@ -33,7 +42,8 @@ class SmartAppClient {
       method: 'POST',
       credentials: 'same-origin',
       headers: {
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
+        'Client-Session': this.sessionId
       },
       body: JSON.stringify({
         username: username,
@@ -47,7 +57,8 @@ class SmartAppClient {
     return fetch(`${this.host}/devices/${params.deviceId}/commands`, {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
+        'Client-Session': this.sessionId
       },
       credentials: 'same-origin',
       body: JSON.stringify(params.command)
@@ -56,38 +67,56 @@ class SmartAppClient {
 
   getDeviceStatus(deviceId) {
     return fetch(`${this.host}/devices/${deviceId}/status`, {
-      credentials: 'same-origin'
+      credentials: 'same-origin',
+      headers: {
+        'Client-Session': this.sessionId
+      },
     }).then((response) => response.json());
   }
 
   getHomeConfig() {
     return fetch(`${this.host}/homeConfig`, {
-      credentials: 'same-origin'
+      credentials: 'same-origin',
+      headers: {
+        'Client-Session': this.sessionId
+      },
     }).then((response) => response.json());
   }
 
   getDeviceDescription(deviceId) {
     return fetch(`${this.host}/devices/${deviceId}/description`, {
-      credentials: 'same-origin'
+      credentials: 'same-origin',
+      headers: {
+        'Client-Session': this.sessionId
+      },
     }).then((response) => response.json());
   }
 
   updateNotificationToken(token) {
     return fetch(`${this.host}/notificationToken?token=${token}`, {
       method: 'POST',
-      credentials: 'same-origin'
+      credentials: 'same-origin',
+      headers: {
+        'Client-Session': this.sessionId
+      }
     });
   }
 
   refreshAccessToken() {
     return fetch(`${this.host}/refresh`, {
-      credentials: 'same-origin'
+      credentials: 'same-origin',
+      headers: {
+        'Client-Session': this.sessionId
+      }
     }).then(handleJsonResponse);
   }
 
   getRooms() {
     return fetch(`${this.host}/rooms`, {
-      credentials: 'same-origin'
+      credentials: 'same-origin',
+      headers: {
+        'Client-Session': this.sessionId
+      }
     }).then((response) => response.json());
   }
 
@@ -96,7 +125,8 @@ class SmartAppClient {
       method: 'POST',
       credentials: 'same-origin',
       headers: {
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
+        'Client-Session': this.sessionId
       },
       body: JSON.stringify({ name: name, roomId: roomId })
     }).then(handleJsonResponse);
@@ -106,6 +136,9 @@ class SmartAppClient {
     return fetch(`${this.host}/rooms/${roomId}/delete`, {
       method: 'POST',
       credentials: 'same-origin',
+      headers: {
+        'Client-Session': this.sessionId
+      }
     }).then(handleJsonResponse);
   }
 
@@ -114,7 +147,8 @@ class SmartAppClient {
       method: 'POST',
       credentials: 'same-origin',
       headers: {
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
+        'Client-Session': this.sessionId
       },
       body: JSON.stringify({ name: name })
     }).then(handleJsonResponse);
@@ -125,7 +159,8 @@ class SmartAppClient {
       method: 'POST',
       credentials: 'same-origin',
       headers: {
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
+        'Client-Session': this.sessionId
       },
       body: JSON.stringify({ srcIdx: srcIdx, destIdx: destIdx })
     }).then(handleJsonResponse);
@@ -136,7 +171,8 @@ class SmartAppClient {
       method: 'POST',
       credentials: 'same-origin',
       headers: {
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
+        'Client-Session': this.sessionId
       },
       body: JSON.stringify({
         srcRoom: srcRoom,
