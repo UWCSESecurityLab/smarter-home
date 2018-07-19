@@ -1,3 +1,5 @@
+const CopyWebpackPlugin = require('copy-webpack-plugin');
+
 module.exports = [{
   entry: {
     'dist/oauth-legacy': ['babel-polyfill', './web/oauth.js'],
@@ -93,4 +95,10 @@ module.exports = [{
     extensions: ['.js', '.jsx'],
     symlinks: false
   },
+  plugins: [
+    new CopyWebpackPlugin([
+      { from: 'web/html/index.html', to: 'cordova/www/index.html' },
+      { from: 'web/css', to: 'cordova/www/css' }
+    ])
+  ]
 }];
