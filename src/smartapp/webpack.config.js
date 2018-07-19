@@ -1,11 +1,12 @@
 module.exports = [{
   entry: {
-    'oauth-legacy': ['babel-polyfill', './web/oauth.js'],
-    'home-legacy': ['babel-polyfill', './web/home.js'],
+    'dist/oauth-legacy': ['babel-polyfill', './web/oauth.js'],
+    'dist/home-legacy': ['babel-polyfill', './web/home.js'],
+    'cordova/www/js/home-legacy': ['babel-polyfill', './web/home.js']
   },
   output: {
     filename: '[name].js',
-    path: __dirname + '/dist'
+    path: __dirname
   },
   devtool: 'source-map',
   mode: 'development',
@@ -52,12 +53,13 @@ module.exports = [{
 },
 {
   entry: {
-    'oauth': './web/oauth.js',
-    'home': './web/home.js',
+    'dist/oauth': './web/oauth.js',
+    'dist/home': './web/home.js',
+    'cordova/www/js/home': './web/home.js'
   },
   output: {
     filename: '[name].js',
-    path: __dirname + '/dist'
+    path: __dirname
   },
   devtool: 'source-map',
   mode: 'development',
