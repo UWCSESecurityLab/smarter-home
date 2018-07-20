@@ -24,12 +24,9 @@ module.exports = [{
             presets: [
               'react',
               ['env', {
-                // modules: false,
-                // useBuiltIns: true,
+                useBuiltIns: true,
                 targets: {
-                  browsers: [
-                    '> 1% in US',
-                  ],
+                  "esmodules": true
                 },
               }],
             ],

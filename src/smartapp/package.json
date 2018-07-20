@@ -13,6 +13,8 @@
   "author": "",
   "license": "",
   "dependencies": {
+    "@material/react-material-icon": "^0.3.0",
+    "@material/react-top-app-bar": "^0.3.0",
     "bcrypt": "^3.0.0",
     "body-parser": "^1.18.2",
     "colors": "^1.1.2",
