@@ -1,12 +1,12 @@
 body {
   background: #5FC4FA;
   font-family: Roboto, sans-serif;
+  margin: 0;
 }
-@media (max-width: 800px) {
+/* @media (max-width: 800px) {
   body {
-    margin: 0;
   }
-}
+} */
 
 h1 {
   font-size: 22pt;
@@ -71,8 +71,8 @@ input:focus {
 .btn-blue:disabled {
   background: #3b5b6d;
 }
-
+/*
 #react {
   display: flex;
   justify-content: center;
-}
+} */

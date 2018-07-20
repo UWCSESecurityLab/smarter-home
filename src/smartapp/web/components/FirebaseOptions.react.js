@@ -19,7 +19,7 @@ class FirebaseOptions extends React.Component {
 
   render() {
     return (
-     <section>
+     <section className="home-item">
         <h3>Firebase Cloud Messaging Configuration</h3>
         { this.props.notificationsEnabled
           ? <p><span className="check-mark">✓</span> Notifications enabled!</p>

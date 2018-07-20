@@ -113,6 +113,7 @@ class Login extends React.Component {
             : null
           }
         </div>
+        {this.props.children}
         {error}
         { this.state.authenticated ? <Redirect to='/home'/> : null }
       </div>
@@ -121,6 +122,7 @@ class Login extends React.Component {
 }
 
 Login.propTypes = {
+  children: PropTypes.Component,
   oauth: PropTypes.bool,
   oauthState: PropTypes.string
 }

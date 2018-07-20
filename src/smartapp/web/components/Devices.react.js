@@ -257,7 +257,7 @@ class Devices extends React.Component {
 
     return (
       <DragDropContext onDragEnd={this.onDragEnd}>
-        <section>
+        <section className="home-item">
           <div className="devices-header">
             <h3>My Home</h3>
             { headerButtons }

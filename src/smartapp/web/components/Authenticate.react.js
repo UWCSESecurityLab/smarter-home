@@ -27,15 +27,17 @@ class Authenticate extends React.Component {
     if (this.state.mode === 'LOGIN') {
       return (
         <div id="authenticate">
-          <Login oauth={false}/>
-          <a className="switch-mode" onClick={this.switchToRegister}>Create an account</a>
+          <Login oauth={false}>
+            <a className="switch-mode" onClick={this.switchToRegister}>Create an account</a>
+          </Login>
         </div>
       );
     } else if (this.state.mode === 'REGISTER') {
       return (
         <div id="authenticate">
-          <Register onSuccess={this.switchToSuccess}/>
-          <a className="switch-mode" onClick={this.switchToLogin}>Already have an account? Log in</a>
+          <Register onSuccess={this.switchToSuccess}>
+            <a className="switch-mode" onClick={this.switchToLogin}>Already have an account? Log in</a>
+          </Register>
         </div>
       );
     } else if (this.state.mode === 'REGISTER_SUCCESS') {

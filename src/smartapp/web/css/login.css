@@ -8,9 +8,15 @@
   background: white;
   border-radius: 8px;
   padding: 30px 20px;
-  max-width: 85%;
-  margin-top: 16px;
+  margin: 16px auto;
+  max-width: 400px;
 }
+@media (max-width: 500px) {
+  #authenticate {
+    max-width: 85%;
+  }
+}
+
 
 #big-check {
   color: green;
@@ -29,3 +35,4 @@
   padding: 6px 12px;
   margin-bottom: 12px;
 }
+

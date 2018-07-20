@@ -107,13 +107,15 @@ class Register extends React.Component {
             : null
           }
         </div>
+        {this.props.children}
       </div>
     );
   }
 }
 
 Register.propTypes = {
-  onSuccess: PropTypes.func
+  onSuccess: PropTypes.func,
+  children: PropTypes.Component
 }
 
 export default Register;

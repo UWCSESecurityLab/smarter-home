@@ -4,7 +4,8 @@ import PropTypes from 'prop-types';
 import { Route, Switch, Redirect, withRouter } from 'react-router-dom';
 import Authenticate from './Authenticate.react';
 import Home from './Home.react';
-// import * as Views from '../views';
+
+import '../css/common.scss';
 
 class App extends React.Component {
   constructor(props) {

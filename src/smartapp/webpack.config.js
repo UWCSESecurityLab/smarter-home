@@ -1,4 +1,6 @@
 const CopyWebpackPlugin = require('copy-webpack-plugin');
+const path = require('path');
+const glob = require('glob');
 
 module.exports = [{
   entry: {
@@ -33,7 +35,22 @@ module.exports = [{
             plugins: [ 'syntax-dynamic-import' ]
           },
         },
-      },
+      }, {
+        test: /\.css$/,
+        use: [ 'style-loader', 'css-loader' ]
+      }, {
+        test: /\.scss$/,
+        use: [
+            "style-loader",  // creates style nodes from JS strings
+            "css-loader",    // translates CSS into CommonJS
+            {
+              loader: "sass-loader",  // compiles Sass to CSS
+              options: {
+                includePaths: glob.sync('node_modules').map((d) => path.join(__dirname, d))
+              }
+            }
+        ]
+      }
     ],
   },
   // Enable importing JS files without specifying their's extenstion -> ADDED IN THIS STEP
@@ -60,31 +77,48 @@ module.exports = [{
   devtool: 'source-map',
   mode: 'development',
   module: {
-    rules: [{
-      test: /\.js$/,
-      use: {
-        loader: 'babel-loader',
-        options: {
-          presets: [
-            'react',
-            ['env', {
-              modules: false,
-              useBuiltIns: true,
-              targets: {
-                browsers: [
-                  'Chrome >= 61',
-                  'Safari >= 11',
-                  'iOS >= 11.2',
-                  'Firefox >= 60',
-                  'Edge >= 16',
-                ],
-              },
-            }],
-          ],
-          plugins: [ 'syntax-dynamic-import' ]
+    rules: [
+      {
+        test: /\.js$/,
+        use: {
+          loader: 'babel-loader',
+          options: {
+            presets: [
+              'react',
+              ['env', {
+                modules: false,
+                useBuiltIns: true,
+                targets: {
+                  browsers: [
+                    'Chrome >= 61',
+                    'Safari >= 11',
+                    'iOS >= 11.2',
+                    'Firefox >= 60',
+                    'Edge >= 16',
+                  ],
+                },
+              }],
+            ],
+            plugins: [ 'syntax-dynamic-import' ]
+          },
         },
-      },
-    }],
+      }, {
+        test: /\.css$/,
+        use: [ 'style-loader', 'css-loader' ]
+      }, {
+        test: /\.scss$/,
+        use: [
+            "style-loader",  // creates style nodes from JS strings
+            "css-loader",    // translates CSS into CommonJS
+            {
+              loader: "sass-loader",  // compiles Sass to CSS
+              options: {
+                includePaths: glob.sync('node_modules').map((d) => path.join(__dirname, d))
+              }
+            }
+        ]
+      }
+    ],
   },
   resolve: {
     extensions: ['.js', '.jsx'],
@@ -127,7 +161,22 @@ module.exports = [{
             plugins: [ 'syntax-dynamic-import' ]
           },
         },
-      },
+      }, {
+        test: /\.css$/,
+        use: [ 'style-loader', 'css-loader' ]
+      }, {
+        test: /\.scss$/,
+        use: [
+            "style-loader",  // creates style nodes from JS strings
+            "css-loader",    // translates CSS into CommonJS
+            {
+              loader: "sass-loader",  // compiles Sass to CSS
+              options: {
+                includePaths: glob.sync('node_modules').map((d) => path.join(__dirname, d))
+              }
+            }
+        ]
+      }
     ],
   },
   // Enable importing JS files without specifying their's extenstion -> ADDED IN THIS STEP

@@ -39,7 +39,7 @@ class SmartThingsOptions extends React.Component {
     }
 
     return (
-      <section>
+      <section className="home-item">
         <h3>SmartThings Configuration</h3>
         <div>
           <button id="refresh" className="btn btn-green" onClick={this.refreshAccessToken}>⟳</button>

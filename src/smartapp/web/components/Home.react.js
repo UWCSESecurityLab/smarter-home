@@ -2,6 +2,13 @@ import React from 'react';
 import SmartThingsOptions from './SmartThingsOptions.react';
 import Devices from './Devices.react';
 
+import TopAppBar from '@material/react-top-app-bar';
+import MaterialIcon from '@material/react-material-icon';
+
+import '../css/home.scss';
+
+import '@material/react-material-icon/index.scss';
+
 class Home extends React.Component {
   constructor(props, context) {
     super(props, context);
@@ -36,32 +43,40 @@ class Home extends React.Component {
   render() {
     let NotificationOptions = this.state.notificationOptions;
     return (
-      <div className="container">
-        <section>
-          <h1>SmarterHome Control Panel</h1>
-        </section>
-        <Devices/>
-        <SmartThingsOptions/>
-        { NotificationOptions ? <NotificationOptions /> : null }
-        <section>
-          <h3>Endpoints</h3>
-          <ul>
-            <li>
-              <a href="/beacon" target="_blank">/beacon</a> -
-              Beacon Simulator
-            </li>
-            <li>
-              <a href="/homeConfig" target="_blank">/homeConfig</a> -
-              Home Configuration
-            </li>
-            <li>
-              Device Status - /device/:deviceId/status
-              <br/>
-              <input placeholder="deviceId" value={this.state.deviceId} onChange={this.updateDeviceId}/>
-              <button onClick={this.goToDeviceStatus}>Go</button>
-            </li>
-          </ul>
-        </section>
+      <div>
+        <TopAppBar
+          fixed
+          title='SmarterHome'
+          navigationIcon={<MaterialIcon
+            icon='menu'
+            onClick={() => console.log('click')}
+          />}
+          actionItems={[<MaterialIcon key='item' icon='bookmark' />]}
+        />
+        <div className="container mdc-top-app-bar--fixed-adjust">
+          <Devices/>
+          <SmartThingsOptions/>
+          { NotificationOptions ? <NotificationOptions /> : null }
+          <section className="home-item">
+            <h3>Endpoints</h3>
+            <ul>
+              <li>
+                <a href="/beacon" target="_blank">/beacon</a> -
+                Beacon Simulator
+              </li>
+              <li>
+                <a href="/homeConfig" target="_blank">/homeConfig</a> -
+                Home Configuration
+              </li>
+              <li>
+                Device Status - /device/:deviceId/status
+                <br/>
+                <input placeholder="deviceId" value={this.state.deviceId} onChange={this.updateDeviceId}/>
+                <button onClick={this.goToDeviceStatus}>Go</button>
+              </li>
+            </ul>
+          </section>
+        </div>
       </div>
     );
   }
