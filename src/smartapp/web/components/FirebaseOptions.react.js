@@ -4,8 +4,8 @@ import PropTypes from 'prop-types';
 import * as notifications from '../notifications';
 
 class FirebaseOptions extends React.Component {
-  constructor(props, context) {
-    super(props, context);
+  constructor(props) {
+    super(props);
   }
 
   async enableNotifications() {

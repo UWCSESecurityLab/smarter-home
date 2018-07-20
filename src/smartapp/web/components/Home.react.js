@@ -2,27 +2,26 @@ import React from 'react';
 import SmartThingsOptions from './SmartThingsOptions.react';
 import Devices from './Devices.react';
 
-let FirebaseOptions;
-if (!window._cordovaNative) {
-  FirebaseOptions = require('./FirebaseOptions.react');
-}
-
 class Home extends React.Component {
   constructor(props, context) {
     super(props, context);
     this.state = {
       accessToken: null,
-      deviceId: ''
+      deviceId: '',
+      notificationOptions: null,
     };
 
     this.updateDeviceId = this.updateDeviceId.bind(this);
     this.goToDeviceStatus = this.goToDeviceStatus.bind(this);
   }
 
-  // componentDidMount() {
-    // Check if there's a cached token on load
-    // notifications.updateToken();
-  // }
+  componentDidMount() {
+    if (!window._cordovaNative) {
+      import('./FirebaseOptions.react').then((module) => {
+        this.setState({ notificationOptions: module.default });
+      });
+    }
+  }
 
   updateDeviceId(e) {
     this.setState({ deviceId: e.target.value });
@@ -35,6 +34,7 @@ class Home extends React.Component {
   }
 
   render() {
+    let NotificationOptions = this.state.notificationOptions;
     return (
       <div className="container">
         <section>
@@ -42,7 +42,7 @@ class Home extends React.Component {
         </section>
         <Devices/>
         <SmartThingsOptions/>
-        { FirebaseOptions ? <FirebaseOptions/> : null }
+        { NotificationOptions ? <NotificationOptions /> : null }
         <section>
           <h3>Endpoints</h3>
           <ul>

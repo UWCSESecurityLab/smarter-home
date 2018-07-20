@@ -24,17 +24,16 @@ module.exports = [{
             presets: [
               'react',
               ['env', {
-                modules: false,
-                useBuiltIns: true,
+                // modules: false,
+                // useBuiltIns: true,
                 targets: {
                   browsers: [
-                    '> 1%',
-                    'last 2 versions',
-                    'Firefox ESR',
+                    '> 1% in US',
                   ],
                 },
               }],
             ],
+            plugins: [ 'syntax-dynamic-import' ]
           },
         },
       },
@@ -76,15 +75,16 @@ module.exports = [{
               useBuiltIns: true,
               targets: {
                 browsers: [
-                  'Chrome >= 60',
-                  'Safari >= 10.1',
-                  'iOS >= 10.3',
-                  'Firefox >= 54',
-                  'Edge >= 15',
+                  'Chrome >= 61',
+                  'Safari >= 11',
+                  'iOS >= 11.2',
+                  'Firefox >= 60',
+                  'Edge >= 16',
                 ],
               },
             }],
           ],
+          plugins: [ 'syntax-dynamic-import' ]
         },
       },
     }],
@@ -127,6 +127,7 @@ module.exports = [{
                 },
               }],
             ],
+            plugins: [ 'syntax-dynamic-import' ]
           },
         },
       },
