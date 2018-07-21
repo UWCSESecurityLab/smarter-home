@@ -47,10 +47,9 @@ app.use(function(req, res, next) {
 // can authenticate Cordova clients.
 app.use(function(req, res, next) {
   let sessionId = req.get('Client-Session');
-  log.log(req.originalUrl + ': Parsed client-side session ' + sessionId);
   // if there was a session id passed add it to the cookies
   if (sessionId) {
-    let header = req.headers.cookie;
+    log.log(req.originalUrl + ': Parsed client-side session ' + sessionId);
     // sign the cookie so Express Session unsigns it correctly
     let signedCookie = 's:' + cookieSignature.sign(sessionId, 'cat keyboard');
     req.headers.cookie = cookie.serialize('connect.sid', signedCookie);
@@ -172,7 +171,7 @@ app.post('/', (req, res) => {
 app.post('/login', (req, res) => {
   auth.verifyUser(req.body.username, req.body.password).then((user) => {
     if (req.body.oauth == 'true') {
-      res.status(200).send(`https://api.smartthings.com/oauth/callback?state=${req.body.oauthState}&token=${req.user.id}`);
+      res.status(200).send(`https://api.smartthings.com/oauth/callback?state=${req.body.oauthState}&token=${user.id}`);
       return;
     }
 
@@ -190,10 +189,11 @@ app.post('/login', (req, res) => {
     if (err.message === 'BAD_USERNAME' || err.message === 'BAD_PASSWORD') {
       res.status(401).send({ error: 'BAD_USER_PW' });
     } else {
+      console.log(err);
       res.status(500).send({ error: 'DB_ERROR'});
     }
   });
-  
+
 });
 
 app.post('/register', (req, res) => {
@@ -273,7 +273,7 @@ app.get('/devices/:deviceId/status', checkAuth, getInstallData, (req, res) => {
   });
 });
 
-app.get('/devices/:deviceId/description', checkAuth, getInstallData, 
+app.get('/devices/:deviceId/description', checkAuth, getInstallData,
     (req, res) => {
   SmartThingsClient.getDeviceDescription({
     deviceId: req.params.deviceId,
@@ -285,7 +285,7 @@ app.get('/devices/:deviceId/description', checkAuth, getInstallData,
   });
 });
 
-app.post('/devices/:deviceId/commands', checkAuth, getInstallData, 
+app.post('/devices/:deviceId/commands', checkAuth, getInstallData,
     (req, res) => {
   SmartThingsClient.executeDeviceCommand({
     deviceId: req.params.deviceId,
@@ -360,7 +360,7 @@ app.post('/rooms/:roomId/updateName', checkAuth, getInstallData, (req, res) => {
   });
 });
 
-app.post('/rooms/:roomId/reorderDeviceInRoom', checkAuth, getInstallData, 
+app.post('/rooms/:roomId/reorderDeviceInRoom', checkAuth, getInstallData,
     (req, res) => {
   Room.findOne({
     installedAppId: req.session.installedAppId,
@@ -380,7 +380,7 @@ app.post('/rooms/:roomId/reorderDeviceInRoom', checkAuth, getInstallData,
   });
 });
 
-app.post('/rooms/moveDeviceBetweenRooms', checkAuth, getInstallData, 
+app.post('/rooms/moveDeviceBetweenRooms', checkAuth, getInstallData,
     (req, res) => {
   RoomTransaction.moveDeviceBetweenRooms(
     req.body.srcRoom,

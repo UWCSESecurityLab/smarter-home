@@ -1,31 +1,39 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { SmartAppClient } from 'common';
-import { Redirect } from 'react-router-dom';
-
-let smartAppClient = new SmartAppClient();
 
 class Login extends React.Component {
-  constructor(props, context) {
-    super(props, context);
+  constructor(props) {
+    super(props);
     this.state = {
       username: '',
       password: '',
       loading: false,
       error: null,
-      authenticated: false
+      authenticated: false,
+      redirect: null
     };
 
     this.login = this.login.bind(this);
     this.updateUsername = this.updateUsername.bind(this);
     this.updatePassword = this.updatePassword.bind(this);
+
+    this.smartAppClient = new SmartAppClient(this.props.oauth);
+  }
+
+  componentDidMount() {
+    if (!this.props.oauth) {
+      import ('react-router-dom').then((module) => {
+        this.setState({ redirect: module.Redirect});
+      });
+    }
   }
 
   login(e) {
     e.preventDefault();
     this.setState({ loading: true });
 
-    smartAppClient.login(
+    this.smartAppClient.login(
       this.state.username,
       this.state.password,
       this.props.oauth,
@@ -59,6 +67,8 @@ class Login extends React.Component {
   }
 
   render() {
+    let Redirect = this.state.redirect;
+
     let errorMessage;
     if (this.state.error) {
       switch (this.state.error) {
@@ -115,14 +125,14 @@ class Login extends React.Component {
         </div>
         {this.props.children}
         {error}
-        { this.state.authenticated ? <Redirect to='/home'/> : null }
+        { this.state.authenticated && Redirect ? <Redirect to='/home'/> : null }
       </div>
     );
   }
 }
 
 Login.propTypes = {
-  children: PropTypes.Component,
+  children: PropTypes.node,
   oauth: PropTypes.bool,
   oauthState: PropTypes.string
 }

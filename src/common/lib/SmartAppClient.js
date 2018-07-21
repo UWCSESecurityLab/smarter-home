@@ -7,8 +7,13 @@ function handleJsonResponse(response) {
 }
 
 class SmartAppClient {
-  constructor() {
+  // @param noSession: set to true if we shouldn't generate a session, i.e.
+  // in oauth mode (esp b/c smartthings app webview doesn't have localstorage)
+  constructor(noSession) {
     this.host = 'https://kadara.cs.washington.edu';
+    if (noSession) {
+      return;
+    }
     this.sessionId = localStorage.getItem('sessionId');
     if (!this.sessionId) {
       this.sessionId = uuid();
