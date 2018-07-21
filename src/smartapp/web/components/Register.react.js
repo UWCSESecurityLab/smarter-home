@@ -115,7 +115,7 @@ class Register extends React.Component {
 
 Register.propTypes = {
   onSuccess: PropTypes.func,
-  children: PropTypes.Component
+  children: PropTypes.node
 }
 
 export default Register;

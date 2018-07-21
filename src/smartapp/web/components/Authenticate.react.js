@@ -3,8 +3,8 @@ import Login from './Login.react';
 import Register from './Register.react';
 
 class Authenticate extends React.Component {
-  constructor(props, context) {
-    super(props, context);
+  constructor(props) {
+    super(props);
     this.state = { mode: 'LOGIN' };
     this.switchToRegister = this.switchToRegister.bind(this);
     this.switchToLogin = this.switchToLogin.bind(this);

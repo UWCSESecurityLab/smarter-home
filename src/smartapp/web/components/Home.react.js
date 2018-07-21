@@ -1,6 +1,7 @@
 import React from 'react';
 import SmartThingsOptions from './SmartThingsOptions.react';
 import Devices from './Devices.react';
+import Drawer from './Drawer.react';
 
 import TopAppBar from '@material/react-top-app-bar';
 import MaterialIcon from '@material/react-material-icon';
@@ -44,6 +45,7 @@ class Home extends React.Component {
     let NotificationOptions = this.state.notificationOptions;
     return (
       <div>
+        <Drawer/>
         <TopAppBar
           fixed
           title='SmarterHome'
