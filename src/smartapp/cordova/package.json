@@ -12,7 +12,10 @@
     "dependencies": {
         "cordova-android": "^7.1.1",
         "cordova-ios": "^4.5.4",
-        "cordova-plugin-whitelist": "^1.3.3"
+        "cordova-plugin-firebase-messaging": "^1.1.0",
+        "cordova-plugin-whitelist": "^1.3.3",
+        "cordova-support-android-plugin": "^1.0.1",
+        "cordova-support-google-services": "^1.2.0"
     },
     "cordova": {
         "platforms": [
@@ -20,7 +23,12 @@
             "android"
         ],
         "plugins": {
-            "cordova-plugin-whitelist": {}
+            "cordova-plugin-whitelist": {},
+            "cordova-support-google-services": {},
+            "cordova-plugin-firebase-messaging": {
+                "FIREBASE_MESSAGING_VERSION": "17.1.+",
+                "ANDROID_SUPPORT_VERSION": "27.+"
+            }
         }
     }
 }
