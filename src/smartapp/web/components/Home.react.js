@@ -17,6 +17,7 @@ class Home extends React.Component {
       accessToken: null,
       deviceId: '',
       notificationOptions: null,
+      drawerOpen: false
     };
 
     this.updateDeviceId = this.updateDeviceId.bind(this);
@@ -45,13 +46,13 @@ class Home extends React.Component {
     let NotificationOptions = this.state.notificationOptions;
     return (
       <div>
-        <Drawer/>
+        <Drawer open={this.state.drawerOpen} closeFn={() => this.setState({drawerOpen: false})}/>
         <TopAppBar
           fixed
           title='SmarterHome'
           navigationIcon={<MaterialIcon
             icon='menu'
-            onClick={() => console.log('click')}
+            onClick={() => { this.setState({ drawerOpen: !this.state.drawerOpen })}}
           />}
           actionItems={[<MaterialIcon key='item' icon='bookmark' />]}
         />

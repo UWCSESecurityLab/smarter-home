@@ -1,19 +1,26 @@
 import React from 'react';
 import { CSSTransition } from 'react-transition-group';
+import PropTypes from 'prop-types';
 import '../css/drawer.scss';
 
 class Drawer extends React.Component {
   constructor(props) {
     super(props);
-    this.state = { open: false };
   }
 
   render() {
     return (
       <div>
-        {/* <div id="drawer-shadow"></div> */}
         <CSSTransition
-            in={this.state.open}
+          in={this.props.open}
+          classNames={'drawer-shadow'}
+          timeout={500}
+          onClick={() => {this.props.closeFn()}}
+          mountOnEnter unmountOnExit>
+          <div className="drawer-shadow"></div>
+        </CSSTransition>
+        <CSSTransition
+            in={this.props.open}
             classNames={'drawer'}
             timeout={500}
             mountOnEnter unmountOnExit>
@@ -24,6 +31,11 @@ class Drawer extends React.Component {
       </div>
     );
   }
+}
+
+Drawer.propTypes = {
+  open: PropTypes.bool,
+  closeFn: PropTypes.func
 }
 
 export default Drawer;

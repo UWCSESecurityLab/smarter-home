@@ -37,3 +37,20 @@ $drawer-width: 175px;
   width: 100%;
   background: #00000036;
 }
+.drawer-shadow-enter {
+  opacity: 0;
+}
+.drawer-shadow-enter.drawer-shadow-enter-active {
+  opacity: 1;
+  transition: opacity 0.5s;
+}
+.drawer-shadow-enter-done {
+  opacity: 1;
+}
+.drawer-shadow-exit {
+  opacity: 1;
+}
+.drawer-shadow-exit.drawer-shadow-exit-active {
+  opacity: 0;
+  transition: opacity 0.5s;
+}
