@@ -1,8 +1,7 @@
 const {google} = require('googleapis');
 const log = require('./log');
 const request = require('request');
-const SERVER_KEY = require('../config/firebase-server-key.json');
-const FIREBASE_CONFIG = require('../config/firebase.json');
+const FIREBASE_CONFIG = require('../config/firebase-messaging.json');
 
 function getAccessToken() {
   return new Promise(function(resolve, reject) {
@@ -51,7 +50,7 @@ function sendNotification(data, notificationKey) {
     request.post({
       url: 'https://fcm.googleapis.com/fcm/send',
       headers: {
-        'Authorization': `key=${SERVER_KEY}`
+        'Authorization': `key=${FIREBASE_CONFIG.server_key}`
       },
       json: true,
       body: notification
@@ -73,8 +72,8 @@ function modifyDeviceGroup({user, fcmToken, operation}) {
     request.post({
       url: 'https://fcm.googleapis.com/fcm/notification',
       headers: {
-        'Authorization': `key=${SERVER_KEY}`,
-        'project_id': FIREBASE_CONFIG.project_id
+        'Authorization': `key=${FIREBASE_CONFIG.server_key}`,
+        'project_id': FIREBASE_CONFIG.sender_id
       },
       json: true,
       body: body
