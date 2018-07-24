@@ -237,7 +237,7 @@ app.post('/notificationToken', checkAuth, (req, res) => {
         });
       });
   } else {
-    fcmClient.addDeviceToGroup({ user: req.user, fcmToken: req.query.fcmToken })
+    fcmClient.addDeviceToDeviceGroup({ user: req.user, fcmToken: req.query.fcmToken })
       .then(() => {
         req.user.notificationTokens.push(req.query.token);
         req.user.save((err) => {
