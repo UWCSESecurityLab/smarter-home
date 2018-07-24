@@ -37,7 +37,9 @@ class WebNotifications extends Notifications {
       this.updateToken().catch(console.error);
     });
     // Handle notifications
-    messaging.onMessage(super.onMessage);
+    messaging.onMessage((payload) => {
+      super.onMessage(JSON.parse(payload.data.message));
+    });
     this.updateToken().catch(console.error);
   }
 

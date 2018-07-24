@@ -14,12 +14,24 @@ class CordovaNotifications extends Notifications {
       this.updateToken().catch(console.error);
     });
     // Handle notifications
-    cordova.plugins.firebase.messaging.onMessage(super.onMessage);
+    cordova.plugins.firebase.messaging.onMessage((payload) => {
+      let message = JSON.parse(payload.smartapp);
+      super.onMessage(message)
+    });
     this.updateToken().catch(console.error);
 
-    // cordova.plugins.firebase.messaging.requestPermission().then(function(token) {
-    //   console.log("APNS device token: ", token);
-    // });
+    cordova.plugins.firebase.messaging.onBackgroundMessage((payload) => {
+      console.log('Background notification');
+      console.log(payload);
+      let message = JSON.parse(payload.smartapp);
+      let title = `${message.device} | ${message.capability} -> ${message.value}`;
+      let text = 'subtitle';
+
+      cordova.plugins.notification.local.schedule({
+        title: title,
+        text: text
+      });
+    });
   }
   async updateToken() {
     try {

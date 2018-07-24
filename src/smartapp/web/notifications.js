@@ -9,14 +9,15 @@ import { CommonActions, SmartAppClient } from 'common';
 let smartAppClient = new SmartAppClient();
 
 class Notifications {
-  onMessage(payload) {
-    let data = JSON.parse(payload.data.smartapp);
-      store.dispatch(updateNotificationData(payload));
-      smartAppClient.getDeviceStatus(data.deviceId)
-        .then((newStatus) => {
-          store.dispatch(
-            CommonActions.updateDeviceStatus(newStatus.deviceId, newStatus.status));
-        });
+  onMessage(message) {
+    console.log('Foreground notification');
+    console.log(message)
+    store.dispatch(updateNotificationData(message));
+    smartAppClient.getDeviceStatus(message.deviceId)
+      .then((newStatus) => {
+        store.dispatch(
+          CommonActions.updateDeviceStatus(newStatus.deviceId, newStatus.status));
+      });
     }
   async updateToken(currentToken) {
     try {
