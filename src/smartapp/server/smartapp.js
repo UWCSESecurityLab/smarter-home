@@ -102,6 +102,7 @@ function checkAuth(req, res, next) {
       return;
     }
     if (!user) {
+      log.error('Unauthorized user: session ' + JSON.stringify(req.session));
       res.status(401).json({ message: 'NOT_LOGGED_IN'});
       return;
     }
@@ -223,9 +224,13 @@ app.post('/register', (req, res) => {
 
 // Registers the FCM notification token with the current user.
 app.post('/notificationToken', checkAuth, (req, res) => {
+  log.log('Received token ' + req.query.token);
   if (req.user.notificationTokens.length == 0) {
+    log.log('No tokens in user, creating new device group');
     fcmClient.createDeviceGroup({ user: req.user, fcmToken: req.query.token })
       .then((group) => {
+        group = JSON.parse(group);
+        log.log('Got new notification key ' + group.notification_key);
         req.user.notificationKey = group.notification_key;
         req.user.notificationTokens.push(req.query.token);
         req.user.save((err) => {
@@ -235,9 +240,12 @@ app.post('/notificationToken', checkAuth, (req, res) => {
             res.status(200).send();
           }
         });
+      }).catch((err) => {
+        res.status(500).json(err);
       });
-  } else {
-    fcmClient.addDeviceToDeviceGroup({ user: req.user, fcmToken: req.query.fcmToken })
+  } else if (!req.user.notificationTokens.includes(req.query.token)) {
+    log.log('Device group exists, adding device to device group');
+    fcmClient.addDeviceToDeviceGroup({ user: req.user, fcmToken: req.query.token })
       .then(() => {
         req.user.notificationTokens.push(req.query.token);
         req.user.save((err) => {
@@ -247,17 +255,13 @@ app.post('/notificationToken', checkAuth, (req, res) => {
             res.status(200).send();
           }
         });
+      }).catch((err) => {
+        res.status(500).json(err);
       });
+  } else {
+    log.log('Token already exists, ignoring');
+    res.status(200).json({ message: 'ok, token already exists' });
   }
-
-  req.user.notificationTokens.push(req.query.token);
-  req.user.save((err) => {
-    if (err) {
-      res.status(500).send('Database error: ' + err);
-    } else {
-      res.status(200).send();
-    }
-  });
 });
 
 // Lists all devices in the home.

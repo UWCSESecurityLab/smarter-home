@@ -25,11 +25,13 @@ function getAccessToken() {
 
 function handleFcmResponse(resolve, reject, err, res, body) {
   if (err) {
+    log.error('FCM error');
     log.error(err);
     reject(err);
   }
   let json = JSON.stringify(body);
   if (res.statusCode !== 200) {
+    log.error('FCM error');
     log.error(res.statusCode);
     log.error(json);
     reject(json);
@@ -59,12 +61,13 @@ function sendNotification(data, notificationKey) {
 }
 
 function modifyDeviceGroup({user, fcmToken, operation}) {
+  log.magenta('FCM Client', `modifyDeviceGroup: op = ${operation}, token = ${fcmToken}, key = ${user.notificationKey}`);
   let body = {
     operation: operation,
     notification_key_name: user.id,
     registration_ids: [fcmToken]
   }
-  if (operation == 'add' || 'remove') {
+  if (operation == 'add' || operation == 'remove') {
     body.notification_key = user.notificationKey;
   }
 
