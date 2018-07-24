@@ -1,6 +1,8 @@
 const {google} = require('googleapis');
 const log = require('./log');
 const request = require('request');
+const SERVER_KEY = require('../config/firebase-server-key.json');
+const FIREBASE_CONFIG = require('../config/firebase.json');
 
 function getAccessToken() {
   return new Promise(function(resolve, reject) {
@@ -22,39 +24,82 @@ function getAccessToken() {
   });
 }
 
-function sendNotification(data, token) {
+function handleFcmResponse(resolve, reject, err, res, body) {
+  if (err) {
+    log.error(err);
+    reject(err);
+  }
+  let json = JSON.stringify(body);
+  if (res.statusCode !== 200) {
+    log.error(res.statusCode);
+    log.error(json);
+    reject(json);
+  }
+  log.yellow('FCM response', json);
+  resolve(json);
+}
+
+function sendNotification(data, notificationKey) {
   let notification = {
-    "message": {
-      "token": token,
-      "data": {
-        smartapp: JSON.stringify(data)
-      }
+    "to": notificationKey,
+    "data": {
+      smartapp: JSON.stringify(data)
     }
   }
 
   return new Promise((resolve, reject) => {
-    getAccessToken().then((token) => {
-      request.post({
-        url: 'https://fcm.googleapis.com/v1/projects/iot-stuff-8e265/messages:send',
-        headers: {
-          'Authorization': `Bearer ${token}`
-        },
-        json: true,
-        body: notification
-      }, (err, res, body) => {
-        if (err) {
-          log.error(err);
-        }
-        if (res.statusCode !== 200) {
-          log.error(res.statusCode);
-          log.error(JSON.stringify(body));
-        }
-        log.yellow('FCM response', JSON.stringify(body));
-      });
-    });
+    request.post({
+      url: 'https://fcm.googleapis.com/fcm/send',
+      headers: {
+        'Authorization': `key=${SERVER_KEY}`
+      },
+      json: true,
+      body: notification
+    }, (err, res, body) => handleFcmResponse(resolve, reject, err, res, body));
   });
 }
 
+function modifyDeviceGroup({user, fcmToken, operation}) {
+  let body = {
+    operation: operation,
+    notification_key_name: user.id,
+    registration_ids: [fcmToken]
+  }
+  if (operation == 'add' || 'remove') {
+    body.notification_key = user.notificationKey;
+  }
+
+  return new Promise((resolve, reject) => {
+    request.post({
+      url: 'https://fcm.googleapis.com/fcm/notification',
+      headers: {
+        'Authorization': `key=${SERVER_KEY}`,
+        'project_id': FIREBASE_CONFIG.project_id
+      },
+      json: true,
+      body: body
+    }, (err, res, body) => handleFcmResponse(resolve, reject, err, res, body));
+  });
+}
+
+function createDeviceGroup(params) {
+  params.operation = 'create';
+  return modifyDeviceGroup(params);
+}
+
+function addDeviceToDeviceGroup(params) {
+  params.operation = 'add'
+  return modifyDeviceGroup(params);
+}
+
+function removeDeviceFromDeviceGroup(params) {
+  params.operation = 'remove'
+  return modifyDeviceGroup(params);
+}
+
 module.exports = {
-  sendNotification: sendNotification
+  sendNotification: sendNotification,
+  createDeviceGroup: createDeviceGroup,
+  addDeviceToDeviceGroup: addDeviceToDeviceGroup,
+  removeDeviceFromDeviceGroup: removeDeviceFromDeviceGroup
 }

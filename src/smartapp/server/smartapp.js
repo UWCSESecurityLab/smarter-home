@@ -12,6 +12,7 @@ const uuid = require('uuid/v4');
 const MongoStore = require('connect-mongo')(session);
 
 const auth = require('./auth');
+const fcmClient = require('./fcmClient');
 const InstallData = require('./db/installData');
 const lifecycle = require('./lifecycle');
 const log = require('./log');
@@ -222,7 +223,34 @@ app.post('/register', (req, res) => {
 
 // Registers the FCM notification token with the current user.
 app.post('/notificationToken', checkAuth, (req, res) => {
-  req.user.notificationToken = req.query.token;
+  if (req.user.notificationTokens.length == 0) {
+    fcmClient.createDeviceGroup({ user: req.user, fcmToken: req.query.token })
+      .then((group) => {
+        req.user.notificationKey = group.notification_key;
+        req.user.notificationTokens.push(req.query.token);
+        req.user.save((err) => {
+          if (err) {
+            res.status(500).send('Database error: ' + err);
+          } else {
+            res.status(200).send();
+          }
+        });
+      });
+  } else {
+    fcmClient.addDeviceToGroup({ user: req.user, fcmToken: req.query.fcmToken })
+      .then(() => {
+        req.user.notificationTokens.push(req.query.token);
+        req.user.save((err) => {
+          if (err) {
+            res.status(500).send('Database error: ' + err);
+          } else {
+            res.status(200).send();
+          }
+        });
+      });
+  }
+
+  req.user.notificationTokens.push(req.query.token);
   req.user.save((err) => {
     if (err) {
       res.status(500).send('Database error: ' + err);

@@ -75,11 +75,19 @@ module.exports = {
     }
 
     try {
-      let user = await User.findOne({}).exec();
-      let installData = await InstallData.findOne({}).exec();
+      let installedAppId = req.body.eventData.installedApp.installedAppId;
 
-      if (!user.notificationToken) {
-        log.error('No notification token found');
+      let installData = await InstallData.findOne({
+        'installedApp.installedAppId': installedAppId
+      }).exec();
+      if (!installData) {
+        log.error(`Could not find installdata on receiving event (${installedAppId})`);
+        return;
+      }
+
+      let users = await User.find({ installedAppId: installedAppId });
+      if (users.length === 0) {
+        log.error(`No users to notifiy for (${installedAppId})`);
         return;
       }
 
@@ -88,12 +96,15 @@ module.exports = {
         authToken: installData.authToken
       });
 
-      fcmClient.sendNotification({
-        device: description.label,
-        deviceId: deviceEvent.deviceEvent.deviceId,
-        capability: deviceEvent.deviceEvent.capability,
-        value: deviceEvent.deviceEvent.value
-      }, user.notificationToken);
+      let responses = Promise.all(users.map((user) => {
+        return fcmClient.sendNotification({
+          device: description.label,
+          deviceId: deviceEvent.deviceEvent.deviceId,
+          capability: deviceEvent.deviceEvent.capability,
+          value: deviceEvent.deviceEvent.value
+        }, user.notificationKey);
+      }));
+      responses.forEach((response) => log.log(JSON.stringify(response)));
     } catch(e) {
       log.error(e);
     }
