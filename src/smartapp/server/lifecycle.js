@@ -43,6 +43,26 @@ module.exports = {
       });
   },
 
+  handleUpdate: async function(req, res) {
+    try {
+      const updateData = req.body.updateData;
+      let installData = await InstallData.findOne({
+        'installedApp.installedAppId': updateData.installedApp.installedAppId
+      }).exec();
+      if (!installData) {
+        log.error(`Couldn\'t process update event - installdata ${updateData.installedApp.installedAppId} doesn\'t exist`);
+        return;
+      }
+
+      installData.authToken = updateData.authToken;
+      installData.refreshToken = updateData.refreshToken;
+      installData.installedApp = updateData.installedApp;
+      await installData.save();
+    } catch(e) {
+      log.error(e);
+    }
+  },
+
   handlePing: function(req, res) {
     res.status(200);
     res.json({

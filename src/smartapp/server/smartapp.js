@@ -102,7 +102,8 @@ function checkAuth(req, res, next) {
       return;
     }
     if (!user) {
-      log.error('Unauthorized user: session ' + JSON.stringify(req.session));
+      log.error('Unauthorized user');
+      console.log(req.session);
       res.status(401).json({ message: 'NOT_LOGGED_IN'});
       return;
     }
@@ -152,6 +153,7 @@ app.post('/', (req, res) => {
       lifecycle.handleInstall(req, res);
       break;
     case 'UPDATE':
+    lifecycle.handleUpdate(req, res);
       res.status(200).json({ updateData: {} });
       break;
     case 'EVENT':
@@ -185,7 +187,14 @@ app.post('/login', (req, res) => {
       }
       req.session.user = user.id;
       req.session.installedAppId = user.installedAppId;
-      res.status(200).send();
+      req.session.save((err) => {
+        if (err) {
+          res.status(500).json(err);
+        }
+        console.log('Saved session');
+        console.log(req.session);
+        res.status(200).send();
+      });
     });
   }).catch((err) => {
     if (err.message === 'BAD_USERNAME' || err.message === 'BAD_PASSWORD') {
@@ -220,6 +229,16 @@ app.post('/register', (req, res) => {
     }
     res.json(err);
   });
+});
+
+app.post('/logout', (req, res) => {
+  req.session.destroy((err) => {
+    if (err) {
+      log.error(err);
+      res.status(500).send(err);
+    }
+    res.status(200).json({message: 'ok'});
+  })
 });
 
 // Registers the FCM notification token with the current user.

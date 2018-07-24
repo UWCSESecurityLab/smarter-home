@@ -6,6 +6,11 @@ function handleJsonResponse(response) {
   });
 }
 
+// Global variable holding the client's session id. Why? So that this variable
+// is a singleton but the class is not, so that we can disable sessions for
+// the OAuth client for the SmartThings webview. Aargh.
+let sessionId;
+
 class SmartAppClient {
   // @param noSession: set to true if we shouldn't generate a session, i.e.
   // in oauth mode (esp b/c smartthings app webview doesn't have localstorage)
@@ -14,12 +19,12 @@ class SmartAppClient {
     if (noSession) {
       return;
     }
-    this.sessionId = localStorage.getItem('sessionId');
-    if (!this.sessionId) {
-      this.sessionId = uuid();
-      localStorage.setItem('sessionId', this.sessionId);
+    sessionId = localStorage.getItem('sessionId');
+    if (!sessionId) {
+      sessionId = uuid();
+      localStorage.setItem('sessionId', sessionId);
     }
-    console.log('Client session id: ' + this.sessionId);
+    console.log('Client session id: ' + sessionId);
   }
 
   login(username, password, oauth, oauthState) {
@@ -39,6 +44,20 @@ class SmartAppClient {
         'Client-Session': this.sessionId
       },
       body: JSON.stringify(args)
+    });
+  }
+
+  logout() {
+    return fetch(`${this.host}/logout`, {
+      method: 'POST',
+      credentials: 'same-origin',
+      headers: {
+        'Client-Session': this.sessionId
+      }
+    }).then(handleJsonResponse)
+    .then(() => {
+      sessionId = uuid();
+      localStorage.setItem('sessionId', sessionId);
     });
   }
 

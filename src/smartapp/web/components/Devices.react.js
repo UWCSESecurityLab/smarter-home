@@ -1,13 +1,14 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
-import uuid from 'uuid/v4';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import { CommonActions, SmartAppClient } from 'common';
 import ContactSensorStatus from './DeviceList/ContactSensorStatus.react';
 import DeviceListItem from './DeviceList/DeviceListItem.react';
 import LockStatus from './DeviceList/LockStatus.react';
+import MaterialIcon from '@material/react-material-icon';
 import SwitchStatus from './DeviceList/SwitchStatus.react';
+import uuid from 'uuid/v4';
 
 const smartAppClient = new SmartAppClient();
 
@@ -33,6 +34,7 @@ class Devices extends React.Component {
   }
 
   componentDidMount() {
+    this.setState({error: '', edit: false});
     smartAppClient.refreshAccessToken()
       .then(() => {
         // Fetch rooms and homeConfig, in parallel
@@ -205,7 +207,7 @@ class Devices extends React.Component {
                   </input>
                   { room.default ? null :
                     <button className="btn-transparent-round" onClick={this.removeRoom} name={room.roomId}>
-                      <i className="material-icons">clear</i>
+                      <MaterialIcon icon="clear"/>
                       <span className="btn-hover-expand">Remove</span>
                     </button>
                   }

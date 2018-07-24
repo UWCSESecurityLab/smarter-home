@@ -1,4 +1,7 @@
+// @import "@material/ripple/mdc-ripple";
+
 $drawer-width: 175px;
+
 
 .drawer {
   height: 100%;
@@ -10,6 +13,11 @@ $drawer-width: 175px;
   background: white;
   width: $drawer-width;
   // left: -$drawer-width;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: flex-start;
+  padding: 14px;
 }
 
 .drawer-enter {
@@ -17,7 +25,7 @@ $drawer-width: 175px;
 }
 .drawer-enter.drawer-enter-active {
   left: 0px;
-  transition: left 0.5s;
+  transition: left 0.3s ease-in-out;
 }
 .drawer-enter-done {
   left: 0px;
@@ -26,7 +34,7 @@ $drawer-width: 175px;
   left: 0px;
 }
 .drawer-exit.drawer-exit-active {
-  transition: left 0.5s;
+  transition: left 0.3s ease-in-out;
   left: -$drawer-width;
 }
 
@@ -42,7 +50,7 @@ $drawer-width: 175px;
 }
 .drawer-shadow-enter.drawer-shadow-enter-active {
   opacity: 1;
-  transition: opacity 0.5s;
+  transition: opacity 0.3s;
 }
 .drawer-shadow-enter-done {
   opacity: 1;
@@ -52,5 +60,26 @@ $drawer-width: 175px;
 }
 .drawer-shadow-exit.drawer-shadow-exit-active {
   opacity: 0;
-  transition: opacity 0.5s;
+  transition: opacity 0.3s;
+}
+
+.drawer-item {
+  display: flex;
+  align-items: center;
+  height: 1em;
+  padding: 4px 0;
+  cursor: pointer;
+  // @include mdc-ripple-surface;
+  // @include mdc-states;
+  // @include mdc-ripple-radius-bounded;
+
+  // overflow: hidden;
+}
+
+.drawer-header {
+  margin-bottom: 8px;
+  border-bottom: 1px solid #eeeeee;
+  width: 90%;
+  padding-bottom: 10px;
+  cursor: default;
 }

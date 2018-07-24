@@ -7,9 +7,8 @@ import SmartThingsOptions from './SmartThingsOptions.react';
 import TopAppBar from '@material/react-top-app-bar';
 import MaterialIcon from '@material/react-material-icon';
 
-import '../css/home.scss';
-
 import '@material/react-material-icon/index.scss';
+import '../css/home.scss';
 
 class Home extends React.Component {
   constructor(props, context) {
