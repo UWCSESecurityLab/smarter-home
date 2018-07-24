@@ -1,3 +1,6 @@
 platforms/
 plugins/
 www/
+google-services.json
+GoogleService-Info.plist
+
