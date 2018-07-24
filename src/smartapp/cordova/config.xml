@@ -18,16 +18,18 @@
     <allow-intent href="geo:*" />
     <platform name="android">
         <allow-intent href="market:*" />
+        <resource-file src="google-services.json" target="app/google-services.json" />
     </platform>
     <platform name="ios">
         <allow-intent href="itms:*" />
         <allow-intent href="itms-apps:*" />
+        <resource-file src="GoogleService-Info.plist" />
     </platform>
-    <engine name="ios" spec="^4.5.4" />
-    <engine name="android" spec="^7.1.1" />
     <plugin name="cordova-support-google-services" spec="^1.2.0" />
     <plugin name="cordova-plugin-firebase-messaging" spec="^1.1.0">
         <variable name="FIREBASE_MESSAGING_VERSION" value="17.1.+" />
         <variable name="ANDROID_SUPPORT_VERSION" value="27.+" />
     </plugin>
+    <engine name="ios" spec="^4.5.4" />
+    <engine name="android" spec="^7.1.1" />
 </widget>

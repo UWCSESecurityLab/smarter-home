@@ -1,7 +1,8 @@
 import React from 'react';
-import SmartThingsOptions from './SmartThingsOptions.react';
 import Devices from './Devices.react';
 import Drawer from './Drawer.react';
+import FirebaseOptions from './FirebaseOptions.react';
+import SmartThingsOptions from './SmartThingsOptions.react';
 
 import TopAppBar from '@material/react-top-app-bar';
 import MaterialIcon from '@material/react-material-icon';
@@ -16,7 +17,7 @@ class Home extends React.Component {
     this.state = {
       accessToken: null,
       deviceId: '',
-      notificationOptions: null,
+      notifications: null,
       drawerOpen: false
     };
 
@@ -26,8 +27,12 @@ class Home extends React.Component {
 
   componentDidMount() {
     if (!window._cordovaNative) {
-      import('./FirebaseOptions.react').then((module) => {
-        this.setState({ notificationOptions: module.default });
+      import('../web-notifications.js').then((module) => {
+        this.setState({ notifications: module.default });
+      });
+    } else {
+      import('../cordova-notifications.js').then((module) => {
+        this.setState({ notifications: module.default });
       });
     }
   }
@@ -43,7 +48,6 @@ class Home extends React.Component {
   }
 
   render() {
-    let NotificationOptions = this.state.notificationOptions;
     return (
       <div>
         <Drawer open={this.state.drawerOpen} closeFn={() => this.setState({drawerOpen: false})}/>
@@ -59,7 +63,11 @@ class Home extends React.Component {
         <div className="container mdc-top-app-bar--fixed-adjust">
           <Devices/>
           <SmartThingsOptions/>
-          { NotificationOptions ? <NotificationOptions /> : null }
+          {
+            this.state.notifications
+            ? <FirebaseOptions notifications={this.state.notifications} />
+            : null
+          }
           <section className="home-item">
             <h3>Endpoints</h3>
             <ul>

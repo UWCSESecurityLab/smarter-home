@@ -1,6 +1,7 @@
 const CopyWebpackPlugin = require('copy-webpack-plugin');
 const path = require('path');
 const glob = require('glob');
+const webpack = require('webpack');
 
 module.exports = [{
   entry: {
@@ -127,7 +128,7 @@ module.exports = [{
 },
 {
   entry: {
-    'cordova': ['babel-polyfill', './web/cordova.js']
+    'cordova-bundle': ['babel-polyfill', './web/cordova.js']
   },
   output: {
     filename: '[name].js',
@@ -194,6 +195,9 @@ module.exports = [{
     new CopyWebpackPlugin([
       // { from: 'web/html/cordova.html', to: 'cordova/www/index.html' },
       { from: 'web/css', to: 'cordova/www/css' }
-    ])
+    ]),
+    new webpack.optimize.LimitChunkCountPlugin({
+      maxChunks: 1,
+    }),
   ]
 }];
