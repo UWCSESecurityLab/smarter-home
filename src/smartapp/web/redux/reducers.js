@@ -29,6 +29,27 @@ function notificationData(state = null, action) {
   }
 }
 
+function nearbyBeacons(state = {}, action) {
+  switch (action.type) {
+    case Actions.ADD_BEACON:
+      return Object.assign({}, state, { [action.beacon.address]: action.beacon });
+    case Actions.REMOVE_OLD_BEACONS: {
+      let newState = Object.assign({}, state);
+      let now = Date.now();
+      for (let key in newState) {
+        // Filter out beacons updated more than 30 seconds ago.
+        let beacon = newState[key];
+        if (beacon.timeStamp + 30000 < now) {
+          delete newState[key];
+        }
+      }
+      return newState;
+    }
+    default:
+      return state;
+  }
+}
+
 const fcmReducers = combineReducers({
   fcmToken: fcmToken,
   notificationsEnabled: notificationsEnabled,
@@ -37,6 +58,7 @@ const fcmReducers = combineReducers({
 
 const store = createStore(combineReducers({
   fcm: fcmReducers,
+  nearbyBeacons: nearbyBeacons,
   devices: combineReducers({
     deviceDesc: CommonReducers.deviceDesc,
     deviceStatus: CommonReducers.deviceStatus,

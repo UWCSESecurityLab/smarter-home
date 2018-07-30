@@ -8,26 +8,27 @@ class BeaconStatus extends React.Component {
   }
 
   render() {
-    const beacon = this.props.deviceDesc[this.props.deviceId];
-    let buttonStyle;
-    if (status && !status.components) {
-      console.log(status);
-    }
-    if (status && status.components.main.contactSensor.contact.value === 'open') {
-      buttonStyle = 'toggle-active';
-    } else {
-      buttonStyle = 'toggle-inactive';
-    }
-    return (
-      <button className={'device-toggle ' + buttonStyle}>
-        <span className="device-status">
-          { status
-            ? status.components.main.contactSensor.contact.value
-            : 'Unavailable'
-          }
-        </span>
-      </button>
-    );
+    return (<div/>);
+    // const beacon = this.props.deviceDesc[this.props.deviceId];
+    // let buttonStyle;
+    // if (status && !status.components) {
+    //   console.log(status);
+    // }
+    // if (status && status.components.main.contactSensor.contact.value === 'open') {
+    //   buttonStyle = 'toggle-active';
+    // } else {
+    //   buttonStyle = 'toggle-inactive';
+    // }
+    // return (
+    //   <button className={'device-toggle ' + buttonStyle}>
+    //     <span className="device-status">
+    //       { status
+    //         ? status.components.main.contactSensor.contact.value
+    //         : 'Unavailable'
+    //       }
+    //     </span>
+    //   </button>
+    // );
   }
 }
 

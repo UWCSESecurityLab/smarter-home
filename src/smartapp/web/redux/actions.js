@@ -12,3 +12,13 @@ export const UPDATE_NOTIFICATION_DATA = 'UPDATE_NOTIFICATION_DATA';
 export function updateNotificationsEnabled(enabled) {
   return { type: UPDATE_NOTIFICATIONS_ENABLED, enabled: enabled };
 }
+
+export const ADD_BEACON = 'ADD_BEACON';
+export function addNearbyBeacon(beacon) {
+  return { type: ADD_BEACON, beacon: beacon };
+}
+
+export const REMOVE_OLD_BEACONS = 'REMOVE_OLD_BEACONS';
+export function removeOldBeacons() {
+  return { type: REMOVE_OLD_BEACONS };
+}

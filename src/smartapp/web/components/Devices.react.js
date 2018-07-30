@@ -1,14 +1,18 @@
 import React from 'react';
-import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
-import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
+import uuid from 'uuid/v4';
+
 import { CommonActions, SmartAppClient } from 'common';
+import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
+import { connect } from 'react-redux';
+
+import * as Actions from '../redux/actions';
 import ContactSensorStatus from './DeviceList/ContactSensorStatus.react';
+import BeaconStatus from './DeviceList/BeaconStatus.react';
 import DeviceListItem from './DeviceList/DeviceListItem.react';
 import LockStatus from './DeviceList/LockStatus.react';
 import MaterialIcon from '@material/react-material-icon';
 import SwitchStatus from './DeviceList/SwitchStatus.react';
-import uuid from 'uuid/v4';
 
 const smartAppClient = new SmartAppClient();
 
@@ -52,6 +56,23 @@ class Devices extends React.Component {
         console.error(err);
         this.setState({ error: err });
       });
+
+    if (window._cordovaNative) {
+      evothings.eddystone.startScan((beacon) => {
+        beacon.timestamp = Date.now();
+        this.props.dispatch(Actions.addNearbyBeacon(beacon));
+      }, (err) => { console.error(err) });
+
+      let intervalId = setInterval(Actions.removeOldBeacons, 20000);
+      this.setState({ beaconRefreshId: intervalId });
+    }
+  }
+
+  componentWillUnmount() {
+    if (window._cordovaNative) {
+      evothings.eddystone.stopScan();
+      clearInterval(this.state.beaconRefreshId);
+    }
   }
 
   fetchAllDeviceDescriptions(homeConfig) {
@@ -171,7 +192,8 @@ class Devices extends React.Component {
       status = <SwitchStatus deviceId={deviceId}/>
     } else if (this.props.homeConfig.doorLocks.includes(deviceId)) {
       status = <LockStatus deviceId={deviceId}/>
-    } else if (this.props.deviceDesc[deviceId].deviceTypeName === 'beacon') {
+    } else if (this.props.deviceDesc[deviceId] &&
+               this.props.deviceDesc[deviceId].deviceTypeName === 'beacon') {
       status = <BeaconStatus deviceId={deviceId}/>
     }
 
@@ -289,6 +311,7 @@ Devices.propTypes = {
   deviceStatus: PropTypes.object,
   dispatch: PropTypes.func,
   homeConfig: PropTypes.object,
+  nearbyBeacons: PropTypes.object,
   rooms: PropTypes.object
 }
 
@@ -297,7 +320,8 @@ function mapStateToProps(state) {
     deviceDesc: state.devices.deviceDesc,
     deviceStatus: state.devices.deviceStatus,
     homeConfig: state.devices.homeConfig,
-    rooms: state.devices.rooms,
+    nearbyBeacons: state.nearbyBeacons,
+    rooms: state.devices.rooms
   };
 }
 export default connect(mapStateToProps)(Devices);
