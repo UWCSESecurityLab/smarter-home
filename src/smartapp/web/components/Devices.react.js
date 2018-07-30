@@ -171,6 +171,8 @@ class Devices extends React.Component {
       status = <SwitchStatus deviceId={deviceId}/>
     } else if (this.props.homeConfig.doorLocks.includes(deviceId)) {
       status = <LockStatus deviceId={deviceId}/>
+    } else if (this.props.deviceDesc[deviceId].deviceTypeName === 'beacon') {
+      status = <BeaconStatus deviceId={deviceId}/>
     }
 
     return (

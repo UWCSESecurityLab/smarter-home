@@ -10,6 +10,9 @@ class DeviceListItem extends React.Component {
     let label = ''
     if (this.props.deviceDesc[this.props.deviceId]) {
       label = this.props.deviceDesc[this.props.deviceId].label;
+      if (this.props.deviceDesc[this.props.deviceId].deviceTypeName == 'beacon') {
+        label = 'Beacon ' + label;
+      }
     }
 
     return (
