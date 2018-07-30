@@ -16,6 +16,7 @@ const fcmClient = require('./fcmClient');
 const InstallData = require('./db/installData');
 const lifecycle = require('./lifecycle');
 const log = require('./log');
+const Beacon = require('./db/beacon');
 const Room = require('./db/room');
 const RoomTransaction = require('./db/room-transaction');
 const SmartThingsClient = require('./SmartThingsClient');
@@ -313,26 +314,55 @@ app.get('/homeConfig', checkAuth, getInstallData, (req, res) => {
 
 // Get the status of a device
 app.get('/devices/:deviceId/status', checkAuth, getInstallData, (req, res) => {
-  SmartThingsClient.getDeviceStatus({
-    deviceId: req.params.deviceId,
-    authToken: req.installData.authToken
-  }).then((status) => {
-    res.json(status);
+  Beacon.findOne({ id: req.params.deviceId }).then((beacon) => {
+    if (!beacon) {
+      SmartThingsClient.getDeviceStatus({
+        deviceId: req.params.deviceId,
+        authToken: req.installData.authToken
+      }).then((status) => {
+        res.json(status);
+      }).catch((err) => {
+        log.error(err);
+        res.status(500).json(err);
+      });
+    } else {
+      res.status(200).json({
+        components: {
+          main: {
+            beacon: {}
+          }
+        }
+      });
+    }
   }).catch((err) => {
     log.error(err);
-    res.status(500).send(err);
+    res.status(500).json(err);
   });
 });
 
 app.get('/devices/:deviceId/description', checkAuth, getInstallData,
     (req, res) => {
-  SmartThingsClient.getDeviceDescription({
-    deviceId: req.params.deviceId,
-    authToken: req.installData.authToken
-  }).then((description) => {
-    res.json(description);
+  Beacon.findOne({ id: req.params.deviceId }).then((beacon) => {
+    if (!beacon) {
+      SmartThingsClient.getDeviceDescription({
+        deviceId: req.params.deviceId,
+        authToken: req.installData.authToken
+      }).then((description) => {
+        res.json(description);
+      }).catch((err) => {
+        res.status(500).send(err);
+      });
+    } else {
+      res.status(200).json({
+        deviceId: req.params.deviceId,
+        name: beacon.name,
+        label: beacon.name,
+        deviceTypeName: 'beacon',
+        namespace: beacon.namespace
+      });
+    }
   }).catch((err) => {
-    res.status(500).send(err);
+    res.status(500).json(err);
   });
 });
 
@@ -347,6 +377,24 @@ app.post('/devices/:deviceId/commands', checkAuth, getInstallData,
   }).catch((err) => {
     log.error(err);
     res.status(500).send(String(err));
+  });
+});
+
+app.post('/beacon/add', checkAuth, getInstallData, (req, res) => {
+  Beacon.findOne({ name: req.body.name }).then((beacon) => {
+    if (!beacon) {
+      res.status(404).json({ error: 'BEACON_NOT_FOUND' });
+    } else {
+      Room.findOneAndUpdate({
+        installedAppId: req.installData.installedApp.installedAppId,
+        default: true
+      }, { $push: { devices: beacon.id }}).then(() => {
+        res.status(200).json(beacon);
+      }).catch((err) => {
+        log.error(err);
+        res.status(500).json({ error: 'DB_ERROR' });
+      });
+    }
   });
 });
 

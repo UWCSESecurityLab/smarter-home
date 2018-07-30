@@ -1,11 +1,10 @@
 const mongoose = require('mongoose');
 
-// This Schema is used to represent individual beacons, and catalog devices
-// that are near the beacon, to enable nearby access.
+// This Schema is used to represent individual beacons.
 let beaconSchema = mongoose.Schema({
-  namespace: String, // Namespace of this beacon (corresponds to a room).
+  namespace: String, // Namespace of this beacon
   id: String,        // ID of this beacon.
-  devices: [String]  // Device ids of nearby devices.
+  name: String       // User friendly name, physically labeled on beacon
 });
 
 let Beacon = mongoose.model('Beacon', beaconSchema);
