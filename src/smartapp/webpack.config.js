@@ -70,6 +70,7 @@ module.exports = [{
   entry: {
     'oauth': './web/entrypoints/oauth.js',
     'home': './web/entrypoints/home.js',
+    'beacons': './web/entrypoints/beacons.js'
   },
   output: {
     filename: '[name].js',

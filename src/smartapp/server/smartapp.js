@@ -380,6 +380,31 @@ app.post('/devices/:deviceId/commands', checkAuth, getInstallData,
   });
 });
 
+app.get('/beacon/configure', (req, res) => {
+  res.sendFile(path.join(__dirname, '../web/html/beacons.html'));
+});
+
+app.get('/beacon/list', (req, res) => {
+  Beacon.find().then((beacons) => {
+    res.status(200).json(beacons);
+  }).catch((err) => {
+    res.status(500).json(err);
+  });
+});
+
+app.post('/beacon/new', (req, res) => {
+  let beacon = new Beacon({
+    namespace: req.body.namespace,
+    id: req.body.id,
+    name: req.body.name
+  });
+  beacon.save().then(() => {
+    res.status(200).send();
+  }).catch((err) => {
+    res.status(500).json(err);
+  });
+});
+
 app.post('/beacon/add', checkAuth, getInstallData, (req, res) => {
   Beacon.findOne({ name: req.body.name }).then((beacon) => {
     if (!beacon) {
