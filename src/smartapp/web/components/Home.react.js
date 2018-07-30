@@ -26,11 +26,11 @@ class Home extends React.Component {
 
   componentDidMount() {
     if (!window._cordovaNative) {
-      import('../web-notifications.js').then((module) => {
+      import('../lib/notifications/web-notifications.js').then((module) => {
         this.setState({ notifications: module.default });
       });
     } else {
-      import('../cordova-notifications.js').then((module) => {
+      import('../lib/notifications/cordova-notifications.js').then((module) => {
         this.setState({ notifications: module.default });
       });
     }

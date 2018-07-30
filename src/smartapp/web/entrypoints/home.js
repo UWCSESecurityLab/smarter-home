@@ -1,4 +1,4 @@
-import WebRoot from './components/WebRoot.react';
+import WebRoot from '../components/WebRoot.react';
 import React from 'react';
 import ReactDOM from 'react-dom';
 

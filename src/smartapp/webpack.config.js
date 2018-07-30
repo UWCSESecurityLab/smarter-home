@@ -5,8 +5,8 @@ const webpack = require('webpack');
 
 module.exports = [{
   entry: {
-    'oauth-legacy': ['babel-polyfill', './web/oauth.js'],
-    'home-legacy': ['babel-polyfill', './web/home.js'],
+    'oauth-legacy': ['babel-polyfill', './web/entrypoints/oauth.js'],
+    'home-legacy': ['babel-polyfill', './web/entrypoints/home.js'],
   },
   output: {
     filename: '[name].js',
@@ -68,8 +68,8 @@ module.exports = [{
 },
 {
   entry: {
-    'oauth': './web/oauth.js',
-    'home': './web/home.js',
+    'oauth': './web/entrypoints/oauth.js',
+    'home': './web/entrypoints/home.js',
   },
   output: {
     filename: '[name].js',
@@ -128,7 +128,7 @@ module.exports = [{
 },
 {
   entry: {
-    'cordova-bundle': ['babel-polyfill', './web/cordova.js']
+    'cordova-bundle': ['babel-polyfill', './web/entrypoints/cordova.js']
   },
   output: {
     filename: '[name].js',

@@ -1,8 +1,8 @@
-import { store } from './redux/reducers';
+import { store } from '../../redux/reducers';
 import {
   updateNotificationsEnabled,
   updateNotificationData
-} from './redux/actions';
+} from '../../redux/actions';
 import Notifications from './notifications';
 
 class CordovaNotifications extends Notifications {

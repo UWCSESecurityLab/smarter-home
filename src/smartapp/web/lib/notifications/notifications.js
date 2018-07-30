@@ -1,9 +1,9 @@
-import { store } from './redux/reducers';
+import { store } from '../../redux/reducers';
 import {
   updateFcmToken,
   updateNotificationsEnabled,
   updateNotificationData
-} from './redux/actions';
+} from '../../redux/actions';
 import { CommonActions, SmartAppClient } from 'common';
 
 let smartAppClient = new SmartAppClient();

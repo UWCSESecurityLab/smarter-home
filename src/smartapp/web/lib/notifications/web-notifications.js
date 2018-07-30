@@ -1,11 +1,10 @@
 import * as firebase from 'firebase/app';
 import 'firebase/messaging';
-import { store } from './redux/reducers';
+import { store } from '../../redux/reducers';
 import {
   updateNotificationsEnabled,
   updateNotificationData
-} from './redux/actions';
-import { SmartAppClient } from 'common';
+} from '../../redux/actions';
 import Notifications from './notifications';
 
 // This script initializes Firebase when imported, handles incoming messages,

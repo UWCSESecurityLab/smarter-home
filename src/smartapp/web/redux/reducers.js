@@ -1,17 +1,6 @@
 import { combineReducers, createStore } from 'redux';
 import * as Actions from './actions';
-import * as NavActions from './navigate-actions';
 import { CommonReducers } from 'common';
-import * as Views from '../views';
-
-function view(state = Views.AUTH, action) {
-  switch (action.type) {
-    case NavActions.NAVIGATE:
-      return action.view;
-    default:
-      return state;
-  }
-}
 
 function fcmToken(state = '', action) {
   switch (action.type) {
@@ -47,7 +36,6 @@ const fcmReducers = combineReducers({
 });
 
 const store = createStore(combineReducers({
-  view: view,
   fcm: fcmReducers,
   devices: combineReducers({
     deviceDesc: CommonReducers.deviceDesc,
