@@ -29,7 +29,8 @@ class Devices extends React.Component {
     super(props, context);
     this.state = {
       edit: false,
-      error: ''
+      error: '',
+      beaconModal: false,
     }
     this.addRoom = this.addRoom.bind(this);
     this.onDragEnd = this.onDragEnd.bind(this);
@@ -264,7 +265,10 @@ class Devices extends React.Component {
         <div>
           <button className="btn btn-green"
                   onClick={this.addRoom}>
-            Add +
+            Add Room
+          </button>
+          <button className="btn btn-green" onClick={this.addBeacon}>
+            Add Beacon
           </button>
           <button className="btn btn-green"
                   onClick={() => { this.setState({ edit: false })}}>
@@ -276,13 +280,17 @@ class Devices extends React.Component {
       headerButtons = (
         <button className="btn btn-green" id="edit-rooms"
                 onClick={() => { this.setState({ edit: true }) }}>
-          Edit Rooms
+          Configure
         </button>
       );
     }
 
     return (
       <DragDropContext onDragEnd={this.onDragEnd}>
+        { this.state.beaconModal
+          ? <BeaconModal close={() => this.setState({ beaconModal: false })}/>
+          : null
+        }
         <section className="home-item">
           <div className="devices-header">
             <h3>My Home</h3>
