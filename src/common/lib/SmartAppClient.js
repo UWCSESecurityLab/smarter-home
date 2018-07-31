@@ -205,6 +205,20 @@ class SmartAppClient {
         destIdx: destIdx })
     }).then(handleJsonResponse);
   }
+
+  addBeacon(beaconName) {
+    return fetch(`${this.host}/beacon/add`, {
+      method: 'POST',
+      credentials: 'same-origin',
+      headers: {
+        "Content-Type": "application/json",
+        'Client-Session': this.sessionId
+      },
+      body: JSON.stringify({
+        name: beaconName
+      })
+    }).then(handleJsonResponse);
+  }
 }
 
 export default SmartAppClient;

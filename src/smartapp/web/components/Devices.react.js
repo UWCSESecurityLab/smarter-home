@@ -8,6 +8,7 @@ import { connect } from 'react-redux';
 
 import * as Actions from '../redux/actions';
 import ContactSensorStatus from './DeviceList/ContactSensorStatus.react';
+import BeaconModal from './BeaconModal.react';
 import BeaconStatus from './DeviceList/BeaconStatus.react';
 import DeviceListItem from './DeviceList/DeviceListItem.react';
 import LockStatus from './DeviceList/LockStatus.react';
@@ -24,6 +25,12 @@ function getDeviceIds(homeConfig) {
   });
 }
 
+function getDeviceIdsFromRooms(rooms) {
+  return Object.values(rooms)
+    .map((room => room.devices))
+    .reduce((accumulator, current) => { return accumulator.concat(current) });
+}
+
 class Devices extends React.Component {
   constructor(props, context) {
     super(props, context);
@@ -32,6 +39,8 @@ class Devices extends React.Component {
       error: '',
       beaconModal: false,
     }
+
+    this.addBeacon = this.addBeacon.bind(this);
     this.addRoom = this.addRoom.bind(this);
     this.onDragEnd = this.onDragEnd.bind(this);
     this.onRoomNameChange = this.onRoomNameChange.bind(this);
@@ -43,13 +52,12 @@ class Devices extends React.Component {
     smartAppClient.refreshAccessToken()
       .then(() => {
         // Fetch rooms and homeConfig, in parallel
-        this.fetchRooms();
-        return smartAppClient.getHomeConfig();
-      }).then((config) => {
+        return Promise.all([smartAppClient.getHomeConfig(), this.fetchRooms()]);
+      }).then(([config, ]) => {
         // Once homeConfig has been fetched, fetch device descs and statuses
         this.props.dispatch(CommonActions.updateHomeConfig(config));
-        this.fetchAllDeviceDescriptions(config);
-        this.fetchAllDeviceStatuses(config);
+        this.fetchAllDeviceDescriptions();
+        this.fetchAllDeviceStatuses();
       }).catch((err) => {
         if (err.error == 'USER_NOT_LINKED') {
           this.setState({ error: 'SmarterThings is not linked to a home!' });
@@ -76,8 +84,8 @@ class Devices extends React.Component {
     }
   }
 
-  fetchAllDeviceDescriptions(homeConfig) {
-    Promise.all(getDeviceIds(homeConfig).map((deviceId) => {
+  fetchAllDeviceDescriptions() {
+    Promise.all(getDeviceIdsFromRooms(this.props.rooms).map((deviceId) => {
       return smartAppClient.getDeviceDescription(deviceId);
     })).then((descs) => {
       descs.forEach((desc) => {
@@ -86,8 +94,8 @@ class Devices extends React.Component {
     });
   }
 
-  fetchAllDeviceStatuses(homeConfig) {
-    Promise.all(getDeviceIds(homeConfig).map((deviceId) => {
+  fetchAllDeviceStatuses() {
+    Promise.all(getDeviceIdsFromRooms(this.props.rooms).map((deviceId) => {
       return smartAppClient.getDeviceStatus(deviceId);
     })).then((statuses) => {
       statuses.forEach((status) => {
@@ -183,6 +191,10 @@ class Devices extends React.Component {
         this.fetchRooms();
       });
     }
+  }
+
+  addBeacon() {
+    this.setState({ beaconModal: true });
   }
 
   renderDevice(deviceId, index) {
@@ -286,30 +298,32 @@ class Devices extends React.Component {
     }
 
     return (
-      <DragDropContext onDragEnd={this.onDragEnd}>
+      <div>
         { this.state.beaconModal
           ? <BeaconModal close={() => this.setState({ beaconModal: false })}/>
           : null
         }
-        <section className="home-item">
-          <div className="devices-header">
-            <h3>My Home</h3>
-            { headerButtons }
-          </div>
-          { this.state.error !== ''
-            ? <div>
-                <div id="error-exclamation">!</div>
-                <div id="error-msg">Error: This account is not linked to a home</div>
-              </div>
-            : null
-          }
+        <DragDropContext onDragEnd={this.onDragEnd}>
+          <section className="home-item">
+            <div className="devices-header">
+              <h3>My Home</h3>
+              { headerButtons }
+            </div>
+            { this.state.error !== ''
+              ? <div>
+                  <div id="error-exclamation">!</div>
+                  <div id="error-msg">Error: This account is not linked to a home</div>
+                </div>
+              : null
+            }
 
-          { Object.keys(this.props.homeConfig).length > 0
-            ? this.renderAllDevices()
-            : null
-          }
-        </section>
-      </DragDropContext>
+            { Object.keys(this.props.homeConfig).length > 0
+              ? this.renderAllDevices()
+              : null
+            }
+          </section>
+        </DragDropContext>
+      </div>
     );
   }
 }
