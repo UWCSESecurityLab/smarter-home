@@ -8,38 +8,35 @@ class BeaconStatus extends React.Component {
   }
 
   render() {
-    return (<div/>);
-    // const beacon = this.props.deviceDesc[this.props.deviceId];
-    // let buttonStyle;
-    // if (status && !status.components) {
-    //   console.log(status);
-    // }
-    // if (status && status.components.main.contactSensor.contact.value === 'open') {
-    //   buttonStyle = 'toggle-active';
-    // } else {
-    //   buttonStyle = 'toggle-inactive';
-    // }
-    // return (
-    //   <button className={'device-toggle ' + buttonStyle}>
-    //     <span className="device-status">
-    //       { status
-    //         ? status.components.main.contactSensor.contact.value
-    //         : 'Unavailable'
-    //       }
-    //     </span>
-    //   </button>
-    // );
+    const beacon = this.props.deviceDesc[this.props.deviceId];
+
+    let nearby = Object.values(this.props.nearbyBeacons)
+      .map((nearby) => Buffer.from(nearby.bid).toString('hex'))
+      .includes(beacon.deviceId)
+
+    let buttonStyle = nearby ? 'toggle-active' : 'toggle-inactive';
+    let buttonText = nearby ? 'nearby' : 'not nearby';
+
+    return (
+      <button className={'device-toggle ' + buttonStyle}>
+        <span className="device-status">
+          {buttonText}
+        </span>
+      </button>
+    );
   }
 }
 
 BeaconStatus.propTypes = {
   deviceId: PropTypes.string,
   deviceDesc: PropTypes.object,
-  dispatch: PropTypes.func
+  dispatch: PropTypes.func,
+  nearbyBeacons: PropTypes.object
 }
 
 function mapStateToProps(state) {
   return {
+    nearbyBeacons: state.nearbyBeacons,
     deviceDesc: state.devices.deviceDesc
   }
 }

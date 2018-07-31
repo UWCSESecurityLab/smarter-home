@@ -39,7 +39,7 @@ function nearbyBeacons(state = {}, action) {
       for (let key in newState) {
         // Filter out beacons updated more than 30 seconds ago.
         let beacon = newState[key];
-        if (beacon.timeStamp + 30000 < now) {
+        if (beacon.timestamp + 5000 < now) {
           delete newState[key];
         }
       }

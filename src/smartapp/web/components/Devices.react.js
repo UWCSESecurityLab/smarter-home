@@ -72,7 +72,9 @@ class Devices extends React.Component {
         this.props.dispatch(Actions.addNearbyBeacon(beacon));
       }, (err) => { console.error(err) });
 
-      let intervalId = setInterval(Actions.removeOldBeacons, 20000);
+      let intervalId = setInterval(() => {
+        this.props.dispatch(Actions.removeOldBeacons());
+      }, 5000);
       this.setState({ beaconRefreshId: intervalId });
     }
   }
@@ -105,7 +107,7 @@ class Devices extends React.Component {
   }
 
   fetchRooms() {
-    smartAppClient.getRooms().then((rooms) => {
+    return smartAppClient.getRooms().then((rooms) => {
       this.props.dispatch(CommonActions.setRooms(rooms.map((room) => {
          return { [room.roomId]: room }
       })));
