@@ -96,8 +96,8 @@ module.exports = {
     }
 
     try {
-      let installedAppId = req.body.eventData.installedApp.installedAppId;
-
+      // Find the installedApp for this event
+      let installedAppId = req.body.eventData.installedApp.installedAppId
       let installData = await InstallData.findOne({
         'installedApp.installedAppId': installedAppId
       }).exec();
@@ -106,6 +106,7 @@ module.exports = {
         return;
       }
 
+      // Find the users of the installedApp
       let users = await User.find({ installedAppId: installedAppId });
       if (users.length === 0) {
         log.error(`No users to notifiy for (${installedAppId})`);
@@ -113,16 +114,20 @@ module.exports = {
       }
 
       const deviceId = deviceEvent.deviceEvent.deviceId;
+      await SmartThingsClient.renewTokens(installedAppId);
 
+      // Get details about the device
       let description = await SmartThingsClient.getDeviceDescription({
         deviceId: deviceId,
         authToken: installData.authToken
       });
 
+      // Find the beacon ids for the room that the device is in
       let room = await Room.findOne({ devices: deviceId });
       let beacons = await Beacon.find({ id: room.devices });
       let beaconIds = beacons.map((b) => b.id);
 
+      // Send an FCM notification
       let responses = Promise.all(users.map((user) => {
         return fcmClient.sendNotification({
           beacons: beaconIds,
