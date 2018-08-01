@@ -8,7 +8,7 @@ if (process.argv.length !== 3) {
   process.exit(1);
 }
 
-mongoose.connect('mongodb://localhost:27017/test', { useNewUrlParser: true });
+mongoose.connect('mongodb://localhost:27017,localhost:27018,localhost:27019/test?replicaSet=rs', { useNewUrlParser: true });
 let db = mongoose.connection;
 db.on('error', console.log.bind(console, 'connection error:'));
 db.once('open', () => {
