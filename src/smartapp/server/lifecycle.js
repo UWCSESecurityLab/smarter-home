@@ -3,6 +3,7 @@ const fcmClient = require('./fcmClient');
 const InstallData = require('./db/installData');
 const log = require('./log');
 const SmartThingsClient = require('./SmartThingsClient');
+const Beacon = require('./db/beacon');
 const Room = require('./db/room');
 const User = require('./db/user');
 const uuid = require('uuid/v4');
@@ -111,13 +112,20 @@ module.exports = {
         return;
       }
 
+      const deviceId = deviceEvent.deviceEvent.deviceId;
+
       let description = await SmartThingsClient.getDeviceDescription({
-        deviceId: deviceEvent.deviceEvent.deviceId,
+        deviceId: deviceId,
         authToken: installData.authToken
       });
 
+      let room = await Room.findOne({ devices: deviceId });
+      let beacons = await Beacon.find({ id: room.devices });
+      let beaconIds = beacons.map((b) => b.id);
+
       let responses = Promise.all(users.map((user) => {
         return fcmClient.sendNotification({
+          beacons: beaconIds,
           device: description.label,
           deviceId: deviceEvent.deviceEvent.deviceId,
           capability: deviceEvent.deviceEvent.capability,

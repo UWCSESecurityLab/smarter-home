@@ -20,18 +20,7 @@ class CordovaNotifications extends Notifications {
     });
     this.updateToken().catch(console.error);
 
-    cordova.plugins.firebase.messaging.onBackgroundMessage((payload) => {
-      console.log('Background notification');
-      console.log(payload);
-      let message = JSON.parse(payload.smartapp);
-      let title = `${message.device} | ${message.capability} -> ${message.value}`;
-      let text = 'subtitle';
-
-      cordova.plugins.notification.local.schedule({
-        title: title,
-        text: text
-      });
-    });
+    cordova.plugins.firebase.messaging.onBackgroundMessage(this.onBackgroundMessage);
   }
   async updateToken() {
     try {
@@ -49,6 +38,19 @@ class CordovaNotifications extends Notifications {
     }).catch((err) => {
       console.error(err);
       store.dispatch(updateNotificationData(false));
+    });
+  }
+
+  onBackgroundMessage(payload) {
+    console.log('Background message');
+    console.log(payload);
+    let message = JSON.parse(payload.smartapp);
+    let title = `${message.device} | ${message.capability} -> ${message.value}`;
+    let text = 'subtitle';
+
+    cordova.plugins.notification.local.schedule({
+      title: title,
+      text: text
     });
   }
 }
