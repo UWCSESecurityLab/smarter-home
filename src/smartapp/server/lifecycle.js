@@ -114,12 +114,12 @@ module.exports = {
       }
 
       const deviceId = deviceEvent.deviceEvent.deviceId;
-      await SmartThingsClient.renewTokens(installedAppId);
+      const newTokens = await SmartThingsClient.renewTokens(installedAppId);
 
       // Get details about the device
       let description = await SmartThingsClient.getDeviceDescription({
         deviceId: deviceId,
-        authToken: installData.authToken
+        authToken: newTokens.access_token
       });
 
       // Find the beacon ids for the room that the device is in
@@ -128,7 +128,7 @@ module.exports = {
       let beaconIds = beacons.map((b) => b.id);
 
       // Send an FCM notification
-      let responses = Promise.all(users.map((user) => {
+      let responses = await Promise.all(users.map((user) => {
         return fcmClient.sendNotification({
           beacons: beaconIds,
           device: description.label,
