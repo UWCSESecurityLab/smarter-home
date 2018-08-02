@@ -46,12 +46,24 @@ class CordovaNotifications extends Notifications {
     console.log(payload);
     let message = JSON.parse(payload.smartapp);
     let title = `${message.device} | ${message.capability} -> ${message.value}`;
-    let text = 'subtitle';
 
-    cordova.plugins.notification.local.schedule({
-      title: title,
-      text: text
-    });
+    let detected = [];
+    evothings.eddystone.startScan((beacon) => {
+      let id = Buffer.from(beacon.bid).toString('hex');
+      detected.push(id);
+    }, (err) => { console.error(err) });
+
+    setTimeout(() => {
+      evothings.eddystone.stopScan();
+      if (detected.filter((b) => message.beacons.includes(b)).length > 0) {
+        cordova.plugins.notification.local.schedule({
+          title: title,
+          text: 'You are nearby this device'
+        });
+      }
+    }, 5000);
+
+
   }
 }
 
