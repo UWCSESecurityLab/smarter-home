@@ -1,6 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { SmartAppClient } from 'common';
+import * as Actions from '../redux/actions';
 import '../css/login.scss';
 
 class Login extends React.Component {
@@ -12,7 +13,7 @@ class Login extends React.Component {
       loading: false,
       error: null,
       authenticated: false,
-      redirect: null
+      dispatch: null
     };
 
     this.login = this.login.bind(this);
@@ -24,8 +25,8 @@ class Login extends React.Component {
 
   componentDidMount() {
     if (!this.props.oauth) {
-      import ('react-router-dom').then((module) => {
-        this.setState({ redirect: module.Redirect});
+      import('../redux/reducers').then((module) => {
+        this.setState({ dispatch: module.store.dispatch });
       });
     }
   }
@@ -50,7 +51,7 @@ class Login extends React.Component {
             window.location.href = text;
           });
         } else {
-          this.setState({ authenticated: true });
+          this.state.dispatch(Actions.login());
         }
       }
     }).catch((e) => {
@@ -68,8 +69,6 @@ class Login extends React.Component {
   }
 
   render() {
-    let Redirect = this.state.redirect;
-
     let errorMessage;
     if (this.state.error) {
       switch (this.state.error) {
@@ -126,7 +125,6 @@ class Login extends React.Component {
         </div>
         {this.props.children}
         {error}
-        { this.state.authenticated && Redirect ? <Redirect to='/home'/> : null }
       </div>
     );
   }

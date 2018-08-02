@@ -18,20 +18,30 @@ class App extends React.Component {
         <Route exact path="/" render={() => (
           <Redirect to='/login'/>
         )}/>
-        <Route path="/login" component={Authenticate}/>
+        <Route path="/login" render={(props) => (
+          this.props.authenticated
+          ? <Redirect to='/home'/>
+          : <Authenticate/>
+        )}/>
         <Route path="/oauth" component={Authenticate}/>
-        <Route path="/home" component={Home}/>
+        <Route path="/home" render={(props) => (
+          this.props.authenticated
+          ? <Home/>
+          : <Redirect to='/login'/>
+        )}/>
       </Switch>
     );
   }
 }
 
 App.propTypes = {
+  authenticated: PropTypes.bool,
   view: PropTypes.string
 }
 
 function mapStateToProps(state) {
   return {
+    authenticated: state.authenticated,
     view: state.view
   }
 }

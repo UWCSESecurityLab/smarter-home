@@ -22,3 +22,13 @@ export const REMOVE_OLD_BEACONS = 'REMOVE_OLD_BEACONS';
 export function removeOldBeacons() {
   return { type: REMOVE_OLD_BEACONS };
 }
+
+export const LOGIN = 'LOGIN';
+export function login() {
+  return { type: LOGIN };
+}
+
+export const LOGOUT = 'LOGOUT';
+export function logout() {
+  return { type: LOGOUT };
+}

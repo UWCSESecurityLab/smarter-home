@@ -50,6 +50,19 @@ function nearbyBeacons(state = {}, action) {
   }
 }
 
+function authenticated(state = JSON.parse(localStorage.getItem('authenticated')), action) {
+  switch (action.type) {
+    case Actions.LOGIN:
+      localStorage.setItem('authenticated', true);
+      return true;
+    case Actions.LOGOUT:
+      localStorage.setItem('authenticated', false);
+      return false;
+    default:
+      return state;
+  }
+}
+
 const fcmReducers = combineReducers({
   fcmToken: fcmToken,
   notificationsEnabled: notificationsEnabled,
@@ -57,6 +70,7 @@ const fcmReducers = combineReducers({
 });
 
 const store = createStore(combineReducers({
+  authenticated: authenticated,
   fcm: fcmReducers,
   nearbyBeacons: nearbyBeacons,
   devices: combineReducers({

@@ -44,6 +44,8 @@ class SmartAppClient {
         'Client-Session': this.sessionId
       },
       body: JSON.stringify(args)
+    }).then((response) => {
+      return response;
     });
   }
 
@@ -58,6 +60,7 @@ class SmartAppClient {
     .then(() => {
       sessionId = uuid();
       localStorage.setItem('sessionId', sessionId);
+      localStorage.setItem('authenticated', false);
     });
   }
 
