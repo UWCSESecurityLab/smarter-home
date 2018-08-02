@@ -21,6 +21,9 @@
   display: block;
   white-space: pre-wrap
 }
+code {
+  word-wrap: break-word;
+}
 
 .container {
   margin-left: auto;
