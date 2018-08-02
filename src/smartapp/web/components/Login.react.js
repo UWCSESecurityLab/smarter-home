@@ -1,6 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { SmartAppClient } from 'common';
+import '../css/login.scss';
 
 class Login extends React.Component {
   constructor(props) {
