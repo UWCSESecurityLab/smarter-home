@@ -5,10 +5,11 @@
   "main": "smartapp.js",
   "scripts": {
     "build": "webpack --config webpack.config.js",
-    "watch": "webpack --watch --config webpack.config.js",
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "clean": "rm -rf dist/ && rm -rf cordova/www/css && rm -rf cordova/www/js",
     "delete": "node scripts/delete-installed.js",
-    "mongo": "run-rs -v 4.0.0 --shell --keep"
+    "mongo": "run-rs -v 4.0.0 --shell --keep",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "watch": "webpack --watch --config webpack.config.js"
   },
   "author": "",
   "license": "",
