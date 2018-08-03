@@ -1,3 +1,10 @@
+$mdc-theme-primary: #00a6ff;
+$mdc-theme-secondary: #409e40;
+$mdc-theme-on-primary: #ffffff;
+$mdc-theme-on-secondary: #ffffff;
+
+@import "@material/react-button/index";
+
 body {
   background: #5FC4FA;
   font-family: Roboto, sans-serif;
@@ -47,7 +54,7 @@ input:focus {
 
 .btn-green {
   color: white;
-  background: rgb(64, 158, 64);
+  background: #409e40;
   border: 1px solid rgb(64, 144, 64);
 }
 .btn-green:hover {
@@ -71,11 +78,12 @@ input:focus {
 .btn-blue:disabled {
   background: #3b5b6d;
 }
-/*
-#react {
-  display: flex;
-  justify-content: center;
-} */
+
+.mdc-button-blue {
+  @include mdc-button-filled-accessible(#00a6ff);
+  @include mdc-button-ink-color(#FFFFFF);
+  @include mdc-button-corner-radius(4px);
+}
 
 .add-modal {
   position: absolute;

@@ -1,6 +1,9 @@
 import React from 'react';
+import Button from '@material/react-button';
 import { SmartAppClient } from 'common';
 import PropTypes from 'prop-types';
+
+import '../css/login.scss';
 
 let smartAppClient = new SmartAppClient();
 
@@ -96,12 +99,12 @@ class Register extends React.Component {
           </div>
         </form>
         <div>
-          <button type="submit" form="register-form" disabled={this.state.loading}>
+        <Button className="mdc-button-blue" raised type="submit" form="register-form" disabled={this.state.loading}>
             { this.state.loading
               ? 'Registering...'
               : 'Register'
             }
-          </button>
+          </Button>
           { this.state.loading
             ? <span className="spinner" id="spinner" aria-hidden="true"></span>
             : null

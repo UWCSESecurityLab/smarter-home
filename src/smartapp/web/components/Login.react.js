@@ -1,7 +1,9 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import Button from '@material/react-button';
 import { SmartAppClient } from 'common';
 import * as Actions from '../redux/actions';
+
 import '../css/login.scss';
 
 class Login extends React.Component {
@@ -112,12 +114,12 @@ class Login extends React.Component {
           </div>
         </form>
         <div>
-          <button className="btn btn-blue" id="login-btn" type="submit" form="login-form" disabled={this.state.loading}>
+          <Button className="mdc-button-blue" raised type="submit" form="login-form" disabled={this.state.loading}>
             { this.state.loading
               ? 'Signing In...'
               : 'Sign In'
             }
-          </button>
+          </Button>
           { this.state.loading
             ? <span className="spinner" id="spinner" aria-hidden="true"></span>
             : null
