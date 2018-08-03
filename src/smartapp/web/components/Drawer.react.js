@@ -6,20 +6,43 @@ import { CSSTransition } from 'react-transition-group';
 import * as Actions from '../redux/actions';
 import { store } from '../redux/reducers';
 
+import withRipple from '@material/react-ripple';
 import '../css/drawer.scss';
 let smartAppClient = new SmartAppClient();
+
+function logout() {
+  console.log('logout clicked');
+  smartAppClient.logout().then(() => {
+    store.dispatch(Actions.logout());
+  });
+}
+
+const Item = (props) => {
+  const {
+    children,
+    className = '',
+    // call `initRipple` from the root element's ref. This attaches the ripple
+    // to the element.
+    initRipple,
+    // include `unbounded` to remove warnings when passing `otherProps` to the
+    // root element.
+    unbounded,
+    ...otherProps
+  } = props;
+
+  // any classes needed on your component needs to be merged with
+  // `className` passed from `props`.
+  return (
+    <div className={className} ref={initRipple} {...otherProps}>
+      {children}
+    </div>
+  );
+};
+const RippleItem = withRipple(Item);
 
 class Drawer extends React.Component {
   constructor(props) {
     super(props);
-    this.logout = this.logout.bind(this);
-  }
-
-  logout() {
-    console.log('logout clicked');
-    smartAppClient.logout().then(() => {
-      store.dispatch(Actions.logout());
-    });
   }
 
   render() {
@@ -39,8 +62,11 @@ class Drawer extends React.Component {
             timeout={300}
             mountOnEnter unmountOnExit>
           <div className="drawer">
-            <div className="drawer-item drawer-header" ><h3>Options</h3></div>
-            <div className="drawer-item" onClick={this.logout}><MaterialIcon icon="eject"/>Logout</div>
+            <div className="drawer-header" ><h3>Options</h3></div>
+            <RippleItem className="drawer-item" onClick={logout}>
+              <MaterialIcon icon="eject"/>
+              Logout
+            </RippleItem>
           </div>
         </CSSTransition>
       </div>

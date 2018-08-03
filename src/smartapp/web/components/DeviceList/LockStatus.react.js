@@ -56,13 +56,11 @@ class LockStatus extends React.Component {
     }
 
     return (
-      <button onClick={this.toggle} className={'device-toggle ' + buttonStyle}>
-        <span className="device-status">
-          { status
-            ? status.components.main.lock.lock.value
-            : 'Unavailable'
-          }
-        </span>
+      <button onClick={this.toggle} className={'device-status device-status-toggle ' + buttonStyle}>
+        { status
+          ? status.components.main.lock.lock.value
+          : 'Unavailable'
+        }
       </button>
     );
   }

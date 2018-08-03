@@ -1,4 +1,6 @@
 @import "@material/top-app-bar/mdc-top-app-bar";
+@import "@material/ripple/common";
+@import "@material/ripple/mixins";
 
 .mdc-top-app-bar {
   @include mdc-top-app-bar-fill-color(#0d87c9);
@@ -111,12 +113,20 @@ code {
   color: #848484;
 }
 
-.device-toggle {
+.device-status {
   font-size: 11pt;
   padding: 6px 12px;
   border-radius: 4px;
   border: none;
   width: 100px;
+}
+
+.device-status-toggle {
+  @include mdc-ripple-surface;
+  @include mdc-states;
+  @include mdc-ripple-radius-bounded;
+  overflow: hidden;
+  cursor: pointer;
 }
 
 .toggle-active {

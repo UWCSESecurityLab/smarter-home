@@ -18,10 +18,8 @@ class BeaconStatus extends React.Component {
     let buttonText = nearby ? 'nearby' : 'not nearby';
 
     return (
-      <button className={'device-toggle ' + buttonStyle}>
-        <span className="device-status">
-          {buttonText}
-        </span>
+      <button className={'device-status ' + buttonStyle}>
+        {buttonText}
       </button>
     );
   }

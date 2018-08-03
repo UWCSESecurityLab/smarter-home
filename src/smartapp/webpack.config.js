@@ -33,7 +33,7 @@ module.exports = [{
                 },
               }],
             ],
-            plugins: [ 'syntax-dynamic-import' ]
+            plugins: [ 'syntax-dynamic-import', "transform-object-rest-spread" ]
           },
         },
       }, {
@@ -101,7 +101,7 @@ module.exports = [{
                 },
               }],
             ],
-            plugins: [ 'syntax-dynamic-import' ]
+            plugins: [ 'syntax-dynamic-import', "transform-object-rest-spread" ]
           },
         },
       }, {
@@ -160,7 +160,7 @@ module.exports = [{
                 },
               }],
             ],
-            plugins: [ 'syntax-dynamic-import' ]
+            plugins: [ 'syntax-dynamic-import', "transform-object-rest-spread" ]
           },
         },
       }, {

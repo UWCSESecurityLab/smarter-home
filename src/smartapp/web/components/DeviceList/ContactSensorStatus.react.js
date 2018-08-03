@@ -19,13 +19,11 @@ class ContactSensorStatus extends React.Component {
       buttonStyle = 'toggle-inactive';
     }
     return (
-      <button className={'device-toggle ' + buttonStyle}>
-        <span className="device-status">
-          { status
-            ? status.components.main.contactSensor.contact.value
-            : 'Unavailable'
-          }
-        </span>
+      <button className={'device-status ' + buttonStyle}>
+        { status
+          ? status.components.main.contactSensor.contact.value
+          : 'Unavailable'
+        }
       </button>
     );
   }
