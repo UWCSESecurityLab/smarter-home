@@ -23,7 +23,8 @@ class App extends React.Component {
           ? <Redirect to='/home'/>
           : <Authenticate/>
         )}/>
-        <Route path="/oauth" component={Authenticate}/>
+        <Route path="/register" component={Authenticate}/>
+        <Route path="/registerSuccess" component={Authenticate}/>
         <Route path="/home" render={(props) => (
           this.props.authenticated
           ? <Home/>

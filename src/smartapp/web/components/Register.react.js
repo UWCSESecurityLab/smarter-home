@@ -2,6 +2,7 @@ import React from 'react';
 import Button from '@material/react-button';
 import { SmartAppClient } from 'common';
 import PropTypes from 'prop-types';
+import { Redirect } from 'react-router-dom';
 
 import '../css/login.scss';
 
@@ -15,7 +16,8 @@ class Register extends React.Component {
       password: '',
       confirmPassword: '',
       loading: false,
-      error: null
+      error: null,
+      success: false
     };
 
     this.register = this.register.bind(this);
@@ -52,8 +54,8 @@ class Register extends React.Component {
         this.setState({ error: 'UNKNOWN', loading: false });
         return;
       }
-
-      this.props.onSuccess();
+      this.setState({ success: true });
+      // this.props.onSuccess();
     } catch (e) {
       this.setState({ error: 'NETWORK', loading: false});
     }
@@ -74,6 +76,7 @@ class Register extends React.Component {
   render() {
     return (
       <div className="container">
+        { this.state.success ? <Redirect to="/registerSuccess"/> : null}
         <h2 className="login-text">Register for Smart Notifications</h2>
         <form id="register-form" onSubmit={this.register}>
           <div>

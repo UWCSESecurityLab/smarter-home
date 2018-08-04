@@ -2,61 +2,56 @@ import React from 'react';
 import Login from './Login.react';
 import Register from './Register.react';
 import Button from '@material/react-button';
+import { Route, Link } from 'react-router-dom';
 
 class Authenticate extends React.Component {
   constructor(props) {
     super(props);
-    this.state = { mode: 'LOGIN' };
+    this.state = { redirect: null };
     this.switchToRegister = this.switchToRegister.bind(this);
     this.switchToLogin = this.switchToLogin.bind(this);
     this.switchToSuccess = this.switchToSuccess.bind(this);
   }
 
   switchToRegister() {
-    this.setState({ mode: 'REGISTER' });
+    this.setState({ redirect: '/register' });
   }
 
   switchToLogin() {
-    this.setState({ mode: 'LOGIN' });
+    this.setState({ redirect: '/login' });
   }
 
   switchToSuccess() {
-    this.setState({ mode: 'REGISTER_SUCCESS' });
+    this.setState({ redirect: '/registerSuccess' });
   }
 
   render() {
-    if (this.state.mode === 'LOGIN') {
-      return (
-        <div id="authenticate">
-          <Login oauth={false} switchToRegister={this.switchToRegister}>
-
-          </Login>
-        </div>
-      );
-    } else if (this.state.mode === 'REGISTER') {
-      return (
-        <div id="authenticate">
+    return (
+      <div id="authenticate">
+        <Route path="/login" render={() => (
+          <Login oauth={false} switchToRegister={this.switchToRegister}/>
+        )}/>
+        <Route path="/register" render={() => (
           <Register onSuccess={this.switchToSuccess}>
-            <a className="switch-mode" onClick={this.switchToLogin}>Already have an account? Log in</a>
+            <Link className="switch-mode" to="/login">Already have an account? Log in</Link>
           </Register>
-        </div>
-      );
-    } else if (this.state.mode === 'REGISTER_SUCCESS') {
-      return (
-        <div id="authenticate">
-          <div id="big-check">✓</div>
-          <h2>Registration Successful</h2>
-          <div>To continue, install the SmarterHome app in SmartThings.</div>
+        )}/>
+        <Route path="/registerSuccess" render={() => (
           <div>
-            <Button onClick={this.switchToLogin}>
-              Back to Login
-            </Button>
+            <div id="big-check">✓</div>
+            <h2>Registration Successful</h2>
+            <div>To continue, install the SmarterHome app in SmartThings.</div>
+            <div style={{marginTop: '10px'}}>
+              <Link to="/login" style={{textDecoration: 'none'}}>
+                <Button onClick={this.switchToLogin} raised>
+                  Back to Login
+                </Button>
+              </Link>
+            </div>
           </div>
-        </div>
-      )
-    } else {
-      console.log(this.state.mode);
-    }
+        )}/>
+      </div>
+    );
   }
 }
 

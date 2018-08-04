@@ -15,7 +15,8 @@ class Login extends React.Component {
       loading: false,
       error: null,
       authenticated: false,
-      dispatch: null
+      dispatch: null,
+      link: null,
     };
 
     this.login = this.login.bind(this);
@@ -29,6 +30,9 @@ class Login extends React.Component {
     if (!this.props.oauth) {
       import('../redux/reducers').then((module) => {
         this.setState({ dispatch: module.store.dispatch });
+      });
+      import('react-router-dom').then((module) => {
+        this.setState({ link: module.Link });
       });
     }
   }
@@ -72,6 +76,8 @@ class Login extends React.Component {
 
   render() {
     let errorMessage;
+    let Link = this.state.link;
+
     if (this.state.error) {
       switch (this.state.error) {
         case 'NETWORK':
@@ -120,10 +126,12 @@ class Login extends React.Component {
               : 'Sign In'
             }
           </Button>
-          { this.props.oauth ? null :
-            <Button className="auth-button" onClick={this.props.switchToRegister}>
+          { this.props.oauth || !Link ? null :
+            <Link to="register" style={{textDecoration: 'none'}}>
+              <Button className="auth-button">
                 Create Account
-            </Button>
+              </Button>
+            </Link>
           }
           { this.state.loading
             ? <span className="spinner" id="spinner" aria-hidden="true"></span>
