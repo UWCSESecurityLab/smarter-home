@@ -114,18 +114,22 @@ class Login extends React.Component {
           </div>
         </form>
         <div>
-          <Button className="mdc-button-blue" raised type="submit" form="login-form" disabled={this.state.loading}>
+          <Button className="mdc-button-blue auth-button" raised type="submit" form="login-form" disabled={this.state.loading}>
             { this.state.loading
               ? 'Signing In...'
               : 'Sign In'
             }
           </Button>
+          { this.props.oauth ? null :
+            <Button className="auth-button" onClick={this.props.switchToRegister}>
+                Create Account
+            </Button>
+          }
           { this.state.loading
             ? <span className="spinner" id="spinner" aria-hidden="true"></span>
             : null
           }
         </div>
-        {this.props.children}
         {error}
       </div>
     );
@@ -135,7 +139,8 @@ class Login extends React.Component {
 Login.propTypes = {
   children: PropTypes.node,
   oauth: PropTypes.bool,
-  oauthState: PropTypes.string
+  oauthState: PropTypes.string,
+  switchToRegister: PropTypes.func
 }
 
 export default Login;

@@ -99,7 +99,7 @@ class Register extends React.Component {
           </div>
         </form>
         <div>
-        <Button className="mdc-button-blue" raised type="submit" form="register-form" disabled={this.state.loading}>
+          <Button className="mdc-button-blue auth-button" raised type="submit" form="register-form" disabled={this.state.loading}>
             { this.state.loading
               ? 'Registering...'
               : 'Register'
@@ -109,7 +109,7 @@ class Register extends React.Component {
             ? <span className="spinner" id="spinner" aria-hidden="true"></span>
             : null
           }
-        </div>
+          </div>
         {this.props.children}
       </div>
     );

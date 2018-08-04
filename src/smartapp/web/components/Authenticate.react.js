@@ -1,6 +1,7 @@
 import React from 'react';
 import Login from './Login.react';
 import Register from './Register.react';
+import Button from '@material/react-button';
 
 class Authenticate extends React.Component {
   constructor(props) {
@@ -27,8 +28,8 @@ class Authenticate extends React.Component {
     if (this.state.mode === 'LOGIN') {
       return (
         <div id="authenticate">
-          <Login oauth={false}>
-            <a className="switch-mode" onClick={this.switchToRegister}>Create an account</a>
+          <Login oauth={false} switchToRegister={this.switchToRegister}>
+
           </Login>
         </div>
       );
@@ -46,6 +47,11 @@ class Authenticate extends React.Component {
           <div id="big-check">✓</div>
           <h2>Registration Successful</h2>
           <div>To continue, install the SmarterHome app in SmartThings.</div>
+          <div>
+            <Button onClick={this.switchToLogin}>
+              Back to Login
+            </Button>
+          </div>
         </div>
       )
     } else {
