@@ -58,6 +58,12 @@ class Devices extends React.Component {
         this.props.dispatch(CommonActions.updateHomeConfig(config));
         this.fetchAllDeviceDescriptions();
         this.fetchAllDeviceStatuses();
+
+        let pollInterval = setInterval(() => {
+          this.fetchAllDeviceStatuses();
+        }, 15000);
+        this.setState({ pollInterval: pollInterval });
+
       }).catch((err) => {
         if (err.error == 'USER_NOT_LINKED') {
           this.setState({ error: 'SmarterThings is not linked to a home!' });
@@ -71,18 +77,18 @@ class Devices extends React.Component {
         beacon.timestamp = Date.now();
         this.props.dispatch(Actions.addNearbyBeacon(beacon));
       }, (err) => { console.error(err) });
-
-      let intervalId = setInterval(() => {
+      let beaconInterval = setInterval(() => {
         this.props.dispatch(Actions.removeOldBeacons());
       }, 5000);
-      this.setState({ beaconRefreshId: intervalId });
+      this.setState({ beaconInterval: beaconInterval });
     }
   }
 
   componentWillUnmount() {
+    clearInterval(this.state.pollInterval);
     if (window._cordovaNative) {
       evothings.eddystone.stopScan();
-      clearInterval(this.state.beaconRefreshId);
+      clearInterval(this.state.beaconInterval);
     }
   }
 
