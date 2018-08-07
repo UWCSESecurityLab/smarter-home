@@ -20,7 +20,7 @@ messaging.setBackgroundMessageHandler(function(payload) {
   // Customize notification here
   const notificationTitle = `${message.device} | ${message.capability} -> ${message.value}`;
   const notificationOptions = {
-    body: 'Smarter Home',
+    body: 'Triggered by ' + message.trigger,
     icon: '/firebase-logo.png'
   };
 

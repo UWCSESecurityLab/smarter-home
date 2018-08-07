@@ -4,6 +4,7 @@ const InstallData = require('./db/installData');
 const log = require('./log');
 const SmartThingsClient = require('./SmartThingsClient');
 const Beacon = require('./db/beacon');
+const Command = require('./db/command');
 const Room = require('./db/room');
 const User = require('./db/user');
 const uuid = require('uuid/v4');
@@ -96,8 +97,14 @@ module.exports = {
     }
 
     try {
+      const date = new Date(deviceEvent.eventTime);
+      const installedAppId = req.body.eventData.installedApp.installedAppId
+      const deviceId = deviceEvent.deviceEvent.deviceId;
+      const component = deviceEvent.deviceEvent.componentId;
+      const capability = deviceEvent.deviceEvent.capability;
+      const value = deviceEvent.deviceEvent.value;
+
       // Find the installedApp for this event
-      let installedAppId = req.body.eventData.installedApp.installedAppId
       let installData = await InstallData.findOne({
         'installedApp.installedAppId': installedAppId
       }).exec();
@@ -106,6 +113,37 @@ module.exports = {
         return;
       }
 
+      // Find the command that triggered the event, if it exists.
+      // First, look up commands that match the profile of the event.
+      let commands = await Command.find({
+        installedAppId: installedAppId,
+        deviceId: deviceId,
+        component: component,
+        capability: capability
+      });
+      // Next, find the command that occurred the closest in time to the event.
+      let closestCommand;
+      let closestTimeDiff = Number.MAX_SAFE_INTEGER;
+      for (let command of commands) {
+        let timeDiff = date - command.date;
+        // Exclude commands that occurred after the event, and commands
+        // that were sent over ten minutes ago.
+        if (timeDiff < closestTimeDiff && timeDiff >= 0 && timeDiff < 600000) {
+          closestCommand = command;
+          closestTimeDiff = timeDiff;
+        }
+      }
+      // Get the user that triggered the command, if a command exists.
+      let trigger;
+      if (closestCommand) {
+        let triggerUser = await User.findOne({ id: closestCommand.userId });
+        trigger = triggerUser.username;
+        await Command.deleteOne({ _id: closestCommand._id });
+      } else {
+        trigger = "another app, or manually";
+      }
+      log.log('Event was triggered by ' + trigger);
+
       // Find the users of the installedApp
       let users = await User.find({ installedAppId: installedAppId });
       if (users.length === 0) {
@@ -113,7 +151,6 @@ module.exports = {
         return;
       }
 
-      const deviceId = deviceEvent.deviceEvent.deviceId;
       const newTokens = await SmartThingsClient.renewTokens(installedAppId);
 
       // Get details about the device
@@ -132,9 +169,10 @@ module.exports = {
         return fcmClient.sendNotification({
           beacons: beaconIds,
           device: description.label,
-          deviceId: deviceEvent.deviceEvent.deviceId,
-          capability: deviceEvent.deviceEvent.capability,
-          value: deviceEvent.deviceEvent.value
+          deviceId: deviceId,
+          capability: capability,
+          value: value,
+          trigger: trigger
         }, user.notificationKey);
       }));
       responses.forEach((response) => log.log(JSON.stringify(response)));

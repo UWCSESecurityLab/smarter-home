@@ -17,6 +17,7 @@ const InstallData = require('./db/installData');
 const lifecycle = require('./lifecycle');
 const log = require('./log');
 const Beacon = require('./db/beacon');
+const Command = require('./db/command');
 const Room = require('./db/room');
 const RoomTransaction = require('./db/room-transaction');
 const SmartThingsClient = require('./SmartThingsClient');
@@ -368,15 +369,29 @@ app.get('/devices/:deviceId/description', checkAuth, getInstallData,
 
 app.post('/devices/:deviceId/commands', checkAuth, getInstallData,
     (req, res) => {
+  let command = new Command({
+    // Round milliseconds to zero because SmartThings doesn't store milliseconds
+    // in eventDate, so commands happening in the same second as the event
+    // would appear to happen after the event.
+    date: new Date().setMilliseconds(0),
+    installedAppId: req.installData.installedApp.installedAppId,
+    userId: req.user.id,
+    deviceId: req.params.deviceId,
+    component: req.body.component,
+    capability: req.body.capability,
+    command: req.body.command
+  });
+
   SmartThingsClient.executeDeviceCommand({
     deviceId: req.params.deviceId,
     command: req.body,
     authToken: req.installData.authToken
-  }).then(() => {
-    res.status(200).send();
+  }).then(() => command.save())
+    .then(() => {
+      res.status(200).send();
   }).catch((err) => {
     log.error(err);
-    res.status(500).send(String(err));
+    res.status(500).json(err);
   });
 });
 

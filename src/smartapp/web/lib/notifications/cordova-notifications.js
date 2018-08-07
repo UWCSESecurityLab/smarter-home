@@ -58,7 +58,7 @@ class CordovaNotifications extends Notifications {
       if (detected.filter((b) => message.beacons.includes(b)).length > 0) {
         cordova.plugins.notification.local.schedule({
           title: title,
-          text: 'You are nearby this device'
+          text: 'Triggered by ' + message.trigger
         });
       }
     }, 5000);
