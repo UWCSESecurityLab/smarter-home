@@ -558,5 +558,21 @@ app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, '../web/html/index.html'));
 });
 
+// Refresh access tokens regularly to ensure all commands are authenticated
+setInterval(() => {
+  InstallData.find({}).then((installDatas) => {
+    installDatas.forEach((installData) => {
+      let installedAppId = installData.installedApp.installedAppId;
+      log.log('Automatically renewing tokens for ' + installedAppId);
+      SmartThingsClient.renewTokens(installedAppId).then(() => {
+        log.log('Renewed tokens for ' + installedAppId);
+      }).catch((err) => {
+        log.error('Failed to renew tokens for ' + installedAppId);
+        log.error(JSON.stringify(err));
+      });
+    });
+  });
+}, 1000 * 60 * 4.5);
+
 app.listen(5000);
 log.log('Listening on port 5000');
