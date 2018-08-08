@@ -52,7 +52,7 @@ app.use(function(req, res, next) {
   let sessionId = req.get('Client-Session');
   // if there was a session id passed add it to the cookies
   if (sessionId) {
-    log.log(req.originalUrl + ': Parsed client-side session ' + sessionId);
+    // log.log(req.originalUrl + ': Parsed client-side session ' + sessionId);
     // sign the cookie so Express Session unsigns it correctly
     let signedCookie = 's:' + cookieSignature.sign(sessionId, 'cat keyboard');
     req.headers.cookie = cookie.serialize('connect.sid', signedCookie);
@@ -315,7 +315,7 @@ app.get('/homeConfig', checkAuth, getInstallData, (req, res) => {
 
 // Get the status of a device
 app.get('/devices/:deviceId/status', checkAuth, getInstallData, (req, res) => {
-  Beacon.findOne({ id: req.params.deviceId }).then((beacon) => {
+  Beacon.findOne({ instanceId: req.params.deviceId }).then((beacon) => {
     if (!beacon) {
       SmartThingsClient.getDeviceStatus({
         deviceId: req.params.deviceId,
@@ -343,7 +343,7 @@ app.get('/devices/:deviceId/status', checkAuth, getInstallData, (req, res) => {
 
 app.get('/devices/:deviceId/description', checkAuth, getInstallData,
     (req, res) => {
-  Beacon.findOne({ id: req.params.deviceId }).then((beacon) => {
+  Beacon.findOne({ instanceId: req.params.deviceId }).then((beacon) => {
     if (!beacon) {
       SmartThingsClient.getDeviceDescription({
         deviceId: req.params.deviceId,
@@ -356,10 +356,15 @@ app.get('/devices/:deviceId/description', checkAuth, getInstallData,
     } else {
       res.status(200).json({
         deviceId: req.params.deviceId,
-        name: beacon.name,
         label: beacon.name,
         deviceTypeName: 'beacon',
-        namespace: beacon.namespace
+        name: beacon.name,
+        uuid: beacon.uuid,
+        major: beacon.major,
+        minor: beacon.minor,
+        instanceId: beacon.instanceId,
+        namespace: beacon.namespace,
+        url: beacon.url
       });
     }
   }).catch((err) => {
@@ -428,7 +433,7 @@ app.post('/beacon/add', checkAuth, getInstallData, (req, res) => {
       Room.findOneAndUpdate({
         installedAppId: req.installData.installedApp.installedAppId,
         default: true
-      }, { $push: { devices: beacon.id }}).then(() => {
+      }, { $push: { devices: beacon.instanceId }}).then(() => {
         res.status(200).json(beacon);
       }).catch((err) => {
         log.error(err);
