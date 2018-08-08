@@ -17,8 +17,11 @@ db.once('open', () => {
 
   let beacons = parsed.map((b) => {
     return {
+      uuid: b.proximity,
+      major: parseInt(b.major),
+      minor: parseInt(b.minor),
       namespace: b.namespace,
-      id: b.instanceId,
+      instanceId: b.instanceId,
       name: b.uniqueId
     }
   });
@@ -27,14 +30,17 @@ db.once('open', () => {
     if (err) {
       console.log(err);
     } else {
+
       console.log(`Inserted ${docs.length} beacons`);
+      console.log(docs);
+
       console.log('Inserted:');
       console.log(beacons.filter((b) => {
-        return docs.find(d => d.id === b.id);
+        return docs.find(d => d.major === parseInt(b.major) && d.minor === parseInt(b.minor));
       }));
       console.log('Not inserted:');
       console.log(beacons.filter((b) => {
-        return !docs.find(d => d.id === b.id);
+        return !docs.find(d => d.major === parseInt(b.major) && d.minor === parseInt(b.minor));
       }));
     }
     db.close();
