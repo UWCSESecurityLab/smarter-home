@@ -13,8 +13,8 @@ class Switch extends Actuatable {
     return this.actuate(deviceId, 'off');
   }
 
-  static getStatus(deviceId) {
-    let deviceStatus = store.getState().devices.deviceStatus;
+  static getStatus(state, deviceId) {
+    let deviceStatus = state.devices.deviceStatus;
     if (deviceStatus[deviceId]) {
       return deviceStatus[deviceId].components.main.switch.switch.value;
     } else {
@@ -37,7 +37,8 @@ export default Switch;
 async function onNotificationAction(notification, command) {
   try {
     await Switch.actuate(notification.data.deviceId, 'switch', command);
-    const switchStatus = Switch.getStatus(notification.data.deviceId);
+    const state = store.getState();
+    const switchStatus = Switch.getStatus(state, notification.data.deviceId);
     const switchName = Switch.getLabel(notification.data.deviceId);
     cordova.plugins.notification.local.update({
       id: notification.id,

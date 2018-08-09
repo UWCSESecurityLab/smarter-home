@@ -8,8 +8,8 @@ class DeviceListItem extends React.Component {
     super(props, context);
   }
   render() {
-    let label = Capability.getLabel(this.props.deviceId);
-    if (label && Capability.isBeacon(this.props.deviceId)) {
+    let label = this.props.label;
+    if (label && this.props.isBeacon) {
       label = 'Beacon ' + label;
     }
 
@@ -31,14 +31,15 @@ class DeviceListItem extends React.Component {
 DeviceListItem.propTypes = {
   children: PropTypes.node,
   deviceId: PropTypes.string,
-  deviceDesc: PropTypes.object,   // The SmartThings description for this device
-  dispatch: PropTypes.func,       // Bound to Redux dispatch function
-  draggable: PropTypes.bool
+  draggable: PropTypes.bool,
+  isBeacon: PropTypes.bool,
+  label: PropTypes.string
 }
 
-const mapStateToProps = (state) => {
+const mapStateToProps = (state, ownProps) => {
   return {
-    deviceDesc: state.devices.deviceDesc
+    isBeacon: Capability.isBeacon(state, ownProps.deviceId),
+    label: Capability.getLabel(state, ownProps.deviceId)
   }
 };
 

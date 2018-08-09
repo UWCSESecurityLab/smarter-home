@@ -1,8 +1,6 @@
-import { store } from '../../redux/reducers';
-
 class Capability {
-  static isBeacon(deviceId) {
-    let deviceDesc = store.getState().devices.deviceDesc;
+  static isBeacon(state, deviceId) {
+    let deviceDesc = state.devices.deviceDesc;
     if (deviceDesc[deviceId]) {
       return deviceDesc[deviceId].deviceTypeName == 'beacon';
     } else {
@@ -10,8 +8,8 @@ class Capability {
     }
   }
 
-  static getLabel(deviceId) {
-    let deviceDesc = store.getState().devices.deviceDesc;
+  static getLabel(state, deviceId) {
+    let deviceDesc = state.devices.deviceDesc;
     if (deviceDesc[deviceId]) {
       return deviceDesc[deviceId].label;
     } else {
@@ -24,4 +22,4 @@ class Capability {
   }
 }
 
-export default Capability
+export default Capability;

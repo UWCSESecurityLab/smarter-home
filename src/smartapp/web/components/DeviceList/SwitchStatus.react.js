@@ -1,6 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import Switch from '../../lib/capabilities/Switch';
+import { connect } from 'react-redux';
 
 class SwitchStatus extends React.Component {
   constructor(props, context) {
@@ -10,10 +11,9 @@ class SwitchStatus extends React.Component {
 
   async toggle() {
     try {
-      const switchStatus = Switch.getStatus(this.props.deviceId);
-      if (switchStatus === 'on') {
+      if (this.props.status === 'on') {
         Switch.off(this.props.deviceId);
-      } else if (switchStatus === 'off') {
+      } else if (this.props.status === 'off') {
         Switch.on(this.props.deviceId);
       } else {
         console.error('Invalid state: ' + status);
@@ -25,13 +25,12 @@ class SwitchStatus extends React.Component {
   }
 
   render() {
-    const status = Switch.getStatus(this.props.deviceId);
-    const buttonStyle = status === 'on'
+    const buttonStyle = this.props.status === 'on'
       ? 'toggle-active'
       : 'toggle-inactive';
     return (
       <button onClick={this.toggle} className={'device-status device-status-toggle ' + buttonStyle}>
-        { status ? status : 'Unavailable' }
+        { this.props.status ? this.props.status : 'Unavailable' }
       </button>
     );
   }
@@ -39,6 +38,13 @@ class SwitchStatus extends React.Component {
 
 SwitchStatus.propTypes = {
   deviceId: PropTypes.string,
+  status: PropTypes.string
 }
 
-export default SwitchStatus;
+function mapStateToProps(state, ownProps) {
+  return {
+    status: Switch.getStatus(state, ownProps.deviceId)
+  };
+}
+
+export default connect(mapStateToProps)(SwitchStatus);

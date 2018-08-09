@@ -1,6 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import Lock from '../../lib/capabilities/Lock';
+import { connect } from 'react-redux';
 
 class LockStatus extends React.Component {
   constructor(props, context) {
@@ -10,13 +11,12 @@ class LockStatus extends React.Component {
 
   async toggle() {
     try {
-      const lockStatus = Lock.getStatus(this.props.deviceId);
-      if (lockStatus === 'unlocked') {
+      if (this.props.status === 'unlocked') {
         Lock.lock(this.props.deviceId);
-      } else if (lockStatus === 'locked') {
+      } else if (this.props.status === 'locked') {
         Lock.unlock(this.props.deviceId);
       } else {
-        console.error('Invalid state: ' + lockStatus);
+        console.error('Invalid state: ' + this.props.status);
       }
     } catch(e) {
       // TODO: show visible error - toast?
@@ -25,14 +25,13 @@ class LockStatus extends React.Component {
   }
 
   render() {
-    const status = Lock.getStatus(this.props.deviceId);
-    const buttonStyle = status === 'unlocked'
+    const buttonStyle = this.props.status === 'unlocked'
       ? 'toggle-active'
       : 'toggle-inactive';
     return (
       <button onClick={this.toggle}
               className={'device-status device-status-toggle ' + buttonStyle}>
-        { status ? status : 'Unavailable'}
+        { this.props.status ? this.props.status : 'Unavailable'}
       </button>
     );
   }
@@ -40,6 +39,12 @@ class LockStatus extends React.Component {
 
 LockStatus.propTypes = {
   deviceId: PropTypes.string,
+  status: PropTypes.string
+}
+const mapStateToProps = (state, ownProps) => {
+  return {
+    status: Lock.getStatus(state, ownProps.deviceId)
+  };
 }
 
-export default LockStatus;
+export default connect(mapStateToProps)(LockStatus);

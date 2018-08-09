@@ -1,5 +1,4 @@
 import Actuatable from './Actuatable';
-import { store } from '../../redux/reducers';
 
 class Lock extends Actuatable {
   static actuate(deviceId, command) {
@@ -14,8 +13,8 @@ class Lock extends Actuatable {
     return this.actuate(deviceId, 'lock');
   }
 
-  static getStatus(deviceId) {
-    let deviceStatus = store.getState().devices.deviceStatus;
+  static getStatus(state, deviceId) {
+    let deviceStatus = state.devices.deviceStatus;
     if (deviceStatus[deviceId]) {
       return deviceStatus[deviceId].components.main.lock.lock.value;
     } else {
