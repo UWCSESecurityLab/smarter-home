@@ -8,13 +8,16 @@ class BeaconStatus extends React.Component {
   }
 
   render() {
-    const beacon = this.props.deviceDesc[this.props.deviceId];
-    let nearby = Object.values(this.props.nearbyBeacons)
-      .find((region) => region.identifier === beacon.name);
-
-    let buttonStyle = nearby ? 'toggle-active' : 'toggle-inactive';
-    let buttonText = nearby ? 'nearby' : 'not nearby';
-
+    const nearby = this.props.nearbyBeacons[this.props.deviceId];
+    let buttonStyle;
+    let buttonText;
+    if (window._cordovaNative) {
+      buttonStyle = nearby ? 'toggle-active' : 'toggle-inactive';
+      buttonText = nearby ? 'nearby' : 'not nearby';
+    } else {
+      buttonStyle = 'toggle-inactive';
+      buttonText = 'Unavailable';
+    }
     return (
       <button className={'device-status ' + buttonStyle}>
         {buttonText}
@@ -25,7 +28,6 @@ class BeaconStatus extends React.Component {
 
 BeaconStatus.propTypes = {
   deviceId: PropTypes.string,
-  deviceDesc: PropTypes.object,
   dispatch: PropTypes.func,
   nearbyBeacons: PropTypes.object
 }
@@ -33,7 +35,6 @@ BeaconStatus.propTypes = {
 function mapStateToProps(state) {
   return {
     nearbyBeacons: state.nearbyBeacons,
-    deviceDesc: state.devices.deviceDesc
   }
 }
 

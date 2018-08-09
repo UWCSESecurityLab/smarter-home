@@ -315,7 +315,7 @@ app.get('/homeConfig', checkAuth, getInstallData, (req, res) => {
 
 // Get the status of a device
 app.get('/devices/:deviceId/status', checkAuth, getInstallData, (req, res) => {
-  Beacon.findOne({ instanceId: req.params.deviceId }).then((beacon) => {
+  Beacon.findOne({ name: req.params.deviceId }).then((beacon) => {
     if (!beacon) {
       SmartThingsClient.getDeviceStatus({
         deviceId: req.params.deviceId,
@@ -328,6 +328,7 @@ app.get('/devices/:deviceId/status', checkAuth, getInstallData, (req, res) => {
       });
     } else {
       res.status(200).json({
+        deviceId: beacon.name,
         components: {
           main: {
             beacon: {}
@@ -343,7 +344,7 @@ app.get('/devices/:deviceId/status', checkAuth, getInstallData, (req, res) => {
 
 app.get('/devices/:deviceId/description', checkAuth, getInstallData,
     (req, res) => {
-  Beacon.findOne({ instanceId: req.params.deviceId }).then((beacon) => {
+  Beacon.findOne({ name: req.params.deviceId }).then((beacon) => {
     if (!beacon) {
       SmartThingsClient.getDeviceDescription({
         deviceId: req.params.deviceId,
@@ -355,7 +356,7 @@ app.get('/devices/:deviceId/description', checkAuth, getInstallData,
       });
     } else {
       res.status(200).json({
-        deviceId: req.params.deviceId,
+        deviceId: beacon.name,
         label: beacon.name,
         deviceTypeName: 'beacon',
         name: beacon.name,
@@ -433,7 +434,7 @@ app.post('/beacon/add', checkAuth, getInstallData, (req, res) => {
       Room.findOneAndUpdate({
         installedAppId: req.installData.installedApp.installedAppId,
         default: true
-      }, { $push: { devices: beacon.instanceId }}).then(() => {
+      }, { $push: { devices: beacon.name }}).then(() => {
         res.status(200).json(beacon);
       }).catch((err) => {
         log.error(err);
@@ -462,12 +463,10 @@ function generateEddystoneNamespace(uuidv4) {
 // Create a new room
 app.post('/rooms/create', checkAuth, getInstallData, (req, res) => {
   console.log(req.body);
-  const beaconNamespace = generateEddystoneNamespace(req.body.roomId);
   const room = new Room({
     installedAppId: req.session.installedAppId,
     roomId: req.body.roomId,
     name: req.body.name,
-    beaconNamespace: beaconNamespace,
     devices: [],
     default: false
   });

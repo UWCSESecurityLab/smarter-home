@@ -162,12 +162,12 @@ module.exports = {
       // Find the beacon ids for the room that the device is in
       let room = await Room.findOne({ devices: deviceId });
       let beacons = await Beacon.find({ instanceId: room.devices });
-      let beaconIds = beacons.map((b) => b.instanceId);
+      let beaconNames = beacons.map((b) => b.name);
 
       // Send an FCM notification
       let responses = await Promise.all(users.map((user) => {
         return fcmClient.sendNotification({
-          beacons: beaconIds,
+          beacons: beaconNames,
           device: description.label,
           deviceId: deviceId,
           capability: capability,

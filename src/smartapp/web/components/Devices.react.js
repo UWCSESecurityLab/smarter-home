@@ -14,7 +14,6 @@ import DeviceListItem from './DeviceList/DeviceListItem.react';
 import LockStatus from './DeviceList/LockStatus.react';
 import MaterialIcon from '@material/react-material-icon';
 import SwitchStatus from './DeviceList/SwitchStatus.react';
-import cordovaNotifications from '../lib/notifications/cordova-notifications';
 
 const smartAppClient = new SmartAppClient();
 
