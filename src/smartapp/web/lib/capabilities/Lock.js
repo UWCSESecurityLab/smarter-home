@@ -38,10 +38,10 @@ async function onNotificationAction(notification, command) {
   try {
     await Lock.actuate(notification.data.deviceId, command);
     const lockStatus = Lock.getStatus(notification.data.deviceId);
-    const lockName = Lock.getName([notification.data.deviceId]);
+    const lockName = Lock.getLabel(notification.data.deviceId);
     cordova.plugins.notification.local.update({
       id: notification.id,
-      title: lockName + ' | ' + lockStatus
+      title: lockName + ' is ' + lockStatus
     });
   } catch (e) {
     console.error(e.stack);

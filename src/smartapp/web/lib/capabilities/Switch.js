@@ -38,10 +38,10 @@ async function onNotificationAction(notification, command) {
   try {
     await Switch.actuate(notification.data.deviceId, 'switch', command);
     const switchStatus = Switch.getStatus(notification.data.deviceId);
-    const switchName = Switch.getName(notification.data.deviceId);
+    const switchName = Switch.getLabel(notification.data.deviceId);
     cordova.plugins.notification.local.update({
       id: notification.id,
-      title: switchName + ' | ' + switchStatus
+      title: switchName + ' is ' + switchStatus
     });
   } catch (e) {
     console.error(e.stack);

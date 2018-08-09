@@ -10,10 +10,10 @@ class Capability {
     }
   }
 
-  static getName(deviceId) {
+  static getLabel(deviceId) {
     let deviceDesc = store.getState().devices.deviceDesc;
     if (deviceDesc[deviceId]) {
-      return deviceDesc[deviceId].name;
+      return deviceDesc[deviceId].label;
     } else {
       return null;
     }

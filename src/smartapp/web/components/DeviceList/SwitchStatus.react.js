@@ -12,9 +12,9 @@ class SwitchStatus extends React.Component {
     try {
       const switchStatus = Switch.getStatus(this.props.deviceId);
       if (switchStatus === 'on') {
-        Switch.on(this.props.deviceId);
-      } else if (switchStatus === 'off') {
         Switch.off(this.props.deviceId);
+      } else if (switchStatus === 'off') {
+        Switch.on(this.props.deviceId);
       } else {
         console.error('Invalid state: ' + status);
       }

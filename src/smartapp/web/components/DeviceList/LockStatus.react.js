@@ -10,7 +10,7 @@ class LockStatus extends React.Component {
 
   async toggle() {
     try {
-      const lockStatus = Lock.status(this.props.deviceId);
+      const lockStatus = Lock.getStatus(this.props.deviceId);
       if (lockStatus === 'unlocked') {
         Lock.lock(this.props.deviceId);
       } else if (lockStatus === 'locked') {

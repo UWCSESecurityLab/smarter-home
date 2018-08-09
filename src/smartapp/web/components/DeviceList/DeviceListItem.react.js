@@ -8,7 +8,7 @@ class DeviceListItem extends React.Component {
     super(props, context);
   }
   render() {
-    let label = Capability.getName(this.props.deviceId);
+    let label = Capability.getLabel(this.props.deviceId);
     if (label && Capability.isBeacon(this.props.deviceId)) {
       label = 'Beacon ' + label;
     }
