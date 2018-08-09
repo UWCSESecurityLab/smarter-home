@@ -1,6 +1,6 @@
 import React from 'react';
-import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
+import ContactSensor from '../../lib/capabilities/ContactSensor';
 
 class ContactSensorStatus extends React.Component {
   constructor(props, context) {
@@ -8,22 +8,13 @@ class ContactSensorStatus extends React.Component {
   }
 
   render() {
-    const status = this.props.deviceStatus[this.props.deviceId];
-    let buttonStyle;
-    if (status && !status.components) {
-      console.log(status);
-    }
-    if (status && status.components.main.contactSensor.contact.value === 'open') {
-      buttonStyle = 'toggle-active';
-    } else {
-      buttonStyle = 'toggle-inactive';
-    }
+    const status = ContactSensor.getStatus(this.props.deviceId);
+    const buttonStyle = status === 'open'
+      ? 'toggle-active'
+      : 'toggle-inactive';
     return (
       <button className={'device-status ' + buttonStyle}>
-        { status
-          ? status.components.main.contactSensor.contact.value
-          : 'Unavailable'
-        }
+        { status ? status : 'Unavailable' }
       </button>
     );
   }
@@ -31,14 +22,6 @@ class ContactSensorStatus extends React.Component {
 
 ContactSensorStatus.propTypes = {
   deviceId: PropTypes.string,
-  deviceStatus: PropTypes.object,
-  dispatch: PropTypes.func
 }
 
-function mapStateToProps(state) {
-  return {
-    deviceStatus: state.devices.deviceStatus
-  }
-}
-
-export default connect(mapStateToProps)(ContactSensorStatus);
+export default ContactSensorStatus;

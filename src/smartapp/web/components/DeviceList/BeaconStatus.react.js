@@ -28,7 +28,6 @@ class BeaconStatus extends React.Component {
 
 BeaconStatus.propTypes = {
   deviceId: PropTypes.string,
-  dispatch: PropTypes.func,
   nearbyBeacons: PropTypes.object
 }
 

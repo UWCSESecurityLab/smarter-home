@@ -1,18 +1,16 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
+import Capability from '../../lib/capabilities/Capability';
 
 class DeviceListItem extends React.Component {
   constructor(props, context) {
     super(props, context);
   }
   render() {
-    let label = ''
-    if (this.props.deviceDesc[this.props.deviceId]) {
-      label = this.props.deviceDesc[this.props.deviceId].label;
-      if (this.props.deviceDesc[this.props.deviceId].deviceTypeName == 'beacon') {
-        label = 'Beacon ' + label;
-      }
+    let label = Capability.getName(this.props.deviceId);
+    if (label && Capability.isBeacon(this.props.deviceId)) {
+      label = 'Beacon ' + label;
     }
 
     return (
