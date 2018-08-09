@@ -44,26 +44,26 @@ class CordovaNotifications extends Notifications {
   onBackgroundMessage(payload) {
     console.log('Background message');
     console.log(payload);
-    let message = JSON.parse(payload.smartapp);
-    let title = `${message.device} | ${message.capability} -> ${message.value}`;
 
-    let detected = [];
-    evothings.eddystone.startScan((beacon) => {
-      let id = Buffer.from(beacon.bid).toString('hex');
-      detected.push(id);
-    }, (err) => { console.error(err) });
+    const nearby = store.getState().nearbyBeacons;
+    console.log('Currently nearby beacons:');
+    console.log(nearby);
 
-    setTimeout(() => {
-      evothings.eddystone.stopScan();
-      if (detected.filter((b) => message.beacons.includes(b)).length > 0) {
-        cordova.plugins.notification.local.schedule({
-          title: title,
-          text: 'Triggered by ' + message.trigger
-        });
-      }
-    }, 5000);
+    const message = JSON.parse(payload.smartapp);
+    const title = `${message.device} | ${message.capability} → ${message.value}`;
 
-
+    // Proximity-based filtering: only show a notification if the beacons
+    // associated with the device's room are also sensed by the phone.
+    if (message.beacons.filter((msgBcn) => Object.keys(nearby).includes(msgBcn))
+          .length > 0) {
+      console.log('Beacons nearby, showing notification');
+      cordova.plugins.notification.local.schedule({
+        title: title,
+        text: 'Triggered by ' + message.trigger
+      });
+    } else {
+      console.log('Beacons not nearby, blocking notification.')
+    }
   }
 }
 
