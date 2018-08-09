@@ -10,22 +10,22 @@
     "author": "Apache Cordova Team",
     "license": "Apache-2.0",
     "dependencies": {
-        "cordova-android": "^7.1.1",
+        "cordova-android": "^7.0.0",
         "cordova-ios": "^4.5.5",
         "cordova-plugin-badge": "^0.8.7",
-        "cordova-plugin-ble": "^2.0.1",
         "cordova-plugin-device": "^2.0.2",
-        "cordova-plugin-eddystone": "^1.3.0",
         "cordova-plugin-firebase-messaging": "^1.1.0",
+        "cordova-plugin-ibeacon": "^3.7.0",
         "cordova-plugin-local-notification": "^0.9.0-beta.2",
         "cordova-plugin-whitelist": "^1.3.3",
         "cordova-support-android-plugin": "^1.0.1",
-        "cordova-support-google-services": "^1.2.0"
+        "cordova-support-google-services": "^1.2.0",
+        "com.unarin.cordova.beacon": "~3.7.0"
     },
     "cordova": {
         "platforms": [
-            "android",
-            "ios"
+            "ios",
+            "android"
         ],
         "plugins": {
             "cordova-plugin-whitelist": {},
@@ -35,7 +35,7 @@
                 "ANDROID_SUPPORT_VERSION": "27.+"
             },
             "cordova-plugin-local-notification": {},
-            "cordova-plugin-eddystone": {}
+            "com.unarin.cordova.beacon": {}
         }
     }
 }

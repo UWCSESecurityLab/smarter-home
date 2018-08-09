@@ -9,10 +9,8 @@ class BeaconStatus extends React.Component {
 
   render() {
     const beacon = this.props.deviceDesc[this.props.deviceId];
-
     let nearby = Object.values(this.props.nearbyBeacons)
-      .map((nearby) => Buffer.from(nearby.bid).toString('hex'))
-      .includes(beacon.deviceId)
+      .find((region) => region.identifier === beacon.name);
 
     let buttonStyle = nearby ? 'toggle-active' : 'toggle-inactive';
     let buttonText = nearby ? 'nearby' : 'not nearby';

@@ -14,6 +14,7 @@ import DeviceListItem from './DeviceList/DeviceListItem.react';
 import LockStatus from './DeviceList/LockStatus.react';
 import MaterialIcon from '@material/react-material-icon';
 import SwitchStatus from './DeviceList/SwitchStatus.react';
+import cordovaNotifications from '../lib/notifications/cordova-notifications';
 
 const smartAppClient = new SmartAppClient();
 
@@ -71,25 +72,10 @@ class Devices extends React.Component {
         console.error(err);
         this.setState({ error: err });
       });
-
-    if (window._cordovaNative) {
-      evothings.eddystone.startScan((beacon) => {
-        beacon.timestamp = Date.now();
-        this.props.dispatch(Actions.addNearbyBeacon(beacon));
-      }, (err) => { console.error(err) });
-      let beaconInterval = setInterval(() => {
-        this.props.dispatch(Actions.removeOldBeacons());
-      }, 5000);
-      this.setState({ beaconInterval: beaconInterval });
-    }
   }
 
   componentWillUnmount() {
     clearInterval(this.state.pollInterval);
-    if (window._cordovaNative) {
-      evothings.eddystone.stopScan();
-      clearInterval(this.state.beaconInterval);
-    }
   }
 
   fetchAllDeviceDescriptions() {
@@ -99,6 +85,23 @@ class Devices extends React.Component {
       descs.forEach((desc) => {
         this.props.dispatch(CommonActions.updateDeviceDescription(desc.deviceId, desc));
       });
+
+      if (window._cordovaNative) {
+        descs.filter((desc) => desc.deviceTypeName === 'beacon')
+          .forEach((beacon) => {
+            console.log('Adding region for beacon:');
+            console.log(beacon);
+            let region = new cordova.plugins.locationManager.BeaconRegion(
+              beacon.name,
+              beacon.uuid,
+              beacon.major,
+              beacon.minor
+            );
+            cordova.plugins.locationManager.startMonitoringForRegion(region)
+              .fail((e) => { console.error(e) })
+              .done();
+          });
+      }
     });
   }
 

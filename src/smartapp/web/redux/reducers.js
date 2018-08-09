@@ -31,8 +31,15 @@ function notificationData(state = null, action) {
 
 function nearbyBeacons(state = {}, action) {
   switch (action.type) {
-    case Actions.ADD_BEACON:
-      return Object.assign({}, state, { [action.beacon.address]: action.beacon });
+    case Actions.ADD_BEACON: {
+      let res = Object.assign({}, state, { [action.region.identifier]: action.region });
+      return res;
+    }
+    case Actions.REMOVE_BEACON: {
+      let newState = Object.assign({}, state);
+      delete newState[action.region.identifier];
+      return newState;
+    }
     case Actions.REMOVE_OLD_BEACONS: {
       let newState = Object.assign({}, state);
       let now = Date.now();

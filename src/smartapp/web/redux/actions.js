@@ -14,8 +14,13 @@ export function updateNotificationsEnabled(enabled) {
 }
 
 export const ADD_BEACON = 'ADD_BEACON';
-export function addNearbyBeacon(beacon) {
-  return { type: ADD_BEACON, beacon: beacon };
+export function addNearbyBeacon(region) {
+  return { type: ADD_BEACON, region: region };
+}
+
+export const REMOVE_BEACON = 'REMOVE_BEACON';
+export function removeNearbyBeacon(region) {
+  return { type: REMOVE_BEACON, region: region };
 }
 
 export const REMOVE_OLD_BEACONS = 'REMOVE_OLD_BEACONS';
