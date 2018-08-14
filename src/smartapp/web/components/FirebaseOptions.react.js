@@ -6,12 +6,22 @@ class FirebaseOptions extends React.Component {
   constructor(props) {
     super(props);
     this.enableNotifications = this.enableNotifications.bind(this);
+
+    if (!window._cordovaNative) {
+      import('../lib/notifications/web-notifications.js').then((module) => {
+        this.state = { notifications: module.default };
+      });
+    } else {
+      import('../lib/notifications/cordova-notifications.js').then((module) => {
+        this.state = { notifications: module.default };
+      });
+    }
   }
 
   async enableNotifications() {
     try {
-      await this.props.notifications.enableNotifications();
-      await this.props.notifications.updateToken();
+      await this.state.notifications.enableNotifications();
+      await this.state.notifications.updateToken();
     } catch (e) {
       console.error(e);
     }
@@ -52,7 +62,6 @@ class FirebaseOptions extends React.Component {
 
 FirebaseOptions.propTypes = {
   fcmToken: PropTypes.string,
-  notifications: PropTypes.object,
   notificationsEnabled: PropTypes.bool,
   notificationData: PropTypes.object
 }

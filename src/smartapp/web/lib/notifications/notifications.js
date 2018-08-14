@@ -9,7 +9,7 @@ import { CommonActions, SmartAppClient } from 'common';
 let smartAppClient = new SmartAppClient();
 
 class Notifications {
-  onMessage(message) {
+  static onMessage(message) {
     console.log('Foreground notification');
     console.log(message)
     store.dispatch(updateNotificationData(message));
@@ -19,7 +19,7 @@ class Notifications {
           CommonActions.updateDeviceStatus(newStatus.deviceId, newStatus.status));
       });
     }
-  async updateToken(currentToken) {
+  static async updateToken(currentToken) {
     try {
       if (!currentToken) {
         // TODO: check cordova behavior

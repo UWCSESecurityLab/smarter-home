@@ -23,18 +23,18 @@ class Lock extends Actuatable {
   }
 
   static getNotificationActions() {
-    return {
-      lock: [
-        { id: 'lock-lock', title: 'Lock' },
-        { id: 'lock-unlock', title: 'Unlock' }
-      ]
-    };
+    return [
+      { id: 'lock-lock', title: 'Lock' },
+      { id: 'lock-unlock', title: 'Unlock' }
+    ];
   }
 }
 export default Lock;
 
 async function onNotificationAction(notification, command) {
   try {
+    console.log(notification);
+
     await Lock.actuate(notification.data.deviceId, command);
     const lockStatus = Lock.getStatus(notification.data.deviceId);
     const lockName = Lock.getLabel(notification.data.deviceId);

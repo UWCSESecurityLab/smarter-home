@@ -24,18 +24,6 @@ class Home extends React.Component {
     this.goToDeviceStatus = this.goToDeviceStatus.bind(this);
   }
 
-  componentDidMount() {
-    if (!window._cordovaNative) {
-      import('../lib/notifications/web-notifications.js').then((module) => {
-        this.setState({ notifications: module.default });
-      });
-    } else {
-      import('../lib/notifications/cordova-notifications.js').then((module) => {
-        this.setState({ notifications: module.default });
-      });
-    }
-  }
-
   updateDeviceId(e) {
     this.setState({ deviceId: e.target.value });
   }
@@ -62,11 +50,7 @@ class Home extends React.Component {
         <div className="container mdc-top-app-bar--fixed-adjust">
           <Devices/>
           <SmartThingsOptions/>
-          {
-            this.state.notifications
-            ? <FirebaseOptions notifications={this.state.notifications} />
-            : null
-          }
+          <FirebaseOptions/>
           <section className="home-item">
             <h3>Endpoints</h3>
             <ul>

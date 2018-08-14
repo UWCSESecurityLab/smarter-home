@@ -4,6 +4,7 @@ import { Provider } from 'react-redux'
 import { store } from '../redux/reducers';
 import App from './App.react';
 import * as Actions from '../redux/actions';
+import CordovaNotifications from '../lib/notifications/cordova-notifications';
 
 function onDeviceReady () {
   // Initialize beacon scanning code here:
@@ -13,6 +14,7 @@ function onDeviceReady () {
       case 'CLRegionStateInside': {
         console.log(result.region.identifier + ' is nearby');
         store.dispatch(Actions.addNearbyBeacon(result.region));
+        CordovaNotifications.showNearbyDevices();
         break;
       }
       case 'CLRegionStateOutside': {

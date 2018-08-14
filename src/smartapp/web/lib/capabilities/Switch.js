@@ -23,12 +23,10 @@ class Switch extends Actuatable {
   }
 
   static getNotificationActions() {
-    return {
-      switch: [
-        { id: 'switch-on', title: 'Turn On' },
-        { id: 'switch-off', title: 'Turn Off' }
-      ]
-    }
+    return [
+      { id: 'switch-on', title: 'Turn On' },
+      { id: 'switch-off', title: 'Turn Off' }
+    ];
   }
 }
 
@@ -51,11 +49,11 @@ async function onNotificationAction(notification, command) {
 
 document.addEventListener('deviceready', () => {
   if (window._cordovaNative) {
-    cordova.plugins.notification.local.on('lock-lock', (notification) => {
-      onNotificationAction(notification, 'lock')
+    cordova.plugins.notification.local.on('switch-on', (notification) => {
+      onNotificationAction(notification, 'on')
     });
-    cordova.plugins.notification.local.on('lock-unlock', (notification) => {
-      onNotificationAction(notification, 'unlock')
+    cordova.plugins.notification.local.on('switch-off', (notification) => {
+      onNotificationAction(notification, 'off')
     });
   }
 });
