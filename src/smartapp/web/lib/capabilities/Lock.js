@@ -48,7 +48,7 @@ async function onNotificationAction(notification, command) {
 }
 
 document.addEventListener('deviceready', () => {
-  if (window._cordovaNative) {
+  if (window.cordova) {
     cordova.plugins.notification.local.on('lock-lock', (notification) => {
       onNotificationAction(notification, 'lock')
     });

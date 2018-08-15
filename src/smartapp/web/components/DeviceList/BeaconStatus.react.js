@@ -11,7 +11,7 @@ class BeaconStatus extends React.Component {
     const nearby = this.props.nearbyBeacons[this.props.deviceId];
     let buttonStyle;
     let buttonText;
-    if (window._cordovaNative) {
+    if (window.cordova) {
       buttonStyle = nearby ? 'toggle-active' : 'toggle-inactive';
       buttonText = nearby ? 'nearby' : 'not nearby';
     } else {

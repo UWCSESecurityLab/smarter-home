@@ -85,7 +85,7 @@ class Devices extends React.Component {
         this.props.dispatch(CommonActions.updateDeviceDescription(desc.deviceId, desc));
       });
 
-      if (window._cordovaNative) {
+      if (window.cordova) {
         descs.filter((desc) => desc.deviceTypeName === 'beacon')
           .forEach((beacon) => {
             console.log('Adding region for beacon:');

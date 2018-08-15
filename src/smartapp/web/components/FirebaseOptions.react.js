@@ -7,7 +7,7 @@ class FirebaseOptions extends React.Component {
     super(props);
     this.enableNotifications = this.enableNotifications.bind(this);
 
-    if (!window._cordovaNative) {
+    if (!window.cordova) {
       import('../lib/notifications/web-notifications.js').then((module) => {
         this.state = { notifications: module.default };
       });
