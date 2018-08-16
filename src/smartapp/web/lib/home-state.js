@@ -6,14 +6,17 @@ const smartAppClient = new SmartAppClient();
 class HomeState {
   // Fetches a fresh copy of the rooms and devices in the house, and replaces
   // everything in the Redux store.
-  static async reset() {
-    return Promise.all([smartAppClient.getHomeConfig(), this.fetchRooms()])
-      .then(([config, rooms]) => {
-        // Once homeConfig has been fetched, fetch device descs and statuses
-        store.dispatch(CommonActions.updateHomeConfig(config));
-        this.fetchAllDeviceDescriptions(rooms);
-        this.fetchAllDeviceStatuses(rooms);
-      });
+  static reset() {
+    return smartAppClient.refreshAccessToken().then(() => {
+      return Promise.all([smartAppClient.getHomeConfig(), this.fetchRooms()])
+        .then(([config, rooms]) => {
+          store.dispatch(CommonActions.updateHomeConfig(config));
+          return Promise.all([
+            this.fetchAllDeviceDescriptions(rooms),
+            this.fetchAllDeviceStatuses(rooms)
+          ]);
+        });
+    });
   }
 
   // Fetches the descriptions of all of the devices in the given rooms,
