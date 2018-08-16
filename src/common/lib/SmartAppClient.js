@@ -1,5 +1,3 @@
-const uuid = require('uuid/v4');
-
 function handleJsonResponse(response) {
   return response.json().then(json => {
     return response.ok ? json : Promise.reject(json);
@@ -19,7 +17,7 @@ class SmartAppClient {
     this.sessionId = localStorage.getItem('sessionId');
     if (!this.sessionId) {
       this.sessionId = uuid();
-      localStorage.setItem('sessionId', this.essionId);
+      localStorage.setItem('sessionId', this.sessionId);
     }
     console.log('Client session id: ' + this.sessionId);
   }
@@ -55,8 +53,6 @@ class SmartAppClient {
       }
     }).then(handleJsonResponse)
     .then(() => {
-      this.sessionId = uuid();
-      localStorage.setItem('sessionId', this.sessionId);
       localStorage.setItem('authenticated', false);
     });
   }
