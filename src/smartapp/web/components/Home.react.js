@@ -3,6 +3,7 @@ import Devices from './Devices.react';
 import Drawer from './Drawer.react';
 import FirebaseOptions from './FirebaseOptions.react';
 import SmartThingsOptions from './SmartThingsOptions.react';
+import HomeState from '../lib/home-state';
 
 import TopAppBar from '@material/react-top-app-bar';
 import MaterialIcon from '@material/react-material-icon';
@@ -22,6 +23,10 @@ class Home extends React.Component {
 
     this.updateDeviceId = this.updateDeviceId.bind(this);
     this.goToDeviceStatus = this.goToDeviceStatus.bind(this);
+  }
+
+  componentDidMount() {
+    HomeState.reset();
   }
 
   updateDeviceId(e) {
@@ -45,7 +50,9 @@ class Home extends React.Component {
             icon='menu'
             onClick={() => { this.setState({ drawerOpen: !this.state.drawerOpen })}}
           />}
-          actionItems={[<MaterialIcon key='item' icon='bookmark' />]}
+          actionItems={[
+            <MaterialIcon key='item' icon='refresh' onClick={() => {HomeState.reset() }}/>
+          ]}
         />
         <div className="container mdc-top-app-bar--fixed-adjust">
           <Devices/>

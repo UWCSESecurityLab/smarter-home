@@ -6,7 +6,6 @@ import { CommonActions, SmartAppClient } from 'common';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import { connect } from 'react-redux';
 
-import * as Actions from '../redux/actions';
 import ContactSensorStatus from './DeviceList/ContactSensorStatus.react';
 import BeaconModal from './BeaconModal.react';
 import BeaconStatus from './DeviceList/BeaconStatus.react';
@@ -16,20 +15,6 @@ import MaterialIcon from '@material/react-material-icon';
 import SwitchStatus from './DeviceList/SwitchStatus.react';
 
 const smartAppClient = new SmartAppClient();
-
-// Flattens |homeConfig|, an object of arrays, into a single array containing
-// all the deviceIds of the devices in the home.
-function getDeviceIds(homeConfig) {
-  return Object.values(homeConfig).reduce((accumulator, current) => {
-    return accumulator.concat(current)
-  });
-}
-
-function getDeviceIdsFromRooms(rooms) {
-  return Object.values(rooms)
-    .map((room => room.devices))
-    .reduce((accumulator, current) => { return accumulator.concat(current) });
-}
 
 class Devices extends React.Component {
   constructor(props, context) {
@@ -49,77 +34,11 @@ class Devices extends React.Component {
 
   componentDidMount() {
     this.setState({error: '', edit: false});
-    smartAppClient.refreshAccessToken()
-      .then(() => {
-        // Fetch rooms and homeConfig, in parallel
-        return Promise.all([smartAppClient.getHomeConfig(), this.fetchRooms()]);
-      }).then(([config, ]) => {
-        // Once homeConfig has been fetched, fetch device descs and statuses
-        this.props.dispatch(CommonActions.updateHomeConfig(config));
-        this.fetchAllDeviceDescriptions();
-        this.fetchAllDeviceStatuses();
 
-        let pollInterval = setInterval(() => {
-          this.fetchAllDeviceStatuses();
-        }, 15000);
-        this.setState({ pollInterval: pollInterval });
-
-      }).catch((err) => {
-        if (err.error == 'USER_NOT_LINKED') {
-          this.setState({ error: 'SmarterThings is not linked to a home!' });
-        }
-        console.error(err);
-        this.setState({ error: err });
-      });
   }
 
   componentWillUnmount() {
     clearInterval(this.state.pollInterval);
-  }
-
-  fetchAllDeviceDescriptions() {
-    Promise.all(getDeviceIdsFromRooms(this.props.rooms).map((deviceId) => {
-      return smartAppClient.getDeviceDescription(deviceId);
-    })).then((descs) => {
-      descs.forEach((desc) => {
-        this.props.dispatch(CommonActions.updateDeviceDescription(desc.deviceId, desc));
-      });
-
-      if (window.cordova) {
-        descs.filter((desc) => desc.deviceTypeName === 'beacon')
-          .forEach((beacon) => {
-            console.log('Adding region for beacon:');
-            console.log(beacon);
-            let region = new cordova.plugins.locationManager.BeaconRegion(
-              beacon.name,
-              beacon.uuid,
-              beacon.major,
-              beacon.minor
-            );
-            cordova.plugins.locationManager.startMonitoringForRegion(region)
-              .fail((e) => { console.error(e) })
-              .done();
-          });
-      }
-    });
-  }
-
-  fetchAllDeviceStatuses() {
-    Promise.all(getDeviceIdsFromRooms(this.props.rooms).map((deviceId) => {
-      return smartAppClient.getDeviceStatus(deviceId);
-    })).then((statuses) => {
-      statuses.forEach((status) => {
-        this.props.dispatch(CommonActions.updateDeviceStatus(status.deviceId, status.status));
-      });
-    });
-  }
-
-  fetchRooms() {
-    return smartAppClient.getRooms().then((rooms) => {
-      this.props.dispatch(CommonActions.setRooms(rooms.map((room) => {
-         return { [room.roomId]: room }
-      })));
-    });
   }
 
   addRoom() {
