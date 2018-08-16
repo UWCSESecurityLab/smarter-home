@@ -4,6 +4,7 @@ import PropTypes from 'prop-types';
 import { Route, Switch, Redirect, withRouter } from 'react-router-dom';
 import Authenticate from './Authenticate.react';
 import Home from './Home.react';
+import PrivateRoute from './PrivateRoute.react';
 
 import '../css/common.scss';
 
@@ -15,11 +16,7 @@ class App extends React.Component {
   render() {
     return (
       <Switch>
-        <Route path="/home" render={(props) => (
-          this.props.authenticated
-          ? <Home/>
-          : <Redirect to='/login'/>
-        )}/>
+        <PrivateRoute path="/home" component={Home}/>
         <Route path="/" render={() => (
           this.props.authenticated
           ? <Redirect to='/home'/>
