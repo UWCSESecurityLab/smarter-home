@@ -110,6 +110,17 @@ function checkAuth(req, res, next) {
       return;
     }
     req.user = user;
+
+    if (!req.session.installedAppId && user.installedAppId) {
+      req.session.installedAppId = user.installedAppId;
+    } else if (!req.session.installedAppId && !user.installedAppId) {
+      res.status(403).json({
+        error: 'USER_NOT_LINKED',
+        message: 'User is not associated with an installedApp'
+      });
+      return;
+    }
+
     next();
   });
 }
@@ -540,13 +551,6 @@ app.post('/rooms/moveDeviceBetweenRooms', checkAuth, getInstallData,
 });
 
 app.get('/refresh', checkAuth, (req, res) => {
-  if (!req.session.installedAppId) {
-    res.status(403).json({
-      error: 'USER_NOT_LINKED',
-      message: 'User is not associated with an installedApp'
-    });
-    return;
-  }
   SmartThingsClient.renewTokens(req.session.installedAppId).then((tokens) => {
     res.status(200).json(tokens);
   }).catch((err) => {
