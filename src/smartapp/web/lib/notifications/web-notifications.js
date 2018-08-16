@@ -29,22 +29,9 @@ const messaging = firebase.messaging();
 messaging.usePublicVapidKey('BNrb6anNOhl4s8eiPTLHsLLtgftuu-WRc3CAYVJuqNhZ4pTqci_GWqr_Aq93_TZnm_mJKaDijOn9oLXsQUrBOow');
 
 class WebNotifications extends Notifications {
-  constructor() {
-    super();
-    // Handle new tokens
-    messaging.onTokenRefresh(() => {
-      this.updateToken().catch(console.error);
-    });
-    // Handle notifications
-    messaging.onMessage((payload) => {
-      super.onMessage(JSON.parse(payload.data.smartapp));
-    });
-    this.updateToken().catch(console.error);
-  }
-
   // Updates the FCM token (state.fcmToken).
   // Retrieves a cached token if one exists, otherwise gets one from the FCM server.
-  async updateToken() {
+  static async updateToken() {
     try {
       let currentToken = await messaging.getToken();
       super.updateToken(currentToken);
@@ -54,7 +41,7 @@ class WebNotifications extends Notifications {
   }
 
   // Requests permission to send browser notifications.
-  enableNotifications() {
+  static enableNotifications() {
     messaging.requestPermission().then(() => {
       store.dispatch(updateNotificationsEnabled(true));
     }).catch((err) => {
@@ -64,4 +51,15 @@ class WebNotifications extends Notifications {
   }
 }
 
-export default new WebNotifications();
+// This code goes below the class, because of issues with webpack and hoisting.
+// Handle new tokens
+messaging.onTokenRefresh(() => {
+  WebNotifications.updateToken().catch(console.error);
+});
+// Handle notifications
+messaging.onMessage((payload) => {
+  WebNotifications.onMessage(JSON.parse(payload.data.smartapp));
+});
+WebNotifications.updateToken().catch(console.error);
+
+export default WebNotifications;
