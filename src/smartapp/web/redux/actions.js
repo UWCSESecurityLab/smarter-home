@@ -37,3 +37,8 @@ export const LOGOUT = 'LOGOUT';
 export function logout() {
   return { type: LOGOUT };
 }
+
+export const SET_USERS = 'SET_USERS';
+export function setUsers(users) {
+  return { type: SET_USERS, users: users };
+}

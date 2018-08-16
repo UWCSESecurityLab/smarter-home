@@ -550,6 +550,13 @@ app.post('/rooms/moveDeviceBetweenRooms', checkAuth, getInstallData,
   });
 });
 
+app.get('/users', checkAuth, (req, res) => {
+  User.find({ installedAppId: req.session.installedAppId }).then((users) => {
+    res.status(200).json(users);
+  });
+});
+
+
 app.get('/refresh', checkAuth, (req, res) => {
   SmartThingsClient.renewTokens(req.session.installedAppId).then((tokens) => {
     res.status(200).json(tokens);

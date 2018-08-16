@@ -2,8 +2,9 @@ import React from 'react';
 import Devices from './Devices.react';
 import Drawer from './Drawer.react';
 import FirebaseOptions from './FirebaseOptions.react';
-import SmartThingsOptions from './SmartThingsOptions.react';
 import HomeState from '../lib/home-state';
+import SmartThingsOptions from './SmartThingsOptions.react';
+import Users from './Users.react';
 
 import TopAppBar from '@material/react-top-app-bar';
 import MaterialIcon from '@material/react-material-icon';
@@ -56,27 +57,9 @@ class Home extends React.Component {
         />
         <div className="container mdc-top-app-bar--fixed-adjust">
           <Devices/>
+          <Users/>
           <SmartThingsOptions/>
           <FirebaseOptions/>
-          <section className="home-item">
-            <h3>Endpoints</h3>
-            <ul>
-              <li>
-                <a href="/beacon" target="_blank">/beacon</a> -
-                Beacon Simulator
-              </li>
-              <li>
-                <a href="/homeConfig" target="_blank">/homeConfig</a> -
-                Home Configuration
-              </li>
-              <li>
-                Device Status - /device/:deviceId/status
-                <br/>
-                <input placeholder="deviceId" value={this.state.deviceId} onChange={this.updateDeviceId}/>
-                <button onClick={this.goToDeviceStatus}>Go</button>
-              </li>
-            </ul>
-          </section>
         </div>
       </div>
     );

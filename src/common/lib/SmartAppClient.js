@@ -219,6 +219,16 @@ class SmartAppClient {
       })
     }).then(handleJsonResponse);
   }
+
+  getUsers() {
+    return fetch(`${this.host}/users`, {
+      method: 'GET',
+      credentials: 'same-origin',
+      headers: {
+        'Client-Session': this.sessionId
+      }
+    }).then(handleJsonResponse);
+  }
 }
 
 export default SmartAppClient;

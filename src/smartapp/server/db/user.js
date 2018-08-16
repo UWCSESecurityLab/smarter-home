@@ -4,6 +4,7 @@ const mongoose = require('mongoose');
 let userSchema = mongoose.Schema({
   id: String,
   username: String,
+  displayName: String,
   hashedPassword: String,        // bcrypt hash, 10 salt rounds
   notificationTokens: [String],  // Per-device FCM notification tokens
   notificationKey: String,       // FCM device group notification key

@@ -70,6 +70,15 @@ function authenticated(state = JSON.parse(localStorage.getItem('authenticated'))
   }
 }
 
+function users(state = {}, action) {
+  switch (action.type) {
+    case Actions.SET_USERS:
+      return Object.assign({}, ...action.users.map((user) => { return { [user.id]: user }}));
+    default:
+      return state;
+  }
+}
+
 const fcmReducers = combineReducers({
   fcmToken: fcmToken,
   notificationsEnabled: notificationsEnabled,
@@ -85,7 +94,8 @@ const store = createStore(combineReducers({
     deviceStatus: CommonReducers.deviceStatus,
     homeConfig: CommonReducers.homeConfig,
     rooms: CommonReducers.rooms
-  })
+  }),
+  users: users
 }));
 
 export { store };
