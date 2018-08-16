@@ -66,11 +66,11 @@ class HomeState {
   // the new rooms. Returns the rooms fetched.
   static fetchRooms() {
     return smartAppClient.getRooms().then((rooms) => {
-      let idToRoom = rooms.map((room) => {
+      let idToRoom = Object.assign({}, ...rooms.map((room) => {
         return { [room.roomId]: room }
-      })
+      }));
       store.dispatch(CommonActions.setRooms(idToRoom));
-      return Object.assign({}, ...idToRoom);
+      return idToRoom;
     });
   }
 
@@ -85,7 +85,6 @@ class HomeState {
   // Flattens the rooms object from Redux into a single array containing
   // all the deviceIds of the devices in the home.
   static getDeviceIdsFromRooms(rooms) {
-    console.log(rooms);
     return Object.values(rooms)
       .map((room => room.devices))
       .reduce((accumulator, current) => { return accumulator.concat(current) });
