@@ -1,10 +1,11 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import Button from '@material/react-button';
+import MaterialIcon from '@material/react-material-icon';
+import PropTypes from 'prop-types';
 import { SmartAppClient } from 'common';
 import * as Actions from '../redux/actions';
 
-import '../css/login.scss';
+import '../css/authenticate.scss';
 
 class Login extends React.Component {
   constructor(props) {
@@ -99,7 +100,15 @@ class Login extends React.Component {
 
     return (
       <div className="container">
-        <h2 className="login-text">Log into Smart Notifications</h2>
+        { this.props.oauth || !Link ? null :
+          <Link to="/" className="link-plain">
+            <Button className="back-button">
+              <MaterialIcon icon="arrow_back"/>
+              &nbsp;Back
+            </Button>
+          </Link>
+        }
+        <h3 className="login-text">Log In to SmarterHome</h3>
         <form id="login-form" onSubmit={this.login}>
           <div className="form-group">
             <input value={this.state.username}
@@ -126,13 +135,6 @@ class Login extends React.Component {
               : 'Sign In'
             }
           </Button>
-          { this.props.oauth || !Link ? null :
-            <Link to="register" style={{textDecoration: 'none'}}>
-              <Button className="auth-button">
-                Create Account
-              </Button>
-            </Link>
-          }
           { this.state.loading
             ? <span className="spinner" id="spinner" aria-hidden="true"></span>
             : null
@@ -148,7 +150,6 @@ Login.propTypes = {
   children: PropTypes.node,
   oauth: PropTypes.bool,
   oauthState: PropTypes.string,
-  switchToRegister: PropTypes.func
 }
 
 export default Login;

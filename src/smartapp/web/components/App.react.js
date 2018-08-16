@@ -15,20 +15,15 @@ class App extends React.Component {
   render() {
     return (
       <Switch>
-        <Route exact path="/" render={() => (
-          <Redirect to='/login'/>
-        )}/>
-        <Route path="/login" render={(props) => (
-          this.props.authenticated
-          ? <Redirect to='/home'/>
-          : <Authenticate/>
-        )}/>
-        <Route path="/register" component={Authenticate}/>
-        <Route path="/registerSuccess" component={Authenticate}/>
         <Route path="/home" render={(props) => (
           this.props.authenticated
           ? <Home/>
           : <Redirect to='/login'/>
+        )}/>
+        <Route path="/" render={() => (
+          this.props.authenticated
+          ? <Redirect to='/home'/>
+          : <Authenticate/>
         )}/>
       </Switch>
     );

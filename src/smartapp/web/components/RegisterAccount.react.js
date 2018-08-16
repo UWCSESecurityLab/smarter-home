@@ -1,14 +1,13 @@
 import React from 'react';
 import Button from '@material/react-button';
-import { SmartAppClient } from 'common';
+import MaterialIcon from '@material/react-material-icon';
 import PropTypes from 'prop-types';
-import { Redirect } from 'react-router-dom';
-
-import '../css/login.scss';
+import { SmartAppClient } from 'common';
+import { Link, Redirect } from 'react-router-dom';
 
 let smartAppClient = new SmartAppClient();
 
-class Register extends React.Component {
+class RegisterAccount extends React.Component {
   constructor(props, context) {
     super(props, context);
     this.state = {
@@ -55,7 +54,6 @@ class Register extends React.Component {
         return;
       }
       this.setState({ success: true });
-      // this.props.onSuccess();
     } catch (e) {
       this.setState({ error: 'NETWORK', loading: false});
     }
@@ -77,7 +75,13 @@ class Register extends React.Component {
     return (
       <div className="container">
         { this.state.success ? <Redirect to="/registerSuccess"/> : null}
-        <h2 className="login-text">Register for Smart Notifications</h2>
+        <Link to="/" className="link-plain">
+          <Button className="back-button">
+            <MaterialIcon icon="arrow_back"/>
+            &nbsp;Back
+          </Button>
+        </Link>
+        <h3>Create a SmarterHome Account</h3>
         <form id="register-form" onSubmit={this.register}>
           <div>
             <input value={this.state.username}
@@ -113,15 +117,13 @@ class Register extends React.Component {
             : null
           }
           </div>
-        {this.props.children}
       </div>
     );
   }
 }
 
-Register.propTypes = {
-  onSuccess: PropTypes.func,
+RegisterAccount.propTypes = {
   children: PropTypes.node
 }
 
-export default Register;
+export default RegisterAccount;

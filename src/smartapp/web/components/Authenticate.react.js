@@ -1,50 +1,75 @@
 import React from 'react';
-import Login from './Login.react';
-import Register from './Register.react';
 import Button from '@material/react-button';
+import Login from './Login.react';
+import MaterialIcon from '@material/react-material-icon';
+import RegisterAccount from './RegisterAccount.react';
+import RegisterKey from './RegisterKey.react';
 import { Route, Link } from 'react-router-dom';
+
+import '../css/authenticate.scss';
 
 class Authenticate extends React.Component {
   constructor(props) {
     super(props);
-    this.state = { redirect: null };
-    this.switchToRegister = this.switchToRegister.bind(this);
-    this.switchToLogin = this.switchToLogin.bind(this);
-    this.switchToSuccess = this.switchToSuccess.bind(this);
-  }
-
-  switchToRegister() {
-    this.setState({ redirect: '/register' });
-  }
-
-  switchToLogin() {
-    this.setState({ redirect: '/login' });
-  }
-
-  switchToSuccess() {
-    this.setState({ redirect: '/registerSuccess' });
   }
 
   render() {
     return (
       <div id="authenticate">
+        <Route exact path="/" render={() => (
+          <div>
+            <h3>Welcome to SmarterHome</h3>
+            <div id="intro-text">To get started, pick an option below.</div>
+            <Link to="/register" className="link-plain">
+              <div className="option">
+                <MaterialIcon className="intro-icon" icon="home" style={{fontSize: '36px', color: '#59A2EC'}}/>
+                <div>
+                  <h4>Set Up SmarterHome</h4>
+                  <div className="subtitle">
+                    Get SmarterHome running in your home.
+                  </div>
+                </div>
+              </div>
+            </Link>
+            <Link to="/join" className="link-plain">
+              <div className="option">
+                <MaterialIcon className="intro-icon" icon="person_add" style={{fontSize: '36px', color: '#679960'}}/>
+                <div>
+                  <h4>Join an Existing Home</h4>
+                  <div className="subtitle">
+                    Join a SmarterHome that has already been set up.
+                  </div>
+                </div>
+              </div>
+            </Link>
+            <Link to="/login" className="link-plain">
+              <div className="option option-bottom">
+                <MaterialIcon className="intro-icon" icon="input" style={{fontSize: '36px', color: '#593F8E'}}/>
+                <div>
+                  <h4>Log In</h4>
+                  <div className="subtitle">
+                    If you made a password when setting up, log in here.
+                  </div>
+                </div>
+              </div>
+            </Link>
+          </div>
+        )} />
         <Route path="/login" render={() => (
-          <Login oauth={false} switchToRegister={this.switchToRegister}/>
+          <Login oauth={false}/>
         )}/>
-        <Route path="/register" render={() => (
-          <Register onSuccess={this.switchToSuccess}>
-            <Link className="switch-mode" to="/login">Already have an account? Log in</Link>
-          </Register>
-        )}/>
+        <Route path="/register" component={RegisterAccount}/>
+        <Route path="/join" component={RegisterKey}/>
         <Route path="/registerSuccess" render={() => (
           <div>
             <div id="big-check">✓</div>
             <h2>Registration Successful</h2>
-            <div>To continue, install the SmarterHome app in SmartThings.</div>
+            <div>To continue, install the SmarterHome SmartApp in the SmartThings app.</div>
             <div style={{marginTop: '10px'}}>
-              <Link to="/login" style={{textDecoration: 'none'}}>
-                <Button onClick={this.switchToLogin} raised>
-                  Back to Login
+              <Link to="/" className="link-plain">
+                <Button>
+                  <MaterialIcon icon="arrow_back"/>
+                  &nbsp;Back
                 </Button>
               </Link>
             </div>

@@ -25,6 +25,11 @@ class Users extends React.Component {
             </div>
           )
         }
+        <div className="device-li">
+          <span className="device-li-label">
+            + Add User
+          </span>
+        </div>
       </section>
     );
   }

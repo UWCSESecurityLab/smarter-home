@@ -30,6 +30,11 @@ h3 {
   font-size: 16pt;
 }
 
+h4 {
+  margin: 0.5em 0;
+  font-weight: 500;
+}
+
 input {
   font-size: 11pt;
   border: none;
@@ -79,6 +84,12 @@ input:focus {
   background: #3b5b6d;
 }
 
+.mdc-button {
+  text-transform: none;
+  letter-spacing: initial;
+  font-size: 1rem;
+}
+
 .mdc-button-blue {
   @include mdc-button-filled-accessible(#00a6ff);
   @include mdc-button-ink-color(#FFFFFF);
@@ -109,4 +120,9 @@ input:focus {
   background-color: #ffa7a7;
   border: 1px solid #fc4040;
   color: #fc4040;
+}
+
+.link-plain {
+  text-decoration: none;
+  color: initial;
 }

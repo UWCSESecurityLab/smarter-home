@@ -1,0 +1,62 @@
+#authenticate {
+  background: white;
+  border-radius: 8px;
+  padding-left: 20px;
+  padding-right: 20px;
+  padding-top: 12px;
+  padding-bottom: 30px;
+  margin: 16px auto;
+  max-width: 400px;
+}
+@media (max-width: 500px) {
+  #authenticate {
+    max-width: 85%;
+  }
+}
+
+#intro-text {
+  margin-bottom: 12px;
+}
+
+.subtitle {
+  color: #797979;
+}
+.option {
+  display: flex;
+  align-items: center;
+  border-top: 1px solid #EEEEEE;
+  padding-bottom: 8px;
+}
+.option-bottom {
+  border-bottom: 1px solid #EEEEEE;
+}
+
+.intro-icon {
+  padding-right: 20px;
+}
+
+#big-check {
+  color: green;
+  border: 3px solid green;
+  width: 96px;
+  height: 96px;
+  border-radius: 48px;
+  text-align: center;
+  vertical-align: middle;
+  line-height: 96px;
+  font-size: 40pt;
+  margin: auto;
+}
+
+.switch-mode {
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+.auth-button {
+  margin: 0 10px 10px 0;
+}
+
+.back-button {
+  padding-left: 0 !important;
+}
