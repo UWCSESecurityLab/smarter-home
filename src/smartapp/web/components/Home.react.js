@@ -56,7 +56,7 @@ class Home extends React.Component {
           ]}
         />
         <div className="container mdc-top-app-bar--fixed-adjust">
-          <Devices/>
+          {/* <Devices/> */}
           <Users/>
           <SmartThingsOptions/>
           <FirebaseOptions/>

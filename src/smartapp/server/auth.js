@@ -24,7 +24,7 @@ module.exports = {
       });
     });
   },
-  createUser: function(username, password) {
+  createUser: function(username, displayName, password) {
     return new Promise((resolve, reject) => {
       User.findOne({ username: username }, (err, user) => {
         if (err) {
@@ -41,6 +41,7 @@ module.exports = {
             let user = new User({
               id: uuid(),
               username: username,
+              displayName: displayName,
               hashedPassword: hash,
               notificationTokens: []
             });

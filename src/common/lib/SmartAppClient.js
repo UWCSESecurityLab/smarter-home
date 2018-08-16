@@ -57,7 +57,7 @@ class SmartAppClient {
     });
   }
 
-  register(username, password, confirmPassword) {
+  register(username, displayName, password, confirmPassword) {
     return fetch(`${this.host}/register`, {
       method: 'POST',
       credentials: 'same-origin',
@@ -67,6 +67,7 @@ class SmartAppClient {
       },
       body: JSON.stringify({
         username: username,
+        displayName: displayName,
         password: password,
         confirm: confirmPassword
       })

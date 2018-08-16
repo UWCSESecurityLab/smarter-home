@@ -12,6 +12,7 @@ class RegisterAccount extends React.Component {
     super(props, context);
     this.state = {
       username: '',
+      displayName: '',
       password: '',
       confirmPassword: '',
       loading: false,
@@ -22,6 +23,7 @@ class RegisterAccount extends React.Component {
     this.register = this.register.bind(this);
     this.updateUsername = this.updateUsername.bind(this);
     this.updatePassword = this.updatePassword.bind(this);
+    this.updateDisplayName = this.updateDisplayName.bind(this);
     this.updateConfirmPassword = this.updateConfirmPassword.bind(this);
   }
 
@@ -40,6 +42,7 @@ class RegisterAccount extends React.Component {
     try {
       let res = await smartAppClient.register(
         this.state.username,
+        this.state.displayName,
         this.state.password,
         this.state.confirmPassword);
 
@@ -61,6 +64,10 @@ class RegisterAccount extends React.Component {
 
   updateUsername(e) {
     this.setState({ username: e.target.value });
+  }
+
+  updateDisplayName(e) {
+    this.setState({ displayName: e.target.value });
   }
 
   updatePassword(e) {
@@ -88,6 +95,15 @@ class RegisterAccount extends React.Component {
               onChange={this.updateUsername}
               type="text"
               placeholder="Username"
+              autoComplete="username"
+              required/>
+          </div>
+          <div>
+            <input value={this.state.displayName}
+              onChange={this.updateDisplayName}
+              type="text"
+              placeholder="Name"
+              autoCapitalize="on"
               required/>
           </div>
           <div>
@@ -95,6 +111,7 @@ class RegisterAccount extends React.Component {
               onChange={this.updatePassword}
               type="password"
               placeholder="Password"
+              autoComplete="new-password"
               required/>
           </div>
           <div>
@@ -102,6 +119,7 @@ class RegisterAccount extends React.Component {
               onChange={this.updateConfirmPassword}
               type="password"
               placeholder="Confirm Password"
+              autoComplete="new-password"
               required/>
           </div>
         </form>

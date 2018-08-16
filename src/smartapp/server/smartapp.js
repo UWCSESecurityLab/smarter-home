@@ -221,7 +221,7 @@ app.post('/login', (req, res) => {
 });
 
 app.post('/register', (req, res) => {
-  if (!req.body.username || !req.body.password || !req.body.confirm) {
+  if (!req.body.username || !req.body.displayName || !req.body.password || !req.body.confirm) {
     res.status(400).json({ message: 'MISSING_FIELD' });
     return;
   }
@@ -231,7 +231,7 @@ app.post('/register', (req, res) => {
     return;
   }
 
-  auth.createUser(req.body.username, req.body.password).then(() => {
+  auth.createUser(req.body.username, req.body.displayName, req.body.password).then(() => {
     res.status(200);
     res.send();
   }).catch((err) => {
