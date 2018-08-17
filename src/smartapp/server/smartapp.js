@@ -282,20 +282,29 @@ app.post('/authResponse', (req, res) => {
   }
 
   User.findOne({ id: req.session.challengeUser }).then((challengeUser) => {
+    log.log('Verifying signature from ' + challengeUser.id + ' for challenge ' + req.session.challenge);
+
     // Turn JSON arrays into ArrayBuffer
     let r = Buffer.from(new Uint8Array(req.body.signature.r).buffer);
     let s = Buffer.from(new Uint8Array(req.body.signature.s).buffer);
     let signature = { r: r, s: s };
 
+    let challengeBuf = Buffer.from(req.session.challenge, 'utf-8');
+
     // Compute hash of challenge
     const hash = crypto.createHash('sha512');
-    hash.update(req.session.challenge);
-    const msgHash = hash.digest('hex');
+    hash.update(challengeBuf);
+    const msgHash = hash.digest();
+    console.log('SHA-512 hash of challenge:');
+    console.log(msgHash);
 
     // Try each of user's public keys
     for (let jwk of challengeUser.publicKeys) {
-      let publicKey = ec.keyFromPublic(jwk, 'jwk');
-      if (publicKey.verify(msgHash, signature)) {
+      let hex_x = Buffer.from(jwk.x, 'base64').toString('hex');
+      let hex_y = Buffer.from(jwk.y, 'base64').toString('hex');
+      let publicKey = ec.keyFromPublic({x: hex_x, y: hex_y }, 'hex');
+      if ( publicKey.verify(msgHash, signature)) {
+        log.log('Signature verified');
         // Success
         req.session.regenerate((err) => {
           if (err) {
@@ -310,15 +319,15 @@ app.post('/authResponse', (req, res) => {
               res.status(500).json(err);
               return;
             }
-            console.log('Saved session');
-            console.log(req.session);
-            res.status(200).send();
+            log.log('Challenge-Response Login Success');
+            res.status(200).json({});
           });
         });
         return;
       }
     }
     // Fail
+    log.error('Failed to verify signature');
     res.status(401).json({ error: 'Failed challenge-response' });
   }).catch((err) => {
     log.error(err);
@@ -652,7 +661,7 @@ app.post('/users/new', checkAuth, (req, res) => {
       publicKeys: [req.body.publicKey]
     });
     newUser.save().then(() => {
-      res.status(200).send();
+      res.status(200).json({});
     }).catch((err) => {
       log.error(JSON.stringify(err));
       res.status(500).json({ error: 'CREATE_ERROR' });

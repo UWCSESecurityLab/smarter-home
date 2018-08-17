@@ -3,6 +3,7 @@ import qrcode from 'qrcode';
 import Button from '@material/react-button';
 import MaterialIcon from '@material/react-material-icon';
 import * as Actions from '../redux/actions';
+import { store } from '../redux/reducers';
 import { Link } from 'react-router-dom';
 import { SmartAppClient } from 'common';
 
@@ -24,6 +25,7 @@ async function generateDeviceKeys() {
 }
 
 async function signChallenge(challenge, privateJwk) {
+  console.log('Signing challenge ' + challenge);
   let privateKey = await crypto.subtle.importKey(
     'jwk',
     privateJwk,
@@ -33,17 +35,31 @@ async function signChallenge(challenge, privateJwk) {
   );
   let challengeBuf = new TextEncoder('utf-8').encode(challenge).buffer;
   let signature = await crypto.subtle.sign(
-    { name: 'ECDSA', hash : 'SHA-512' },
+    { name: 'ECDSA', hash: 'SHA-512' },
     privateKey,
     challengeBuf
   );
-  let r = Array.from(
-    new Uint8Array(signature.slice(0, signature.byteLength / 2)).toString()
-  );
-  let s = Array.from(
-    new Uint8Array(signature.slice(signature.byteLength / 2)).toString()
-  );
+  let r = Array.from(new Uint8Array(signature.slice(0, signature.byteLength / 2)));
+  let s = Array.from(new Uint8Array(signature.slice(signature.byteLength / 2)));
   return { r: r, s: s };
+}
+
+async function verifyChallenge(signature, text, publicJwk) {
+  let publicKey = await crypto.subtle.importKey(
+    'jwk',
+    publicJwk,
+    {name: 'ECDSA', namedCurve: 'P-521'},
+    true,
+    ['verify']
+  );
+  let mergedSignature = new Uint8Array(signature.r.concat(signature.s)).buffer;
+  let challengeBuf = new TextEncoder('utf-8').encode(text);
+  let res = await crypto.subtle.verify({name: 'ECDSA', namedCurve: 'P-521', hash: 'SHA-512'}, publicKey, mergedSignature, challengeBuf.buffer);
+  if (res) {
+    console.log('Verified own key');
+  } else {
+    console.log('Failed to verify own key');
+  }
 }
 
 class RegisterKey extends React.Component {
@@ -63,7 +79,7 @@ class RegisterKey extends React.Component {
       publicJwk = JSON.parse(deviceKeys).publicKey;
       privateJwk = JSON.parse(deviceKeys).privateKey;
     }
-    this.setState({ publicJwk: publicJwk, privateJwk, privateJwk });
+    this.setState({ publicJwk: publicJwk, privateJwk: privateJwk });
 
     qrcode.toCanvas(document.getElementById('canvas'), JSON.stringify(publicJwk), (err) => {
       if (err) {
@@ -73,14 +89,14 @@ class RegisterKey extends React.Component {
   }
 
   login() {
-    smartAppClient.authChallenge(this.state.publicKey).then(({challenge}) => {
-      return signChallenge(challenge, this.state.privateKey);
+    smartAppClient.authChallenge(this.state.publicJwk).then(({challenge}) => {
+      return signChallenge(challenge, this.state.privateJwk);
     }).then((signature) => {
       return smartAppClient.authResponse(signature);
     }).then(() => {
-      this.state.dispatch(Actions.login());
+      store.dispatch(Actions.login());
     }).catch((err) => {
-      console.error(err.stack);
+      console.error(err);
     });
   }
 

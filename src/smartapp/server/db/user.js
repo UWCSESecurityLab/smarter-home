@@ -9,7 +9,7 @@ let userSchema = mongoose.Schema({
   notificationTokens: [String],  // Per-device FCM notification tokens
   notificationKey: String,       // FCM device group notification key
   installedAppId: String,
-  publicKeys: [Object]
+  publicKeys: []                 // Array of JWK formatted ECDSA keys
 });
 
 let User = mongoose.model('User', userSchema);

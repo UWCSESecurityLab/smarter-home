@@ -235,7 +235,7 @@ class SmartAppClient {
         'Client-Session': this.sessionId,
         'Content-Type': 'application/json'
       },
-      body: { publicKey: JSON.stringify(publicKey) }
+      body: JSON.stringify({ publicKey: publicKey })
     }).then(handleJsonResponse);
   }
 
@@ -247,7 +247,7 @@ class SmartAppClient {
         'Client-Session': this.sessionId,
         'Content-Type': 'application/json'
       },
-      body: { publicKey: JSON.stringify(publicKey) }
+      body: JSON.stringify({ publicKey: publicKey })
     }).then(handleJsonResponse);
   }
 
@@ -259,7 +259,7 @@ class SmartAppClient {
         'Client-Session': this.sessionId,
         'Content-Type': 'application/json'
       },
-      body: { signature: JSON.stringify(signature) }
+      body: JSON.stringify({ signature: signature })
     }).then(handleJsonResponse);
   }
 }
