@@ -11,6 +11,28 @@ class Users extends React.Component {
     smartAppClient.getUsers().then((users) => {
       this.props.dispatch(Actions.setUsers(users));
     });
+    this.scanKey = this.scanKey.bind(this);
+  }
+
+  scanKey() {
+    if (window.cordova) {
+      QRScanner.scan((err, text) => {
+        if (err) {
+          console.error(err);
+          QRScanner.destroy();
+          this.props.setVisibility(true);
+          document.getElementsByTagName('body')[0].style.background = '#5FC4FA';
+        } else {
+          alert(text);
+          QRScanner.destroy();
+          document.getElementsByTagName('body')[0].style.background = '#5FC4FA';
+          this.props.setVisibility(true);
+        }
+      });
+      QRScanner.show();
+      document.getElementsByTagName('body')[0].style.background = 'transparent';
+      this.props.setVisibility(false);
+    }
   }
 
   render() {
@@ -25,7 +47,7 @@ class Users extends React.Component {
             </div>
           )
         }
-        <div className="device-li">
+        <div className="device-li" onClick={this.scanKey}>
           <span className="device-li-label">
             + Add User
           </span>
@@ -37,6 +59,7 @@ class Users extends React.Component {
 
 Users.propTypes = {
   dispatch: PropTypes.func,
+  setVisibility: PropTypes.func,
   users: PropTypes.object
 }
 

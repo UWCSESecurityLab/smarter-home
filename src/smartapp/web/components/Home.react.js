@@ -19,11 +19,13 @@ class Home extends React.Component {
       accessToken: null,
       deviceId: '',
       notifications: null,
-      drawerOpen: false
+      drawerOpen: false,
+      visible: true,
     };
 
     this.updateDeviceId = this.updateDeviceId.bind(this);
     this.goToDeviceStatus = this.goToDeviceStatus.bind(this);
+    this.setVisibility = this.setVisibility.bind(this);
   }
 
   componentDidMount() {
@@ -39,8 +41,12 @@ class Home extends React.Component {
       window.open(`/devices/${this.state.deviceId}/status`, '_blank');
     }
   }
+  setVisibility(value) {
+    this.setState({ visible: value });
+  }
 
   render() {
+    const hidden = { visibility: 'hidden' };
     return (
       <div>
         <Drawer open={this.state.drawerOpen} closeFn={() => this.setState({drawerOpen: false})}/>
@@ -55,9 +61,10 @@ class Home extends React.Component {
             <MaterialIcon key='item' icon='refresh' onClick={() => {HomeState.reset() }}/>
           ]}
         />
-        <div className="container mdc-top-app-bar--fixed-adjust">
+        <div className="container mdc-top-app-bar--fixed-adjust"
+             style={this.state.visible ? null : hidden}>
           {/* <Devices/> */}
-          <Users/>
+          <Users setVisibility={this.setVisibility}/>
           <SmartThingsOptions/>
           <FirebaseOptions/>
         </div>
