@@ -63,7 +63,7 @@ class Home extends React.Component {
         />
         <div className="container mdc-top-app-bar--fixed-adjust"
              style={this.state.visible ? null : hidden}>
-          {/* <Devices/> */}
+          <Devices/>
           <Users setVisibility={this.setVisibility}/>
           <SmartThingsOptions/>
           <FirebaseOptions/>
