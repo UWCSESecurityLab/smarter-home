@@ -8,7 +8,8 @@ let userSchema = mongoose.Schema({
   hashedPassword: String,        // bcrypt hash, 10 salt rounds
   notificationTokens: [String],  // Per-device FCM notification tokens
   notificationKey: String,       // FCM device group notification key
-  installedAppId: String
+  installedAppId: String,
+  publicKeys: [Object]
 });
 
 let User = mongoose.model('User', userSchema);

@@ -12,6 +12,7 @@ class Users extends React.Component {
       this.props.dispatch(Actions.setUsers(users));
     });
     this.scanKey = this.scanKey.bind(this);
+    this.stopScan = this.stopScan.bind(this);
   }
 
   scanKey() {
@@ -19,20 +20,26 @@ class Users extends React.Component {
       QRScanner.scan((err, text) => {
         if (err) {
           console.error(err);
-          QRScanner.destroy();
-          this.props.setVisibility(true);
-          document.getElementsByTagName('body')[0].style.background = '#5FC4FA';
+          this.stopScan();
         } else {
-          alert(text);
-          QRScanner.destroy();
-          document.getElementsByTagName('body')[0].style.background = '#5FC4FA';
-          this.props.setVisibility(true);
+          this.stopScan();
+          smartAppClient.addNewUser(JSON.parse(text)).then(() => {
+            alert('Registered new user');
+          }).catch((err) => {
+            alert(err);
+          });
         }
       });
       QRScanner.show();
       document.getElementsByTagName('body')[0].style.background = 'transparent';
       this.props.setVisibility(false);
     }
+  }
+
+  stopScan() {
+    QRScanner.destroy();
+    this.props.setVisibility(true);
+    document.getElementsByTagName('body')[0].style.background = '#5FC4FA';
   }
 
   render() {

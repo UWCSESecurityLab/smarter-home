@@ -30,6 +30,7 @@
     "cookie-signature": "^1.1.0",
     "csv-parse": "^2.5.0",
     "ejs": "^2.5.7",
+    "elliptic": "^6.4.1",
     "express": "^4.16.2",
     "express-session": "^1.15.6",
     "firebase": "^5.2.0",

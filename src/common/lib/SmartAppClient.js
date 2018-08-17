@@ -226,6 +226,42 @@ class SmartAppClient {
       }
     }).then(handleJsonResponse);
   }
+
+  addNewUser(publicKey) {
+    return fetch(`${this.host}/users/new`, {
+      method: 'POST',
+      credentials: 'same-origin',
+      headers: {
+        'Client-Session': this.sessionId,
+        'Content-Type': 'application/json'
+      },
+      body: { publicKey: JSON.stringify(publicKey) }
+    }).then(handleJsonResponse);
+  }
+
+  authChallenge(publicKey) {
+    return fetch(`${this.host}/authChallenge`, {
+      method: 'POST',
+      credentials: 'same-origin',
+      headers: {
+        'Client-Session': this.sessionId,
+        'Content-Type': 'application/json'
+      },
+      body: { publicKey: JSON.stringify(publicKey) }
+    }).then(handleJsonResponse);
+  }
+
+  authResponse(signature) {
+    return fetch(`${this.host}/authResponse`, {
+      method: 'POST',
+      credentials: 'same-origin',
+      headers: {
+        'Client-Session': this.sessionId,
+        'Content-Type': 'application/json'
+      },
+      body: { signature: JSON.stringify(signature) }
+    }).then(handleJsonResponse);
+  }
 }
 
 export default SmartAppClient;

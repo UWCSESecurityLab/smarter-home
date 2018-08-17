@@ -2,7 +2,9 @@ const bodyParser = require('body-parser');
 const compression = require('compression');
 const cookie = require('cookie');
 const cookieSignature = require('cookie-signature');
+const crypto = require('crypto');
 const express = require('express');
+const EC = require('elliptic').ec;
 const httpSignature = require('http-signature');
 const mongoose = require('mongoose');
 const path = require('path');
@@ -24,6 +26,8 @@ const SmartThingsClient = require('./SmartThingsClient');
 const User = require('./db/user');
 
 const PUBLIC_KEY = require('../config/smartapp-config.js').key;
+
+let ec = new EC('p521');
 
 mongoose.connect('mongodb://localhost:27017,localhost:27018,localhost:27019/test?replicaSet=rs');
 let db = mongoose.connection;
@@ -203,6 +207,7 @@ app.post('/login', (req, res) => {
       req.session.save((err) => {
         if (err) {
           res.status(500).json(err);
+          return;
         }
         console.log('Saved session');
         console.log(req.session);
@@ -217,7 +222,6 @@ app.post('/login', (req, res) => {
       res.status(500).send({ error: 'DB_ERROR'});
     }
   });
-
 });
 
 app.post('/register', (req, res) => {
@@ -241,6 +245,84 @@ app.post('/register', (req, res) => {
       res.status(500);
     }
     res.json(err);
+  });
+});
+
+// Step 1 in challenge-response login protocol.
+// Client sends public key (so server can verify user exists)
+// Server responds with string challenge
+app.post('/authChallenge', (req, res) => {
+  // Find matching public key in User database.
+  User.findOne({ publicKeys: { $elemMatch: {
+    x: req.body.publicKey.x, y: req.body.publicKey.y
+  }}}).then((user) => {
+    if (!user) {
+      res.status(401).send({ error: 'UNRECOGNIZED_KEY' });
+      return;
+    }
+    // Generate challenge, save user and challenge in session
+    const challenge = uuid();
+    req.session.challenge = challenge;
+    req.session.challengeUser = user.id;
+    log.log('Challenge: ' + challenge);
+    res.status(200).json({ challenge: challenge });
+  }).catch((err) => {
+    res.status(500).json(err);
+  });
+});
+
+// Step 2 in challenge-response login protocol.
+// Client sends ECDSA signed challenge (JSON object containing r, s in arrays)
+// Server verifies that it was signed by the holder of the private key, who
+// sent their key in the challenge.
+app.post('/authResponse', (req, res) => {
+  if (!req.session.challenge || !req.session.challengeUser) {
+    res.status(401).send({ error: 'MISSING_CHALLENGE' });
+    return;
+  }
+
+  User.findOne({ id: req.session.challengeUser }).then((challengeUser) => {
+    // Turn JSON arrays into ArrayBuffer
+    let r = Buffer.from(new Uint8Array(req.body.signature.r).buffer);
+    let s = Buffer.from(new Uint8Array(req.body.signature.s).buffer);
+    let signature = { r: r, s: s };
+
+    // Compute hash of challenge
+    const hash = crypto.createHash('sha512');
+    hash.update(req.session.challenge);
+    const msgHash = hash.digest('hex');
+
+    // Try each of user's public keys
+    for (let jwk of challengeUser.publicKeys) {
+      let publicKey = ec.keyFromPublic(jwk, 'jwk');
+      if (publicKey.verify(msgHash, signature)) {
+        // Success
+        req.session.regenerate((err) => {
+          if (err) {
+            console.log(err);
+            res.status(500).json(err);
+            return;
+          }
+          req.session.user = challengeUser.id;
+          req.session.installedAppId = challengeUser.installedAppId;
+          req.session.save((err) => {
+            if (err) {
+              res.status(500).json(err);
+              return;
+            }
+            console.log('Saved session');
+            console.log(req.session);
+            res.status(200).send();
+          });
+        });
+        return;
+      }
+    }
+    // Fail
+    res.status(401).json({ error: 'Failed challenge-response' });
+  }).catch((err) => {
+    log.error(err);
+    res.status(500).json({ error: 'DB_ERROR' });
   });
 });
 
@@ -553,6 +635,28 @@ app.post('/rooms/moveDeviceBetweenRooms', checkAuth, getInstallData,
 app.get('/users', checkAuth, (req, res) => {
   User.find({ installedAppId: req.session.installedAppId }).then((users) => {
     res.status(200).json(users);
+  });
+});
+
+// Create a new user, via public key (scanned with QR code).
+app.post('/users/new', checkAuth, (req, res) => {
+  let key = req.body.publicKey;
+  User.findOne({ publicKeys: { $elemMatch: { x: key.x, y: key.y }}}).then((user) => {
+    if (user) {
+      res.status(400).json({ error: 'KEY_ALREADY_EXISTS' });
+      return;
+    }
+    let newUser = new User({
+      id: uuid(),
+      installedAppId: req.session.installedAppId,
+      publicKeys: [req.body.publicKey]
+    });
+    newUser.save().then(() => {
+      res.status(200).send();
+    }).catch((err) => {
+      log.error(JSON.stringify(err));
+      res.status(500).json({ error: 'CREATE_ERROR' });
+    });
   });
 });
 
