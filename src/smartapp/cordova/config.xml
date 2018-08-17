@@ -19,6 +19,8 @@
     <platform name="android">
         <allow-intent href="market:*" />
         <resource-file src="google-services.json" target="app/google-services.json" />
+        <preference name="com.unarin.cordova.beacon.android.altbeacon.ForegroundBetweenScanPeriod" value="5000" />
+        <preference name="com.unarin.cordova.beacon.android.altbeacon.BackgroundBetweenScanPeriod" value="60000" />
     </platform>
     <platform name="ios">
         <allow-intent href="itms:*" />
