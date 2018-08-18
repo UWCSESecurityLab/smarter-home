@@ -1,5 +1,6 @@
 import React from 'react';
 import Button from '@material/react-button';
+import MaterialIcon from '@material/react-material-icon';
 import PropTypes from 'prop-types';
 import { SmartAppClient } from 'common';
 import { withRouter } from 'react-router-dom';
@@ -35,6 +36,7 @@ class BeaconModal extends React.Component {
       }
     });
   }
+
   close() {
     this.props.history.push(this.props.parentUrl);
   }
@@ -44,7 +46,10 @@ class BeaconModal extends React.Component {
       <div>
         <div className="modal-bg" onClick={this.close}/>
         <div className="modal-window">
-          <h3>Add beacon</h3>
+          <div style={{display: 'flex', justifyContent: 'space-between'}}>
+            <h3>Add beacon</h3>
+            <MaterialIcon icon="close" onClick={this.close}/>
+          </div>
           <p>
             Enter the name of the beacon. It should be a four letter code
             printed on the side of the beacon.
