@@ -217,8 +217,18 @@ class SmartAppClient {
     }).then(handleJsonResponse);
   }
 
-  getUsers() {
+  listUsers() {
     return fetch(`${this.host}/users`, {
+      method: 'GET',
+      credentials: 'same-origin',
+      headers: {
+        'Client-Session': this.sessionId
+      }
+    }).then(handleJsonResponse);
+  }
+
+  getUser(userId) {
+    return fetch(`${this.host}/users/${userId}`, {
       method: 'GET',
       credentials: 'same-origin',
       headers: {

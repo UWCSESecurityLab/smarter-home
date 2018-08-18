@@ -8,7 +8,8 @@ const smartAppClient = new SmartAppClient();
 
 class Users extends React.Component {
   componentDidMount() {
-    smartAppClient.getUsers().then((users) => {
+    // TODO: move to HomeState
+    smartAppClient.listUsers().then((users) => {
       this.props.dispatch(Actions.setUsers(users));
     });
     this.scanKey = this.scanKey.bind(this);

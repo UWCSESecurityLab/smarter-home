@@ -664,8 +664,27 @@ app.post('/users/new', checkAuth, (req, res) => {
       res.status(200).json({});
     }).catch((err) => {
       log.error(JSON.stringify(err));
-      res.status(500).json({ error: 'CREATE_ERROR' });
+      res.status(500).json({ error: 'DB_ERROR' });
     });
+  });
+});
+
+app.get('/users/:userId', checkAuth, (req, res) => {
+  if (req.params.userId === 'me') {
+    res.status(200).json(req.user);
+    return;
+  }
+  User.findOne({
+    installedAppId: req.session.installedAppId, id: req.params.userId
+  }).then((user) => {
+    if (!user) {
+      res.status(404).json({ error: 'NOT_FOUND' });
+    } else {
+      res.status(200).json(user);
+    }
+  }).catch((err) => {
+    log.error(JSON.stringify(err));
+    res.status(500).json({ error: 'DB_ERROR' });
   });
 });
 
