@@ -72,6 +72,8 @@ class CordovaNotifications extends Notifications {
       groupSummary: true,
       sound: false,
       vibrate: false,
+      priority: -1,
+      channel: 'silent-channel-id'
     }
 
     let nearbyNotifications = nearbyDevices.map((deviceId, index) => {
@@ -90,7 +92,8 @@ class CordovaNotifications extends Notifications {
         actions: capability.getNotificationActions(),
         vibrate: false,
         sound: false,
-        priority: -1
+        priority: -1,
+        channel: 'silent-channel-id'
       };
     }).filter((n) => !!n);
 
