@@ -109,11 +109,19 @@ class RegisterKey extends React.Component {
             &nbsp;Back
           </Button>
         </Link>
-        <div>
+        <h3>Join an Existing SmarterHome</h3>
+        <p>
+          To join, have someone who is already part of the home select
+          "Add Users" and scan your QR code.
+        </p>
+        <div id="qr-code">
           <canvas id="canvas"></canvas>
         </div>
+        <p>
+          When they are done scanning, click this button.
+        </p>
         <Button className="mdc-button-blue auth-button" raised onClick={this.login}>
-          Log In (After Scan)
+          Log In
         </Button>
       </div>
     );
