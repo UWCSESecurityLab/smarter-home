@@ -1,4 +1,5 @@
 import React from 'react';
+import Button from '@material/react-button';
 import PropTypes from 'prop-types';
 import { SmartAppClient } from 'common';
 
@@ -37,10 +38,14 @@ class BeaconModal extends React.Component {
     return (
       <div>
         <div className="modal-bg" onClick={() => this.props.close()}/>
-        <div className="add-modal">
+        <div className="modal-window">
           <h3>Add beacon</h3>
-          <input type="text" value={this.state.beaconName} placeholder="Beacon Name (printed on beacon)" onChange={this.onNameChange}/>
-          <button className="btn btn-blue" onClick={this.addBeacon}>Submit</button>
+          <p>
+            Enter the name of the beacon. It should be a four letter code
+            printed on the side of the beacon.
+          </p>
+          <input type="text" value={this.state.beaconName} placeholder="Beacon Name" onChange={this.onNameChange}/>
+          <Button className="mdc-button-blue" raised onClick={this.addBeacon}>Submit</Button>
           { this.state.error ? <div className="error">{this.state.error}</div> : null }
         </div>
       </div>
