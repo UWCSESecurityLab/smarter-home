@@ -1,13 +1,16 @@
 import React from 'react';
+import PropTypes from 'prop-types';
+import MaterialIcon from '@material/react-material-icon';
+import TopAppBar from '@material/react-top-app-bar';
+import { Route } from 'react-router-dom';
+
+import BeaconModal from './BeaconModal.react';
 import Devices from './Devices.react';
 import Drawer from './Drawer.react';
 import FirebaseOptions from './FirebaseOptions.react';
 import HomeState from '../lib/home-state';
 import SmartThingsOptions from './SmartThingsOptions.react';
 import Users from './Users.react';
-
-import TopAppBar from '@material/react-top-app-bar';
-import MaterialIcon from '@material/react-material-icon';
 
 import '@material/react-material-icon/index.scss';
 import '../css/home.scss';
@@ -63,7 +66,9 @@ class Home extends React.Component {
         />
         <div className="container mdc-top-app-bar--fixed-adjust"
              style={this.state.visible ? null : hidden}>
-          <Devices/>
+          <Route path={`${this.props.match.url}/addBeacon`}
+                 render={() => <BeaconModal parentUrl={this.props.match.url}/>}/>
+          <Devices parentUrl={this.props.match.url}/>
           <Users setVisibility={this.setVisibility}/>
           <SmartThingsOptions/>
           <FirebaseOptions/>
@@ -71,6 +76,10 @@ class Home extends React.Component {
       </div>
     );
   }
+}
+
+Home.propTypes = {
+  match: PropTypes.object
 }
 
 export default Home;

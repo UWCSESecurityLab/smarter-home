@@ -5,9 +5,9 @@ import uuid from 'uuid/v4';
 import { CommonActions, SmartAppClient } from 'common';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import { connect } from 'react-redux';
+import { withRouter } from 'react-router-dom';
 
 import ContactSensorStatus from './DeviceList/ContactSensorStatus.react';
-import BeaconModal from './BeaconModal.react';
 import BeaconStatus from './DeviceList/BeaconStatus.react';
 import DeviceListItem from './DeviceList/DeviceListItem.react';
 import LockStatus from './DeviceList/LockStatus.react';
@@ -22,7 +22,6 @@ class Devices extends React.Component {
     this.state = {
       edit: false,
       error: '',
-      beaconModal: false,
     }
 
     this.addBeacon = this.addBeacon.bind(this);
@@ -123,7 +122,7 @@ class Devices extends React.Component {
   }
 
   addBeacon() {
-    this.setState({ beaconModal: true });
+    this.props.history.push(this.props.parentUrl + '/addBeacon');
   }
 
   renderDevice(deviceId, index) {
@@ -228,10 +227,6 @@ class Devices extends React.Component {
 
     return (
       <div>
-        { this.state.beaconModal
-          ? <BeaconModal close={() => this.setState({ beaconModal: false })}/>
-          : null
-        }
         <DragDropContext onDragEnd={this.onDragEnd}>
           <section className="home-item">
             <div className="devices-header">
@@ -275,4 +270,4 @@ function mapStateToProps(state) {
     rooms: state.devices.rooms
   };
 }
-export default connect(mapStateToProps)(Devices);
+export default withRouter(connect(mapStateToProps)(Devices));

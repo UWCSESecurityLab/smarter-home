@@ -2,6 +2,7 @@ import React from 'react';
 import Button from '@material/react-button';
 import PropTypes from 'prop-types';
 import { SmartAppClient } from 'common';
+import { withRouter } from 'react-router-dom';
 
 let smartAppClient = new SmartAppClient();
 
@@ -14,6 +15,7 @@ class BeaconModal extends React.Component {
     }
     this.onNameChange = this.onNameChange.bind(this);
     this.addBeacon = this.addBeacon.bind(this);
+    this.close = this.close.bind(this);
   }
 
   onNameChange(e) {
@@ -24,7 +26,7 @@ class BeaconModal extends React.Component {
     this.setState({error: ''});
     smartAppClient.addBeacon(this.state.beaconName).then(() => {
       this.setState({ name: '' });
-      this.props.close();
+      this.close();
     }).catch((err) => {
       if (err.error === 'BEACON_NOT_FOUND') {
         this.setState({ error: `No beacon named ${this.state.name}, did you mispell it?` });
@@ -33,11 +35,14 @@ class BeaconModal extends React.Component {
       }
     });
   }
+  close() {
+    this.props.history.push(this.props.parentUrl);
+  }
 
   render() {
     return (
       <div>
-        <div className="modal-bg" onClick={() => this.props.close()}/>
+        <div className="modal-bg" onClick={this.close}/>
         <div className="modal-window">
           <h3>Add beacon</h3>
           <p>
@@ -54,7 +59,9 @@ class BeaconModal extends React.Component {
 }
 
 BeaconModal.propTypes = {
-  close: PropTypes.func
+  history: PropTypes.object,
+  parentUrl: PropTypes.string
 }
 
-export default BeaconModal;
+
+export default withRouter(BeaconModal);
