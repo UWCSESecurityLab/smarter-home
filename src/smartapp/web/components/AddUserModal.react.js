@@ -2,6 +2,7 @@ import React from 'react';
 import Button from '@material/react-button';
 import MaterialIcon from '@material/react-material-icon';
 import PropTypes from 'prop-types';
+import strToColor from '../lib/strToColor';
 import { SmartAppClient } from 'common';
 import { connect } from 'react-redux';
 import { withRouter } from 'react-router-dom';
@@ -104,20 +105,25 @@ class AddUserModal extends React.Component {
         <div className="modal-bg" onClick={this.close}/>
         <div className="modal-window">
           <div style={{display: 'flex', justifyContent: 'space-between'}}>
-            <h3>Add User</h3>
+            <h3 className="modal-heading">Add User</h3>
             <MaterialIcon icon="close" onClick={this.close}/>
           </div>
-          <div>Who is the new user?</div>
+          <p>
+            Add this device to an existing user
+          </p>
           { Object.values(this.props.users).map((user) =>
-            <div className="device-li" key={user.id} onClick={() => {
+            <div className="user-li" key={user.id} onClick={() => {
               this.addKeyToUser(user.id)
             }}>
-              <span className="device-li-label">
+              <MaterialIcon icon="mood" style={{ color: strToColor(user.id)}}/>
+              <span className="user-li-label">
                 {user.displayName}
               </span>
             </div>
           )}
-          <div>New User</div>
+          <p>
+            Or, create a new user
+          </p>
           <input type="text"
                 value={this.state.newName}
                 placeholder="Name"

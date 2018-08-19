@@ -1,6 +1,7 @@
 @import "@material/top-app-bar/mdc-top-app-bar";
 @import "@material/ripple/common";
 @import "@material/ripple/mixins";
+@import "./users.scss";
 
 .mdc-top-app-bar {
   @include mdc-top-app-bar-fill-color(#0d87c9);

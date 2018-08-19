@@ -1,5 +1,8 @@
 import React from 'react';
+import Button from '@material/react-button';
+import MaterialIcon from '@material/react-material-icon';
 import PropTypes from 'prop-types';
+import strToColor from '../lib/strToColor';
 import { SmartAppClient } from 'common';
 import { connect } from 'react-redux';
 import { withRouter } from 'react-router-dom';
@@ -26,18 +29,16 @@ class Users extends React.Component {
       <section className="home-item">
         <h3>Users</h3>
         { Object.values(this.props.users).map((user) =>
-            <div className="device-li" key={user.id}>
-              <span className="device-li-label">
+            <div className="user-li" key={user.id}>
+              <MaterialIcon icon="mood" style={{ color: strToColor(user.id)}}/>
+              <span className="user-li-label">
                 {user.displayName}
               </span>
             </div>
-          )
-        }
-        <div className="device-li" onClick={this.addUser}>
-          <span className="device-li-label">
-            + Add User
-          </span>
-        </div>
+          )}
+        <Button onClick={this.addUser}>
+          + Add User
+        </Button>
       </section>
     );
   }
@@ -45,6 +46,7 @@ class Users extends React.Component {
 
 Users.propTypes = {
   dispatch: PropTypes.func,
+  history: PropTypes.object,
   setVisibility: PropTypes.func,
   users: PropTypes.object
 }
