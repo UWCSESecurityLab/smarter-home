@@ -20,6 +20,7 @@ class AddUserModal extends React.Component {
     this.addKeyToUser = this.addKeyToUser.bind(this);
     this.addNewUser = this.addNewUser.bind(this);
     this.close = this.close.bind(this);
+    this.onNameChange = this.onNameChange.bind(this);
     this.stopScan = this.stopScan.bind(this);
   }
 
@@ -57,15 +58,15 @@ class AddUserModal extends React.Component {
 
   async addNewUser() {
     try {
-      await smartAppClient.addNewUser(this.state.key, this.state.name);
+      await smartAppClient.addNewUser(this.state.key, this.state.newName);
       this.close();
     } catch(err) {
       this.setState({ error: err.error });
     }
   }
-  async addKeyToUser(e) {
+  async addKeyToUser(userId) {
     try {
-      await smartAppClient.addKeyToUser(this.state.key, e.target.key);
+      await smartAppClient.addKeyToUser(this.state.key, userId);
       this.close();
     } catch(err) {
       this.setState({ error: err.error });
@@ -73,7 +74,7 @@ class AddUserModal extends React.Component {
   }
 
   onNameChange(e) {
-    this.setState({ beaconName: e.target.value });
+    this.setState({ newName: e.target.value });
   }
 
   renderScanner() {
@@ -83,7 +84,7 @@ class AddUserModal extends React.Component {
           ? <div className="modal-bg" onClick={this.close}/>
           : null
         }
-        <div className="modal-window">
+        <div className="modal-window" style={{visibility: 'visible'}}>
           <div style={{display: 'flex', justifyContent: 'space-between'}}>
             <h3>Add user</h3>
             <MaterialIcon icon="close" onClick={this.close}/>
@@ -105,27 +106,29 @@ class AddUserModal extends React.Component {
           <div style={{display: 'flex', justifyContent: 'space-between'}}>
             <h3>Add User</h3>
             <MaterialIcon icon="close" onClick={this.close}/>
-            <div>Who is this?</div>
-            { Object.values(this.props.users).map((user) =>
-              <div className="device-li" key={user.id} onClick={this.addKeyToUser}>
-                <span className="device-li-label">
-                  {user.displayName}
-                </span>
-              </div>
-            )}
-            <div>New User</div>
-            <input type="text"
-                 value={this.state.newName}
-                 placeholder="Name"
-                 onChange={this.onNameChange}/>
-            <Button className="mdc-button-blue" onClick={this.addNewUser}>
-              Add
-            </Button>
-            { this.state.error
-              ? <div className="error">{this.state.error}</div>
-              : null
-            }
           </div>
+          <div>Who is the new user?</div>
+          { Object.values(this.props.users).map((user) =>
+            <div className="device-li" key={user.id} onClick={() => {
+              this.addKeyToUser(user.id)
+            }}>
+              <span className="device-li-label">
+                {user.displayName}
+              </span>
+            </div>
+          )}
+          <div>New User</div>
+          <input type="text"
+                value={this.state.newName}
+                placeholder="Name"
+                onChange={this.onNameChange}/>
+          <Button className="mdc-button-blue" onClick={this.addNewUser}>
+            Add
+          </Button>
+          { this.state.error
+            ? <div className="error">{this.state.error}</div>
+            : null
+          }
         </div>
       </div>
     );
@@ -142,7 +145,8 @@ class AddUserModal extends React.Component {
 
 AddUserModal.propTypes = {
   history: PropTypes.object,
-  setVisibility: PropTypes.func
+  setVisibility: PropTypes.func,
+  users: PropTypes.object
 }
 
 const mapStateToProps = (state) => {
