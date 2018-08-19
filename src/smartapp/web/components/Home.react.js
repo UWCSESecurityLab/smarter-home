@@ -67,9 +67,10 @@ class Home extends React.Component {
         <div className="container mdc-top-app-bar--fixed-adjust"
              style={this.state.visible ? null : hidden}>
           <Route path={`${this.props.match.url}/addBeacon`}
-                 render={() => <BeaconModal parentUrl={this.props.match.url}/>}/>
-          <Devices parentUrl={this.props.match.url}/>
-          <Users setVisibility={this.setVisibility}/>
+                 render={() => <BeaconModal/>} />
+
+          <Devices/>
+          <Users/>
           <SmartThingsOptions/>
           <FirebaseOptions/>
         </div>

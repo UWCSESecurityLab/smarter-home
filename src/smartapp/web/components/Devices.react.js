@@ -122,7 +122,7 @@ class Devices extends React.Component {
   }
 
   addBeacon() {
-    this.props.history.push(this.props.parentUrl + '/addBeacon');
+    this.props.history.push(this.props.history.location.pathname + '/addBeacon');
   }
 
   renderDevice(deviceId, index) {
@@ -256,6 +256,7 @@ Devices.propTypes = {
   deviceDesc: PropTypes.object,
   deviceStatus: PropTypes.object,
   dispatch: PropTypes.func,
+  history: PropTypes.object,
   homeConfig: PropTypes.object,
   nearbyBeacons: PropTypes.object,
   rooms: PropTypes.object

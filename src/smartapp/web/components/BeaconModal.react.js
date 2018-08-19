@@ -30,7 +30,9 @@ class BeaconModal extends React.Component {
       this.close();
     }).catch((err) => {
       if (err.error === 'BEACON_NOT_FOUND') {
-        this.setState({ error: `No beacon named ${this.state.name}, did you mispell it?` });
+        this.setState({
+          error: `No beacon named ${this.state.name}, did you mispell it?`
+        });
       } else {
         this.setState({ error: JSON.stringify(err) });
       }
@@ -38,7 +40,8 @@ class BeaconModal extends React.Component {
   }
 
   close() {
-    this.props.history.push(this.props.parentUrl);
+    this.props.history.push(
+      this.props.history.location.pathname.split('/addBeacon')[0]);
   }
 
   render() {
@@ -54,9 +57,17 @@ class BeaconModal extends React.Component {
             Enter the name of the beacon. It should be a four letter code
             printed on the side of the beacon.
           </p>
-          <input type="text" value={this.state.beaconName} placeholder="Beacon Name" onChange={this.onNameChange}/>
-          <Button className="mdc-button-blue" raised onClick={this.addBeacon}>Submit</Button>
-          { this.state.error ? <div className="error">{this.state.error}</div> : null }
+          <input type="text"
+                 value={this.state.beaconName}
+                 placeholder="Beacon Name"
+                 onChange={this.onNameChange}/>
+          <Button className="mdc-button-blue" raised onClick={this.addBeacon}>
+            Submit
+          </Button>
+          { this.state.error
+            ? <div className="error">{this.state.error}</div>
+            : null
+          }
         </div>
       </div>
     )
@@ -64,9 +75,7 @@ class BeaconModal extends React.Component {
 }
 
 BeaconModal.propTypes = {
-  history: PropTypes.object,
-  parentUrl: PropTypes.string
+  history: PropTypes.object
 }
-
 
 export default withRouter(BeaconModal);
