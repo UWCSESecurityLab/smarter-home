@@ -249,7 +249,7 @@ class SmartAppClient {
     }).then(handleJsonResponse);
   }
 
-  addKeyToUser(userId, publicKey) {
+  addKeyToUser(publicKey, userId) {
     return fetch(`${this.host}/users/addKey`, {
       method: 'POST',
       credentials: 'same-origin',
