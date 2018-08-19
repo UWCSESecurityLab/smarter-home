@@ -4,6 +4,7 @@ import MaterialIcon from '@material/react-material-icon';
 import TopAppBar from '@material/react-top-app-bar';
 import { Route } from 'react-router-dom';
 
+import AddUserModal from './AddUserModal.react';
 import BeaconModal from './BeaconModal.react';
 import Devices from './Devices.react';
 import Drawer from './Drawer.react';
@@ -14,7 +15,6 @@ import Users from './Users.react';
 
 import '@material/react-material-icon/index.scss';
 import '../css/home.scss';
-import AddUserModal from './AddUserModal.react';
 
 class Home extends React.Component {
   constructor(props, context) {
@@ -27,13 +27,19 @@ class Home extends React.Component {
       visible: true,
     };
 
-    this.updateDeviceId = this.updateDeviceId.bind(this);
     this.goToDeviceStatus = this.goToDeviceStatus.bind(this);
+    this.refresh = this.refresh.bind(this);
     this.setVisibility = this.setVisibility.bind(this);
+    this.updateDeviceId = this.updateDeviceId.bind(this);
   }
 
   componentDidMount() {
-    HomeState.reset();
+    this.refresh();
+  }
+
+  refresh() {
+    HomeState.resetDevices();
+    HomeState.fetchUsers();
   }
 
   updateDeviceId(e) {
@@ -62,7 +68,7 @@ class Home extends React.Component {
             onClick={() => { this.setState({ drawerOpen: !this.state.drawerOpen })}}
           />}
           actionItems={[
-            <MaterialIcon key='item' icon='refresh' onClick={() => {HomeState.reset() }}/>
+            <MaterialIcon key='item' icon='refresh' onClick={this.refresh}/>
           ]}
         />
         <div className="container mdc-top-app-bar--fixed-adjust"

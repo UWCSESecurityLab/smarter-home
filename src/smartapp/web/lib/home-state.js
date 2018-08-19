@@ -1,12 +1,13 @@
 import { CommonActions, SmartAppClient } from 'common';
 import { store } from '../redux/reducers';
+import * as Actions from '../redux/actions';
 
 const smartAppClient = new SmartAppClient();
 
 class HomeState {
   // Fetches a fresh copy of the rooms and devices in the house, and replaces
   // everything in the Redux store.
-  static reset() {
+  static resetDevices() {
     return smartAppClient.refreshAccessToken().then(() => {
       return Promise.all([smartAppClient.getHomeConfig(), this.fetchRooms()])
         .then(([config, rooms]) => {
@@ -16,6 +17,12 @@ class HomeState {
             this.fetchAllDeviceStatuses(rooms)
           ]);
         });
+    });
+  }
+
+  static fetchUsers() {
+    smartAppClient.listUsers().then((users) => {
+      store.dispatch(Actions.setUsers(users));
     });
   }
 

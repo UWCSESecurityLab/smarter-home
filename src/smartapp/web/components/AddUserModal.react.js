@@ -1,5 +1,6 @@
 import React from 'react';
 import Button from '@material/react-button';
+import HomeState from '../lib/home-state';
 import MaterialIcon from '@material/react-material-icon';
 import PropTypes from 'prop-types';
 import strToColor from '../lib/strToColor';
@@ -60,6 +61,7 @@ class AddUserModal extends React.Component {
   async addNewUser() {
     try {
       await smartAppClient.addNewUser(this.state.key, this.state.newName);
+      await HomeState.fetchUsers();
       this.close();
     } catch(err) {
       this.setState({ error: err.error });

@@ -1,26 +1,23 @@
 import React from 'react';
 import Button from '@material/react-button';
+import HomeState from '../lib/home-state';
 import MaterialIcon from '@material/react-material-icon';
 import PropTypes from 'prop-types';
 import strToColor from '../lib/strToColor';
-import { SmartAppClient } from 'common';
 import { connect } from 'react-redux';
 import { withRouter } from 'react-router-dom';
-import * as Actions from '../redux/actions';
-
-const smartAppClient = new SmartAppClient();
 
 class Users extends React.Component {
-  componentDidMount() {
-    // TODO: move to HomeState
-    smartAppClient.listUsers().then((users) => {
-      this.props.dispatch(Actions.setUsers(users));
-    });
+  constructor(props) {
+    super(props);
     this.addUser = this.addUser.bind(this);
   }
 
+  componentDidMount() {
+    HomeState.fetchUsers();
+  }
+
   addUser() {
-    console.log('Users.addUser');
     this.props.history.push(this.props.history.location.pathname + '/addUser');
   }
 
