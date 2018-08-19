@@ -60,11 +60,16 @@ function sendNotification(data, notificationKey) {
   });
 }
 
-function modifyDeviceGroup({user, fcmToken, operation}) {
+function modifyDeviceGroup({user, fcmToken, operation, android}) {
   log.magenta('FCM Client', `modifyDeviceGroup: op = ${operation}, token = ${fcmToken}, key = ${user.notificationKey}`);
+  let key_name = user.id;
+  if (android) {
+    key_name += '-android';
+  }
+
   let body = {
     operation: operation,
-    notification_key_name: user.id,
+    notification_key_name: key_name,
     registration_ids: [fcmToken]
   }
   if (operation == 'add' || operation == 'remove') {
@@ -84,16 +89,35 @@ function modifyDeviceGroup({user, fcmToken, operation}) {
   });
 }
 
+/**
+ * @param {User} params.user The mongoose user document.
+ * @param {string} params.fcmToken The token to include in the new device group.
+ * @param {bool} params.android Whether this group should receive data
+ *                              notifications.
+ */
 function createDeviceGroup(params) {
   params.operation = 'create';
   return modifyDeviceGroup(params);
 }
 
+/**
+ * @param {User} params.user The mongoose user document.
+ * @param {string} params.fcmToken The token to add to the user's existing
+ *                                  device group.
+ * @param {bool} params.android Whether this token should be added to the
+ *                              data notifications group.
+ */
 function addDeviceToDeviceGroup(params) {
   params.operation = 'add'
   return modifyDeviceGroup(params);
 }
 
+/**
+ * @param {User} params.user The mongoose user document.
+ * @param {string} params.fcmToken The token to include in the new device group.
+ * @param {bool} params.android true if this token needs to be removed from the
+ *                              data notifications group.
+ */
 function removeDeviceFromDeviceGroup(params) {
   params.operation = 'remove'
   return modifyDeviceGroup(params);

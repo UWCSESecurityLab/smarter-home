@@ -347,15 +347,24 @@ app.post('/logout', (req, res) => {
 
 // Registers the FCM notification token with the current user.
 app.post('/notificationToken', checkAuth, (req, res) => {
-  log.log('Received token ' + req.query.token);
-  if (req.user.notificationTokens.length == 0) {
+  log.log('Received token ' + req.body.token);
+  let tokens = req.body.android
+    ? req.user.androidNotificationTokens
+    : req.user.notificationTokens;
+
+  if (tokens.length == 0) {
     log.log('No tokens in user, creating new device group');
-    fcmClient.createDeviceGroup({ user: req.user, fcmToken: req.query.token })
+    fcmClient.createDeviceGroup({ user: req.user, fcmToken: req.body.token, android: req.body.android })
       .then((group) => {
         group = JSON.parse(group);
         log.log('Got new notification key ' + group.notification_key);
-        req.user.notificationKey = group.notification_key;
-        req.user.notificationTokens.push(req.query.token);
+        if (req.body.android) {
+          req.user.androidNotificationKey = group.notification_key;
+          req.user.androidNotificationTokens.push(req.body.token);
+        } else {
+          req.user.notificationKey = group.notification_key;
+          req.user.notificationTokens.push(req.body.token);
+        }
         req.user.save((err) => {
           if (err) {
             res.status(500).send('Database error: ' + err);
@@ -366,11 +375,15 @@ app.post('/notificationToken', checkAuth, (req, res) => {
       }).catch((err) => {
         res.status(500).json(err);
       });
-  } else if (!req.user.notificationTokens.includes(req.query.token)) {
+  } else if (!req.user.notificationTokens.includes(req.body.token)) {
     log.log('Device group exists, adding device to device group');
-    fcmClient.addDeviceToDeviceGroup({ user: req.user, fcmToken: req.query.token })
+    fcmClient.addDeviceToDeviceGroup({ user: req.user, fcmToken: req.body.token,  android: req.body.android })
       .then(() => {
-        req.user.notificationTokens.push(req.query.token);
+        if (req.body.android) {
+          req.user.androidNotificationKey.push(req.body.token);
+        } else {
+          req.user.notificationTokens.push(req.body.token);
+        }
         req.user.save((err) => {
           if (err) {
             res.status(500).send('Database error: ' + err);

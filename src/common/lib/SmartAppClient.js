@@ -115,13 +115,18 @@ class SmartAppClient {
     }).then((response) => response.json());
   }
 
-  updateNotificationToken(token) {
-    return fetch(`${this.host}/notificationToken?token=${token}`, {
+  updateNotificationToken(token, android) {
+    return fetch(`${this.host}/notificationToken`, {
       method: 'POST',
       credentials: 'same-origin',
       headers: {
-        'Client-Session': this.sessionId
-      }
+        'Client-Session': this.sessionId,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        token: token,
+        android: android
+      })
     });
   }
 
