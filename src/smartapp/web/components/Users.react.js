@@ -1,7 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { connect } from 'react-redux';
 import { SmartAppClient } from 'common';
+import { connect } from 'react-redux';
+import { withRouter } from 'react-router-dom';
 import * as Actions from '../redux/actions';
 
 const smartAppClient = new SmartAppClient();
@@ -12,35 +13,12 @@ class Users extends React.Component {
     smartAppClient.listUsers().then((users) => {
       this.props.dispatch(Actions.setUsers(users));
     });
-    this.scanKey = this.scanKey.bind(this);
-    this.stopScan = this.stopScan.bind(this);
+    this.addUser = this.addUser.bind(this);
   }
 
-  scanKey() {
-    if (window.cordova) {
-      QRScanner.scan((err, text) => {
-        if (err) {
-          console.error(err);
-          this.stopScan();
-        } else {
-          this.stopScan();
-          smartAppClient.addNewUser(JSON.parse(text)).then(() => {
-            alert('Registered new user');
-          }).catch((err) => {
-            alert(err);
-          });
-        }
-      });
-      QRScanner.show();
-      document.getElementsByTagName('body')[0].style.background = 'transparent';
-      this.props.setVisibility(false);
-    }
-  }
-
-  stopScan() {
-    QRScanner.destroy();
-    this.props.setVisibility(true);
-    document.getElementsByTagName('body')[0].style.background = '#5FC4FA';
+  addUser() {
+    console.log('Users.addUser');
+    this.props.history.push(this.props.history.location.pathname + '/addUser');
   }
 
   render() {
@@ -55,7 +33,7 @@ class Users extends React.Component {
             </div>
           )
         }
-        <div className="device-li" onClick={this.scanKey}>
+        <div className="device-li" onClick={this.addUser}>
           <span className="device-li-label">
             + Add User
           </span>
@@ -77,5 +55,5 @@ const mapStateToProps = (state) => {
   }
 }
 
-export default connect(mapStateToProps)(Users);
+export default withRouter(connect(mapStateToProps)(Users));
 

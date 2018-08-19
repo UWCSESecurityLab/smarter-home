@@ -14,6 +14,7 @@ import Users from './Users.react';
 
 import '@material/react-material-icon/index.scss';
 import '../css/home.scss';
+import AddUserModal from './AddUserModal.react';
 
 class Home extends React.Component {
   constructor(props, context) {
@@ -66,8 +67,12 @@ class Home extends React.Component {
         />
         <div className="container mdc-top-app-bar--fixed-adjust"
              style={this.state.visible ? null : hidden}>
+
           <Route path={`${this.props.match.url}/addBeacon`}
-                 render={() => <BeaconModal/>} />
+                 component={BeaconModal}/>
+          <Route path={`${this.props.match.url}/addUser`}
+                 render={() =>
+                  <AddUserModal setVisibility={this.setVisibility}/>} />
 
           <Devices/>
           <Users/>

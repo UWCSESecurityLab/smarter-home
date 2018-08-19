@@ -650,21 +650,54 @@ app.get('/users', checkAuth, (req, res) => {
 // Create a new user, via public key (scanned with QR code).
 app.post('/users/new', checkAuth, (req, res) => {
   let key = req.body.publicKey;
-  User.findOne({ publicKeys: { $elemMatch: { x: key.x, y: key.y }}}).then((user) => {
-    if (user) {
-      res.status(400).json({ error: 'KEY_ALREADY_EXISTS' });
+  User.findOne({ publicKeys: { $elemMatch: { x: key.x, y: key.y }}}).then((keyExists) => {
+    if (keyExists) {
+      res.status(400).json({
+        error: 'Couldn\'t add user: this code has already been used.'
+      });
       return;
     }
     let newUser = new User({
       id: uuid(),
       installedAppId: req.session.installedAppId,
+      displayName: req.body.displayName,
       publicKeys: [req.body.publicKey]
     });
     newUser.save().then(() => {
       res.status(200).json({});
     }).catch((err) => {
       log.error(JSON.stringify(err));
-      res.status(500).json({ error: 'DB_ERROR' });
+      res.status(500).json({
+        error: 'Couldn\'t add user: SmarterHome database error.'
+      });
+    });
+  });
+});
+
+app.post('/users/addKey', checkAuth, (req, res) => {
+  let key = req.body.publicKey;
+  User.findOne({ publicKeys: { $elemMatch: { x: key.x, y: key.y }}})
+    .then((keyExists) => {
+      if (keyExists) {
+        res.status(400).json({
+          error: 'Couldn\'t add device: this code has already been used.'
+        });
+        return;
+      }
+      User.findOneAndUpdate({ id: req.body.userId}, {
+        $push: { publicKeys: req.body.publicKey }
+      }).then(() => {
+        res.status(200).json({});
+      }).catch((err) => {
+        console.log(err);
+        res.status(500).json({
+          error: 'Couldn\'t add device: SmarterHome database error.'
+        });
+      });
+  }).catch((err) => {
+    console.log(err);
+    res.status(500).json({
+      error: 'Couldn\'t add device: SmarterHome database error.'
     });
   });
 });

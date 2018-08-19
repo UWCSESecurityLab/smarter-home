@@ -237,7 +237,7 @@ class SmartAppClient {
     }).then(handleJsonResponse);
   }
 
-  addNewUser(publicKey) {
+  addNewUser(publicKey, displayName) {
     return fetch(`${this.host}/users/new`, {
       method: 'POST',
       credentials: 'same-origin',
@@ -245,7 +245,19 @@ class SmartAppClient {
         'Client-Session': this.sessionId,
         'Content-Type': 'application/json'
       },
-      body: JSON.stringify({ publicKey: publicKey })
+      body: JSON.stringify({ publicKey: publicKey, displayName: displayName })
+    }).then(handleJsonResponse);
+  }
+
+  addKeyToUser(userId, publicKey) {
+    return fetch(`${this.host}/users/addKey`, {
+      method: 'POST',
+      credentials: 'same-origin',
+      headers: {
+        'Client-Session': this.sessionId,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ publicKey: publicKey, userId: userId })
     }).then(handleJsonResponse);
   }
 
