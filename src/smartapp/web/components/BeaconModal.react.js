@@ -50,7 +50,7 @@ class BeaconModal extends React.Component {
         <div className="modal-bg" onClick={this.close}/>
         <div className="modal-window">
           <div style={{display: 'flex', justifyContent: 'space-between'}}>
-            <h3>Add beacon</h3>
+            <h3 className="modal-heading">Add beacon</h3>
             <MaterialIcon icon="close" onClick={this.close}/>
           </div>
           <p>
