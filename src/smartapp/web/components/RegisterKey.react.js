@@ -104,9 +104,9 @@ class RegisterKey extends React.Component {
     return (
       <div>
         <Link to="/" className="link-plain">
-          <Button className="back-button">
-            <MaterialIcon icon="arrow_back"/>
-            &nbsp;Back
+          <Button className="back-button"
+                  icon={<MaterialIcon icon="arrow_back"/>}>
+              Back
           </Button>
         </Link>
         <h3>Join an Existing SmarterHome</h3>

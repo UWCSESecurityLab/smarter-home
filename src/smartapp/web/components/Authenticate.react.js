@@ -67,9 +67,9 @@ class Authenticate extends React.Component {
             <div>To continue, install the SmarterHome SmartApp in the SmartThings app.</div>
             <div style={{marginTop: '10px'}}>
               <Link to="/" className="link-plain">
-                <Button>
-                  <MaterialIcon icon="arrow_back"/>
-                  &nbsp;Back
+                <Button className="back-button"
+                        icon={<MaterialIcon icon="arrow_back"/>}>
+                    Back
                 </Button>
               </Link>
             </div>

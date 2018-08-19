@@ -83,9 +83,9 @@ class RegisterAccount extends React.Component {
       <div className="container">
         { this.state.success ? <Redirect to="/registerSuccess"/> : null}
         <Link to="/" className="link-plain">
-          <Button className="back-button">
-            <MaterialIcon icon="arrow_back"/>
-            &nbsp;Back
+          <Button className="back-button"
+                  icon={<MaterialIcon icon="arrow_back"/>}>
+              Back
           </Button>
         </Link>
         <h3>Create a SmarterHome Account</h3>
