@@ -1,5 +1,6 @@
 import React from 'react';
 import { connect } from 'react-redux';
+import MaterialIcon from '@material/react-material-icon';
 import PropTypes from 'prop-types';
 import Capability from '../../lib/capabilities/Capability';
 
@@ -17,7 +18,9 @@ class DeviceListItem extends React.Component {
       <div className="device-li">
         <span className="device-li-label">
           {this.props.draggable
-            ? <span className="device-li-edit">☰</span>
+            ? <span className="device-li-edit">
+                <MaterialIcon icon="reorder"/>
+              </span>
             : null
           }
           <span className="device-li-name">{label}</span>

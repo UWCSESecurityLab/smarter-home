@@ -1,4 +1,5 @@
 import React from 'react';
+import Button from '@material/react-button';
 import PropTypes from 'prop-types';
 import uuid from 'uuid/v4';
 
@@ -13,6 +14,8 @@ import DeviceListItem from './DeviceList/DeviceListItem.react';
 import LockStatus from './DeviceList/LockStatus.react';
 import MaterialIcon from '@material/react-material-icon';
 import SwitchStatus from './DeviceList/SwitchStatus.react';
+
+import '../css/devices.scss';
 
 const smartAppClient = new SmartAppClient();
 
@@ -33,7 +36,6 @@ class Devices extends React.Component {
 
   componentDidMount() {
     this.setState({error: '', edit: false});
-
   }
 
   componentWillUnmount() {
@@ -171,7 +173,9 @@ class Devices extends React.Component {
                          className="room-label-edit">
                   </input>
                   { room.default ? null :
-                    <button className="btn-transparent-round" onClick={this.removeRoom} name={room.roomId}>
+                    <button className="btn-transparent-round"
+                            onClick={this.removeRoom}
+                            name={room.roomId}>
                       <MaterialIcon icon="clear"/>
                       <span className="btn-hover-expand">Remove</span>
                     </button>
@@ -198,45 +202,49 @@ class Devices extends React.Component {
     )
   }
 
-  render() {
-    let headerButtons;
+  renderHeader() {
     if (this.state.edit) {
-      headerButtons = (
-        <div>
-          <button className="btn btn-green"
-                  onClick={this.addRoom}>
+      return (
+        <div className="devices-header-edit">
+          <Button onClick={this.addRoom} className="devices-header-button"
+                  icon={<MaterialIcon icon="home"/>}>
             Add Room
-          </button>
-          <button className="btn btn-green" onClick={this.addBeacon}>
+          </Button>
+          <Button onClick={this.addBeacon} className="devices-header-button"
+                  icon={<MaterialIcon icon="wifi_tethering"/>}>
             Add Beacon
-          </button>
-          <button className="btn btn-green"
+          </Button>
+          <Button className="mdc-button-green devices-header-button"
                   onClick={() => { this.setState({ edit: false })}}>
-            Done Editing
-          </button>
+            Done
+          </Button>
         </div>
       );
     } else {
-      headerButtons = (
-        <button className="btn btn-green" id="edit-rooms"
-                onClick={() => { this.setState({ edit: true }) }}>
-          Configure
-        </button>
+      return (
+        <div className="devices-header">
+          <h3 className="devices-heading">My Home</h3>
+          <Button className="mdc-button-green" id="edit-rooms"
+                  onClick={() => { this.setState({ edit: true }) }}>
+            Configure
+          </Button>
+        </div>
       );
     }
+  }
 
+  render() {
     return (
       <div>
         <DragDropContext onDragEnd={this.onDragEnd}>
           <section className="home-item">
-            <div className="devices-header">
-              <h3>My Home</h3>
-              { headerButtons }
-            </div>
+            {this.renderHeader()}
             { this.state.error !== ''
               ? <div>
                   <div id="error-exclamation">!</div>
-                  <div id="error-msg">Error: This account is not linked to a home</div>
+                  <div id="error-msg">
+                    Error: This account is not linked to a home
+                  </div>
                 </div>
               : null
             }

@@ -1,0 +1,98 @@
+@import "@material/ripple/common";
+@import "@material/ripple/mixins";
+
+.devices-heading {
+  margin: 0;
+}
+
+.devices-header {
+  margin: 21px 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.devices-header-edit {
+  margin: 21px 0;
+  display: flex;
+  justify-content: space-evenly;
+  align-items: center;
+}
+
+.device-li {
+  padding: 6px 6px 6px 12px;
+  border-top: 1px solid #EEEEEE;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.device-li-label {
+  display: flex;
+  align-items: center;
+}
+.device-li-edit {
+  margin-right: 8px;
+  color: #848484;
+}
+
+.device-status {
+  font-size: 11pt;
+  padding: 6px 12px;
+  border-radius: 4px;
+  border: none;
+  width: 100px;
+  outline: none;
+}
+
+.device-status-toggle {
+  @include mdc-ripple-surface;
+  @include mdc-states;
+  @include mdc-ripple-radius-bounded;
+  overflow: hidden;
+  cursor: pointer;
+}
+
+.toggle-active {
+  background: #73C046;
+}
+
+.toggle-inactive {
+  background: #dddddd;
+}
+
+.room-label {
+  display: flex;
+  justify-content: space-between;
+  padding: 10px 8px;
+  border-top: 1px solid #EEEEEE;
+  background-color: #f5f5f5;
+}
+
+.room-label-edit {
+  border-bottom: 1px solid #3c98ca;
+  border-left: none;
+  border-right: none;
+  border-top: none;
+  font-size: inherit;
+  background: inherit;
+  padding: 2px;
+}
+
+#error-exclamation {
+  color: #b80000;
+  border: 3px solid #b80000;
+  width: 96px;
+  height: 96px;
+  border-radius: 55px;
+  text-align: center;
+  vertical-align: middle;
+  line-height: 96px;
+  font-size: 40pt;
+  margin: auto;
+}
+
+#error-msg {
+  width: 100%;
+  margin-top: 10px;
+  text-align: center;
+}

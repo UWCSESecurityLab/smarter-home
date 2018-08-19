@@ -96,6 +96,12 @@ input:focus {
   @include mdc-button-corner-radius(4px);
 }
 
+.mdc-button-green {
+  @include mdc-button-filled-accessible(#409e40);
+  @include mdc-button-ink-color(#FFFFFF);
+  @include mdc-button-corner-radius(4px);
+}
+
 .modal-window {
   position: fixed;
   left: 0;
