@@ -36,7 +36,8 @@ class Home extends React.Component {
   }
 
   componentDidMount() {
-    this.refresh();
+    HomeState.resetDevices();
+    HomeState.fetchUsers();
   }
 
   async refresh() {

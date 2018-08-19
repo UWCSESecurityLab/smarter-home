@@ -61,8 +61,7 @@ class Devices extends React.Component {
     });
   }
 
-  removeRoom(e) {
-    const roomId = e.target.name;
+  removeRoom(roomId) {
     this.props.dispatch(CommonActions.removeRoom(roomId));
     smartAppClient.deleteRoom(roomId).catch((err) => {
       console.error(err);
@@ -173,12 +172,10 @@ class Devices extends React.Component {
                          className="room-label-edit">
                   </input>
                   { room.default ? null :
-                    <button className="btn-transparent-round"
-                            onClick={this.removeRoom}
-                            name={room.roomId}>
-                      <MaterialIcon icon="clear"/>
-                      <span className="btn-hover-expand">Remove</span>
-                    </button>
+                    <MaterialIcon hasRipple icon="clear"
+                      style={{ color: '#3c98ca' }}
+                      name={room.roomId}
+                      onClick={() => this.removeRoom(room.roomId)}/>
                   }
                 </div>
               : <div className="room-label">{room.name}</div>
