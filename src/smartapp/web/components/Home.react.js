@@ -10,11 +10,13 @@ import Devices from './Devices.react';
 import Drawer from './Drawer.react';
 import FirebaseOptions from './FirebaseOptions.react';
 import HomeState from '../lib/home-state';
-import SmartThingsOptions from './SmartThingsOptions.react';
 import Users from './Users.react';
+import { SmartAppClient } from 'common';
 
 import '@material/react-material-icon/index.scss';
 import '../css/home.scss';
+
+const smartAppClient = new SmartAppClient();
 
 class Home extends React.Component {
   constructor(props, context) {
@@ -37,7 +39,8 @@ class Home extends React.Component {
     this.refresh();
   }
 
-  refresh() {
+  async refresh() {
+    await smartAppClient.refreshAccessToken();
     HomeState.resetDevices();
     HomeState.fetchUsers();
   }
@@ -82,7 +85,6 @@ class Home extends React.Component {
 
           <Devices/>
           <Users/>
-          <SmartThingsOptions/>
           <FirebaseOptions/>
         </div>
       </div>
