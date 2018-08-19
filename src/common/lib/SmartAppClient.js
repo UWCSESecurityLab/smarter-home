@@ -1,3 +1,5 @@
+const uuid = require('uuid/v4');
+
 function handleJsonResponse(response) {
   return response.json().then(json => {
     return response.ok ? json : Promise.reject(json);
