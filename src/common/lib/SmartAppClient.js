@@ -115,7 +115,7 @@ class SmartAppClient {
     }).then((response) => response.json());
   }
 
-  updateNotificationToken(token, android) {
+  updateNotificationToken(token, flags) {
     return fetch(`${this.host}/notificationToken`, {
       method: 'POST',
       credentials: 'same-origin',
@@ -125,7 +125,7 @@ class SmartAppClient {
       },
       body: JSON.stringify({
         token: token,
-        android: android
+        flags: flags
       })
     });
   }
