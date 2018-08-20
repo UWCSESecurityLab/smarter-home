@@ -42,3 +42,13 @@ export const SET_USERS = 'SET_USERS';
 export function setUsers(users) {
   return { type: SET_USERS, users: users };
 }
+
+export const SET_ALL_FLAGS = 'SET_ALL_FLAGS';
+export function setAllFlags(flags) {
+  return { type: SET_ALL_FLAGS, flags: flags };
+}
+
+export const SET_FLAG = 'SET_FLAG';
+export function setFlag(flag) {
+  return { type: SET_FLAG, flag: flag };
+}

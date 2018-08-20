@@ -1,6 +1,7 @@
 import { combineReducers, createStore } from 'redux';
-import * as Actions from './actions';
 import { CommonReducers } from 'common';
+import * as Actions from './actions';
+import * as Flags from '../../flags';
 
 function fcmToken(state = '', action) {
   switch (action.type) {
@@ -79,6 +80,30 @@ function users(state = {}, action) {
   }
 }
 
+const defaultState = {
+  activityNotifications: Flags.ActivityNotifications.OFF,
+  nearbyNotifications: Flags.NearbyNotifications.OFF
+}
+
+function flags(state = defaultState, action) {
+  switch (action.type) {
+    case Actions.SET_ALL_FLAGS:
+      // We don't store in localStorage on this action, because this is called
+      // twice on mobile - once onload, once on deviceready. The second time
+      // is the one that counts b/c it has platform information, so we don't
+      // want to persist flag settings before that.
+      return action.flags;
+    case Actions.SET_FLAG: {
+      // We only start persisting flags when a user sets something on their own.
+      let newState = Object.assign({}, state, action.flag);
+      localStorage.setItem('flags', newState);
+      return newState;
+    }
+    default:
+      return state;
+  }
+}
+
 const fcmReducers = combineReducers({
   fcmToken: fcmToken,
   notificationsEnabled: notificationsEnabled,
@@ -95,6 +120,7 @@ const store = createStore(combineReducers({
     homeConfig: CommonReducers.homeConfig,
     rooms: CommonReducers.rooms
   }),
+  flags: flags,
   users: users
 }));
 

@@ -8,15 +8,9 @@ let userSchema = mongoose.Schema({
   hashedPassword: String,        // bcrypt hash, 10 salt rounds
   publicKeys: [],                // Array of JWK formatted ECDSA keys
   installedAppId: String,        // The SmartApp instance that the user can access
-
   // FCM notification tokens and keys for home activity notifications.
-  // Tokens and keys for push notifications (web/iOS/Android)
-  activityPushFcmTokens: [String],
-  activityPushFcmKey: String,
-  // Tokens and keys for data notifications, Android only. Allows interception
-  // of notifications for proximity-based filtering.
-  activityDataFcmTokens: [String],
-  activityDataFcmKey: String
+  activityFcmTokens: [String],
+  activityFcmKey: String,
 });
 
 let User = mongoose.model('User', userSchema);

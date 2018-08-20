@@ -30,7 +30,7 @@ class Notifications {
         throw 'Need to request permissions';
       }
       store.dispatch(updateNotificationsEnabled(true));
-      let response = await smartAppClient.updateNotificationToken(currentToken);
+      let response = await smartAppClient.updateNotificationToken(currentToken, store.getState().flags);
       if (response.status !== 200) {
         let err = await response.text();
         throw err;

@@ -165,16 +165,20 @@ module.exports = {
       let beaconNames = beacons.map((b) => b.name);
 
       // Send an FCM notification
-      let responses = await Promise.all(users.map((user) => {
-        return fcmClient.sendNotification({
-          beacons: beaconNames,
-          device: description.label,
-          deviceId: deviceId,
-          capability: capability,
-          value: value,
-          trigger: trigger
-        }, user.notificationKey);
-      }));
+      let responses = await Promise.all(
+        users
+          .filter((user) => user.activityFcmKey)
+          .map((user) => {
+            return fcmClient.sendActivityNotification({
+              beacons: beaconNames,
+              device: description.label,
+              deviceId: deviceId,
+              capability: capability,
+              value: value,
+              trigger: trigger
+            }, user.activityFcmKey);
+          })
+      );
       responses.forEach((response) => log.log(JSON.stringify(response)));
     } catch(e) {
       log.error(e);
