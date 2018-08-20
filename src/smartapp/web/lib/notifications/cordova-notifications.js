@@ -35,7 +35,7 @@ class CordovaNotifications extends Notifications {
     console.log('Currently nearby beacons:');
     console.log(nearby);
 
-    const message = JSON.parse(payload.smartapp);
+    const message = JSON.parse(payload.activity);
     const title = `${message.device} | ${message.capability} → ${message.value}`;
 
     // Proximity-based filtering: only show a notification if the beacons

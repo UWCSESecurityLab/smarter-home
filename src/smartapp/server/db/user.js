@@ -10,7 +10,7 @@ let userSchema = mongoose.Schema({
   installedAppId: String,        // The SmartApp instance that the user can access
   // FCM notification tokens and keys for home activity notifications.
   activityFcmTokens: [String],
-  activityFcmKey: String,
+  // activityFcmKey: String,
 });
 
 let User = mongoose.model('User', userSchema);

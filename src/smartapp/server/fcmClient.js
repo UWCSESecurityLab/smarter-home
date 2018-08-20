@@ -3,7 +3,7 @@ const Flags = require('../flags');
 const request = require('request');
 const {google} = require('googleapis');
 
-const FIREBASE_CONFIG = require('../config/firebase-messaging.json');
+const FIREBASE_CONFIG = require('../config/firebase.json');
 
 const ActivityGroup = {
   fcmTokens: 'activityFcmTokens',
@@ -54,31 +54,36 @@ function handleFcmResponse(resolve, reject, err, res, body) {
   resolve(json);
 }
 
-function sendActivityNotification(data, notificationKey) {
-  let notification = {
-    to: notificationKey,
-    android: {
-      data: {
-        smartapp: JSON.stringify(data)
+function sendActivityNotification(data, token) {
+  let message = {
+    message: {
+      token: token,
+      android: {
+        data: {
+          activity: JSON.stringify(data)
+        }
+      },
+      webpush: {
+        data: {
+          activity: JSON.stringify(data)
+        }
       }
-    },
-    webpush: {
-      data: {
-        smartapp: JSON.stringify(data)
-      }
+      // TODO: APNS
     }
-    // TODO: APNS
   }
+  console.log(message);
 
   return new Promise((resolve, reject) => {
-    request.post({
-      url: 'https://fcm.googleapis.com/fcm/send',
-      headers: {
-        'Authorization': `key=${FIREBASE_CONFIG.server_key}`
-      },
-      json: true,
-      body: notification
-    }, (err, res, body) => handleFcmResponse(resolve, reject, err, res, body));
+    getAccessToken().then((accessToken) => {
+      request.post({
+        url: `https://fcm.googleapis.com/v1/projects/${FIREBASE_CONFIG.project_id}/messages:send`,
+        headers: {
+          'Authorization': `Bearer ${accessToken}`
+        },
+        json: true,
+        body: message
+      }, (err, res, body) => handleFcmResponse(resolve, reject, err, res, body));
+    });
   });
 }
 
@@ -140,24 +145,11 @@ function removeDeviceFromDeviceGroup(params) {
 function ensureTokenIsInGroup({ user, newToken, group }) {
   const { fcmTokens, fcmKey, keyName } = group;
   if (user[fcmTokens].length == 0) {
-    return createDeviceGroup({
-      user: user,
-      fcmToken: newToken,
-      keyName: keyName
-    }).then((newKey) => {
-      user[fcmKey] = newKey;
       user[fcmTokens].push(newToken);
       return user.save();
-    });
   } else if (!user[fcmTokens].includes(newToken)){
-    return addDeviceToDeviceGroup({
-      user: user,
-      fcmToken: newToken,
-      keyName: keyName
-    }).then(() => {
-      user[fcmTokens].push(newToken);
-      return user.save();
-    });
+    user[fcmTokens].push(newToken);
+    return user.save();
   } else {
     return Promise.resolve();
   }
@@ -166,23 +158,15 @@ function ensureTokenIsInGroup({ user, newToken, group }) {
 function ensureTokenIsNotInGroup({ user, newToken, group }) {
   const { fcmTokens, fcmKey, keyName } = group;
   if (user[fcmTokens].includes(newToken)) {
-    return removeDeviceFromDeviceGroup({
-      user: user,
-      fcmToken: newToken,
-      keyName: keyName
-    }).then(() => {
-      user[fcmTokens].splice(user[fcmTokens].indexOf(newToken), 1);
-      if (user[fcmTokens].length == 0) {
-        user[fcmKey] = null;
-      }
-      return user.save();
-    });
+    user[fcmTokens].splice(user[fcmTokens].indexOf(newToken), 1);
+    return user.save();
   } else {
     return Promise.resolve();
   }
 }
 
 function updateActivityNotifications({ flags, user, token }) {
+  console.log(flags);
   const { ON, PROXIMITY, OFF} = Flags.ActivityNotifications;
   if (flags.activityNotifications == ON ||
       flags.activityNotifications == PROXIMITY ) {
