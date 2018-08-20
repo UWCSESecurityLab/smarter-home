@@ -5,17 +5,8 @@ const {google} = require('googleapis');
 
 const FIREBASE_CONFIG = require('../config/firebase.json');
 
-const ActivityGroup = {
-  fcmTokens: 'activityFcmTokens',
-  fcmKey: 'activityFcmKey',
-  keyName: '-activity'
-};
-
-const ParentalControlsGroup = {
-  fcmTokens: 'parentalControlsFcmTokens',
-  fcmKey: 'parentalControlsFcmKey',
-  keyName: '-parental-controls'
-};
+const ActivityGroup = 'activityFcmTokens';
+const ParentalControlsGroup = 'parentalControlsFcmTokens';
 
 function getAccessToken() {
   return new Promise(function(resolve, reject) {
@@ -87,78 +78,21 @@ function sendActivityNotification(data, token) {
   });
 }
 
-function modifyDeviceGroup({user, fcmToken, operation, keyName}) {
-  log.magenta('FCM Client', `modifyDeviceGroup: op = ${operation}, token = ${fcmToken}, key = ${user.notificationKey}`);
-  let body = {
-    operation: operation,
-    notification_key_name: user.id + '-' + keyName,
-    registration_ids: [fcmToken]
-  }
-  if (operation == 'add' || operation == 'remove') {
-    body.notification_key = user.notificationKey;
-  }
-
-  return new Promise((resolve, reject) => {
-    request.post({
-      url: 'https://fcm.googleapis.com/fcm/notification',
-      headers: {
-        'Authorization': `key=${FIREBASE_CONFIG.server_key}`,
-        'project_id': FIREBASE_CONFIG.sender_id
-      },
-      json: true,
-      body: body
-    }, (err, res, body) => handleFcmResponse(resolve, reject, err, res, body));
-  });
-}
-
-/**
- * @param {User} params.user The mongoose user document.
- * @param {string} params.fcmToken The token to include in the new device group.
- * @param {bool} params.keyName
- */
-function createDeviceGroup(params) {
-  params.operation = 'create';
-  return modifyDeviceGroup(params);
-}
-
-/**
- * @param {User} params.user The mongoose user document.
- * @param {string} params.fcmToken The token to add to the user's existing
- *                                  device group.
- * @param {bool} params.keyName
- */
-function addDeviceToDeviceGroup(params) {
-  params.operation = 'add'
-  return modifyDeviceGroup(params);
-}
-
-/**
- * @param {User} params.user The mongoose user document.
- * @param {string} params.fcmToken The token to include in the new device group.
- * @param {bool} params.keyName
- */
-function removeDeviceFromDeviceGroup(params) {
-  params.operation = 'remove'
-  return modifyDeviceGroup(params);
-}
-
-function ensureTokenIsInGroup({ user, newToken, group }) {
-  const { fcmTokens, fcmKey, keyName } = group;
-  if (user[fcmTokens].length == 0) {
-      user[fcmTokens].push(newToken);
+function ensureTokenIsInGroup({ user, newToken, tokenGroup }) {
+  if (user[tokenGroup].length == 0) {
+      user[tokenGroup].push(newToken);
       return user.save();
-  } else if (!user[fcmTokens].includes(newToken)){
-    user[fcmTokens].push(newToken);
+  } else if (!user[tokenGroup].includes(newToken)){
+    user[tokenGroup].push(newToken);
     return user.save();
   } else {
     return Promise.resolve();
   }
 }
 
-function ensureTokenIsNotInGroup({ user, newToken, group }) {
-  const { fcmTokens, fcmKey, keyName } = group;
-  if (user[fcmTokens].includes(newToken)) {
-    user[fcmTokens].splice(user[fcmTokens].indexOf(newToken), 1);
+function ensureTokenIsNotInGroup({ user, newToken, tokenGroup }) {
+  if (user[tokenGroup].includes(newToken)) {
+    user[tokenGroup].splice(user[tokenGroup].indexOf(newToken), 1);
     return user.save();
   } else {
     return Promise.resolve();
@@ -188,9 +122,6 @@ function updateActivityNotifications({ flags, user, token }) {
 
 module.exports = {
   sendActivityNotification: sendActivityNotification,
-  createDeviceGroup: createDeviceGroup,
-  addDeviceToDeviceGroup: addDeviceToDeviceGroup,
-  removeDeviceFromDeviceGroup: removeDeviceFromDeviceGroup,
   ensureTokenIsInGroup: ensureTokenIsInGroup,
   ensureTokenIsNotInGroup: ensureTokenIsNotInGroup,
   updateActivityNotifications: updateActivityNotifications
