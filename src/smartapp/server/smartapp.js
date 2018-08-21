@@ -521,6 +521,30 @@ app.post('/beacon/add', checkAuth, getInstallData, (req, res) => {
         res.status(500).json({ error: 'DB_ERROR' });
       });
     }
+  }).catch((err) => {
+    log.error(err);
+    res.status(500).json({ error: 'DB_ERROR' });
+  });
+});
+
+app.post('/beacon/remove', checkAuth, getInstallData, (req, res) => {
+  Beacon.findOne({ name: req.body.name }).then((beacon) => {
+    if (!beacon) {
+      res.status(404).json({ error: 'BEACON_NOT_FOUND' });
+    } else {
+      Room.findOneAndUpdate({
+        installedAppId: req.installData.installedApp.installedAppId,
+        devices: beacon.name
+      }, { $pull: { devices: beacon.name }}).then(() => {
+        res.status(200).json({});
+      }).catch((err) => {
+        log.error(err);
+        res.status(500).json({ error: 'DB_ERROR'});
+      });
+    }
+  }).catch((err) => {
+    log.error(err);
+    res.status(500).json({ error: 'DB_ERROR' });
   });
 });
 

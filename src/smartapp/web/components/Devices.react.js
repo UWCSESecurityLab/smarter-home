@@ -1,5 +1,6 @@
 import React from 'react';
 import Button from '@material/react-button';
+import MaterialIcon from '@material/react-material-icon';
 import PropTypes from 'prop-types';
 import uuid from 'uuid/v4';
 
@@ -11,8 +12,8 @@ import { withRouter } from 'react-router-dom';
 import ContactSensorStatus from './DeviceList/ContactSensorStatus.react';
 import BeaconStatus from './DeviceList/BeaconStatus.react';
 import DeviceListItem from './DeviceList/DeviceListItem.react';
+import HomeState from '../lib/home-state';
 import LockStatus from './DeviceList/LockStatus.react';
-import MaterialIcon from '@material/react-material-icon';
 import SwitchStatus from './DeviceList/SwitchStatus.react';
 
 import '../css/devices.scss';
@@ -29,6 +30,7 @@ class Devices extends React.Component {
 
     this.addBeacon = this.addBeacon.bind(this);
     this.addRoom = this.addRoom.bind(this);
+    this.deleteBeacon = this.deleteBeacon.bind(this);
     this.onDragEnd = this.onDragEnd.bind(this);
     this.onRoomNameChange = this.onRoomNameChange.bind(this);
     this.removeRoom = this.removeRoom.bind(this);
@@ -126,6 +128,14 @@ class Devices extends React.Component {
     this.props.history.push(this.props.history.location.pathname + '/addBeacon');
   }
 
+  deleteBeacon(beaconName) {
+    smartAppClient.removeBeacon(beaconName).then(() => {
+      return HomeState.resetDevices();
+    }).catch((err) => {
+      console.error(err);
+    });
+  }
+
   renderDevice(deviceId, index) {
     let status = null;
     if (this.props.homeConfig.contactSensors.includes(deviceId)) {
@@ -136,7 +146,13 @@ class Devices extends React.Component {
       status = <LockStatus deviceId={deviceId}/>
     } else if (this.props.deviceDesc[deviceId] &&
                this.props.deviceDesc[deviceId].deviceTypeName === 'beacon') {
-      status = <BeaconStatus deviceId={deviceId}/>
+      if (this.state.edit) {
+        status = <MaterialIcon icon="clear" hasRipple
+                               className={'beacon-remove'}
+                               onClick={() => {this.deleteBeacon(deviceId)}}/>
+      } else {
+        status = <BeaconStatus deviceId={deviceId}/>
+      }
     }
 
     return (

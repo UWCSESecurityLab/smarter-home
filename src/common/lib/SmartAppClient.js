@@ -224,6 +224,20 @@ class SmartAppClient {
     }).then(handleJsonResponse);
   }
 
+  removeBeacon(beaconName) {
+    return fetch(`${this.host}/beacon/remove`, {
+      method: 'POST',
+      credentials: 'same-origin',
+      headers: {
+        "Content-Type": "application/json",
+        'Client-Session': this.sessionId
+      },
+      body: JSON.stringify({
+        name: beaconName
+      })
+    }).then(handleJsonResponse);
+  }
+
   listUsers() {
     return fetch(`${this.host}/users`, {
       method: 'GET',
