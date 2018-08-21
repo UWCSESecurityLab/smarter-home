@@ -6,14 +6,18 @@ class FirebaseOptions extends React.Component {
   constructor(props) {
     super(props);
     this.enableNotifications = this.enableNotifications.bind(this);
+  }
 
+  componentDidMount() {
     if (!window.cordova) {
       import('../lib/notifications/web-notifications.js').then((module) => {
-        this.state = { notifications: module.default };
+        this.setState({ notifications: module.default });
       });
     } else {
       import('../lib/notifications/cordova-notifications.js').then((module) => {
-        this.state = { notifications: module.default };
+        console.log('Imported cordova-notifications');
+        this.setState({notifications: module.default });
+        console.log(this.state);
       });
     }
   }
@@ -31,9 +35,10 @@ class FirebaseOptions extends React.Component {
     return (
      <section className="home-item">
         <h3>Firebase Cloud Messaging Configuration</h3>
+        <button onClick={this.enableNotifications}>Enable notifications</button>
         { this.props.notificationsEnabled
           ? <p><span className="check-mark">✓</span> Notifications enabled!</p>
-          : <button onClick={this.enableNotifications}>Enable notifications</button>
+          : null
         }
         { this.props.fcmToken
           ? <div>
