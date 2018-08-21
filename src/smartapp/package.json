@@ -14,6 +14,8 @@
   "author": "",
   "license": "",
   "dependencies": {
+    "@material/form-field": "^0.38.1",
+    "@material/radio": "^0.38.1",
     "@material/react-button": "^0.4.0",
     "@material/react-material-icon": "^0.3.0",
     "@material/react-ripple": "^0.4.0",

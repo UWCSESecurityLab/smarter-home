@@ -88,15 +88,12 @@ const defaultState = {
 function flags(state = defaultState, action) {
   switch (action.type) {
     case Actions.SET_ALL_FLAGS:
-      // We don't store in localStorage on this action, because this is called
-      // twice on mobile - once onload, once on deviceready. The second time
-      // is the one that counts b/c it has platform information, so we don't
-      // want to persist flag settings before that.
+      localStorage.setItem('flags', JSON.stringify(action.flags));
       return action.flags;
     case Actions.SET_FLAG: {
       // We only start persisting flags when a user sets something on their own.
       let newState = Object.assign({}, state, action.flag);
-      localStorage.setItem('flags', newState);
+      localStorage.setItem('flags', JSON.stringify(newState));
       return newState;
     }
     default:

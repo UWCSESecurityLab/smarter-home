@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import MaterialIcon from '@material/react-material-icon';
 import TopAppBar from '@material/react-top-app-bar';
-import { Route } from 'react-router-dom';
+import { Route, Switch } from 'react-router-dom';
 
 import AddUserModal from './AddUserModal.react';
 import BeaconModal from './BeaconModal.react';
@@ -10,6 +10,7 @@ import Devices from './Devices.react';
 import Drawer from './Drawer.react';
 import FirebaseOptions from './FirebaseOptions.react';
 import HomeState from '../lib/home-state';
+import NotificationSettings from './NotificationSettings.react';
 import Users from './Users.react';
 import { SmartAppClient } from 'common';
 
@@ -83,10 +84,16 @@ class Home extends React.Component {
           <Route path={`${this.props.match.url}/addUser`}
                  render={() =>
                   <AddUserModal setVisibility={this.setVisibility}/>} />
-
-          <Devices/>
-          <Users/>
-          <FirebaseOptions/>
+          <Switch>
+            <Route path="/home" render={() => (
+              <div>
+                <Devices/>
+                <Users/>
+                <FirebaseOptions/>
+              </div>
+            )}/>
+            <Route path="/notificationSettings" component={NotificationSettings}/>
+          </Switch>
         </div>
       </div>
     );

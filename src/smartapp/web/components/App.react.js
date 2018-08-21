@@ -17,6 +17,7 @@ class App extends React.Component {
     return (
       <Switch>
         <PrivateRoute path="/home" component={Home}/>
+        <PrivateRoute path="/notificationSettings" component={Home}/>
         <Route path="/" render={() => (
           this.props.authenticated
           ? <Redirect to='/home'/>

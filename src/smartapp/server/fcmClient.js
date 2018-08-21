@@ -107,13 +107,13 @@ function updateActivityNotifications({ flags, user, token }) {
     return ensureTokenIsInGroup({
       user: user,
       newToken: token,
-      group: ActivityGroup
+      tokenGroup: ActivityGroup
     });
   } else if (flags.activityNotifications == OFF) {
     return ensureTokenIsNotInGroup({
       user: user,
       newToken: token,
-      group: ActivityGroup
+      tokenGroup: ActivityGroup
     });
   } else {
     return Promise.reject({ error: 'Missing ActivityNotifications flag'});
