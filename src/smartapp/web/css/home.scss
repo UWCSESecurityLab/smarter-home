@@ -90,3 +90,10 @@ code {
   margin-top: 16px;
 }
 
+#notifications-prompt {
+  display: flex;
+  padding: 14px;
+  background: #409e40;
+  color: white;
+  z-index: 3;
+}

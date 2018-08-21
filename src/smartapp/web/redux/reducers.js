@@ -12,9 +12,10 @@ function fcmToken(state = '', action) {
   }
 }
 
-function notificationsEnabled(state = false, action) {
+function notificationsEnabled(state = JSON.parse(localStorage.getItem('notificationsEnabled')), action) {
   switch (action.type) {
     case Actions.UPDATE_NOTIFICATIONS_ENABLED:
+      localStorage.setItem('notificationsEnabled', action.enabled);
       return action.enabled;
     default:
       return state;
@@ -25,6 +26,15 @@ function notificationData(state = null, action) {
   switch (action.type) {
     case Actions.UPDATE_NOTIFICATION_DATA:
       return action.data;
+    default:
+      return state;
+  }
+}
+
+function silenceNotificationPrompt(state = false, action) {
+  switch (action.type) {
+    case Actions.SILENCE_NOTIFICATION_PROMPT:
+      return true;
     default:
       return state;
   }
@@ -104,7 +114,8 @@ function flags(state = defaultState, action) {
 const fcmReducers = combineReducers({
   fcmToken: fcmToken,
   notificationsEnabled: notificationsEnabled,
-  notificationData: notificationData
+  notificationData: notificationData,
+  silenceNotificationPrompt: silenceNotificationPrompt
 });
 
 const store = createStore(combineReducers({

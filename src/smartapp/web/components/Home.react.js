@@ -2,22 +2,20 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import MaterialIcon from '@material/react-material-icon';
 import TopAppBar from '@material/react-top-app-bar';
+import { connect } from 'react-redux';
 import { Route, Switch } from 'react-router-dom';
 
 import AddUserModal from './AddUserModal.react';
 import BeaconModal from './BeaconModal.react';
 import Devices from './Devices.react';
 import Drawer from './Drawer.react';
-import FirebaseOptions from './FirebaseOptions.react';
 import HomeState from '../lib/home-state';
 import NotificationSettings from './NotificationSettings.react';
 import Users from './Users.react';
-import { SmartAppClient } from 'common';
+import * as Actions from '../redux/actions';
 
 import '@material/react-material-icon/index.scss';
 import '../css/home.scss';
-
-const smartAppClient = new SmartAppClient();
 
 class Home extends React.Component {
   constructor(props, context) {
@@ -39,10 +37,21 @@ class Home extends React.Component {
   componentDidMount() {
     HomeState.resetDevices();
     HomeState.fetchUsers();
+
+    if (!window.cordova) {
+      import('../lib/notifications/web-notifications.js').then((module) => {
+        this.setState({ notifications: module.default });
+      });
+    } else {
+      import('../lib/notifications/cordova-notifications.js').then((module) => {
+        console.log('Imported cordova-notifications');
+        this.setState({notifications: module.default });
+        console.log(this.state);
+      });
+    }
   }
 
   async refresh() {
-    await smartAppClient.refreshAccessToken();
     HomeState.resetDevices();
     HomeState.fetchUsers();
   }
@@ -79,6 +88,20 @@ class Home extends React.Component {
         <div className="container mdc-top-app-bar--fixed-adjust"
              style={this.state.visible ? null : hidden}>
 
+          { !this.props.notificationsEnabled && !this.props.silenceNotificationPrompt
+            ? <div id="notifications-prompt">
+                <span onClick={() => {
+                  this.state.notifications.enableNotifications();
+                }}>
+                  Tap here to enable notifications about activity in your home.
+                </span>
+                <MaterialIcon icon="close" onClick={() => {
+                  this.props.dispatch(Actions.silenceNotificationPrompt());
+                }}/>
+              </div>
+            : null
+          }
+
           <Route path={`${this.props.match.url}/addBeacon`}
                  component={BeaconModal}/>
           <Route path={`${this.props.match.url}/addUser`}
@@ -89,7 +112,6 @@ class Home extends React.Component {
               <div>
                 <Devices/>
                 <Users/>
-                <FirebaseOptions/>
               </div>
             )}/>
             <Route path="/notificationSettings" component={NotificationSettings}/>
@@ -101,7 +123,17 @@ class Home extends React.Component {
 }
 
 Home.propTypes = {
-  match: PropTypes.object
+  dispatch: PropTypes.func,
+  match: PropTypes.object,
+  notificationsEnabled: PropTypes.bool,
+  silenceNotificationPrompt: PropTypes.bool
 }
 
-export default Home;
+const mapStateToProps = (state) => {
+  return {
+    notificationsEnabled: state.fcm.notificationsEnabled,
+    silenceNotificationPrompt: state.fcm.silenceNotificationPrompt
+  }
+}
+
+export default connect(mapStateToProps)(Home);

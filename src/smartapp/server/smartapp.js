@@ -716,8 +716,7 @@ app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, '../web/html/index.html'));
 });
 
-// Refresh access tokens regularly to ensure all commands are authenticated
-setInterval(() => {
+function renewAllAccessTokens() {
   InstallData.find({}).then((installDatas) => {
     installDatas.forEach((installData) => {
       let installedAppId = installData.installedApp.installedAppId;
@@ -730,7 +729,12 @@ setInterval(() => {
       });
     });
   });
-}, 1000 * 60 * 4.5);
+}
+
+// Refresh access tokens regularly to ensure all commands are authenticated
+setInterval(renewAllAccessTokens, 1000 * 60 * 4.5);
+// Renew 15 seconds after the server starts
+setTimeout(renewAllAccessTokens, 1000 * 15);
 
 app.listen(5000);
 log.log('Listening on port 5000');

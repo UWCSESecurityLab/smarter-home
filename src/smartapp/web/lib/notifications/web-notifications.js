@@ -46,7 +46,7 @@ class WebNotifications extends Notifications {
       store.dispatch(updateNotificationsEnabled(true));
     }).catch((err) => {
       console.error(err);
-      store.dispatch(updateNotificationData(false));
+      store.dispatch(updateNotificationsEnabled(false));
     });
   }
 }

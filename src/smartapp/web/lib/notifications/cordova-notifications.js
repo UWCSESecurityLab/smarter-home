@@ -23,7 +23,7 @@ class CordovaNotifications extends Notifications {
       store.dispatch(Actions.updateNotificationsEnabled(true));
     }).catch((err) => {
       console.error(err);
-      store.dispatch(Actions.updateNotificationData(false));
+      store.dispatch(Actions.updateNotificationsEnabled(false));
     });
   }
 

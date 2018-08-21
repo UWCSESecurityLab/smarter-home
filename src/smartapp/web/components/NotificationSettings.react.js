@@ -1,5 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import Button from '@material/react-button';
 import { connect } from 'react-redux';
 import * as Actions from '../redux/actions';
 import * as Flags from '../../flags';
@@ -9,20 +10,36 @@ import '../css/notificationSettings.scss';
 class NotificationSettings extends React.Component {
   constructor(props) {
     super(props);
-    this.renderRadio = this.renderRadio.bind(this);
     this.changeFlag = this.changeFlag.bind(this);
+    this.enableNotifications = this.enableNotifications.bind(this);
+    this.renderRadio = this.renderRadio.bind(this);
+  }
+
+  componentDidMount() {
+    if (!window.cordova) {
+      import('../lib/notifications/web-notifications.js').then((module) => {
+        this.setState({ notifications: module.default });
+      });
+    } else {
+      import('../lib/notifications/cordova-notifications.js').then((module) => {
+        console.log('Imported cordova-notifications');
+        this.setState({notifications: module.default });
+        console.log(this.state);
+      });
+    }
   }
 
   changeFlag(key, value) {
     this.props.dispatch(Actions.setFlag({ [key]: value }));
-    if (window.cordova) {
-      import('../lib/notifications/cordova-notifications').then((module) => {
-        module.default.updateToken();
-      });
-    } else {
-      import('../lib/notifications/web-notifications').then((module) => {
-        module.default.updateToken();
-      });
+    this.state.notifications.updateToken();
+  }
+
+  async enableNotifications() {
+    try {
+      await this.state.notifications.enableNotifications();
+      await this.state.notifications.updateToken();
+    } catch (e) {
+      console.error(e);
     }
   }
 
@@ -62,6 +79,11 @@ class NotificationSettings extends React.Component {
     return (
       <section className="home-item">
         <h3>Notification Settings</h3>
+        { this.props.notificationsEnabled
+          ? null
+          : <Button onClick={this.enableNotifications}>Enable notifications</Button>
+        }
+
         <h4>Activity Notifications</h4>
         <p>
           Get notified when things in your home happen automatically.
@@ -110,11 +132,19 @@ class NotificationSettings extends React.Component {
 
 NotificationSettings.propTypes = {
   dispatch: PropTypes.func,
-  flags: PropTypes.object
+  fcmToken: PropTypes.string,
+  flags: PropTypes.object,
+  notificationsEnabled: PropTypes.bool,
+  notificationData: PropTypes.object
 }
 
 const mapStateToProps = (state) => {
-  return { flags: state.flags };
+  return {
+    fcmToken: state.fcm.fcmToken,
+    flags: state.flags,
+    notificationsEnabled: state.fcm.notificationsEnabled,
+    notificationData: state.fcm.notificationData
+  };
 }
 
 export default connect(mapStateToProps)(NotificationSettings);

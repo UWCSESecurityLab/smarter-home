@@ -3,14 +3,19 @@ export function updateFcmToken(fcmToken) {
   return { type: UPDATE_FCM_TOKEN, fcmToken: fcmToken };
 }
 
-export const UPDATE_NOTIFICATIONS_ENABLED = 'UPDATE_NOTIFICATIONS_ENABLED';
+export const UPDATE_NOTIFICATION_DATA = 'UPDATE_NOTIFICATION_DATA';
 export function updateNotificationData(data) {
   return { type: UPDATE_NOTIFICATION_DATA, data: data}
 }
 
-export const UPDATE_NOTIFICATION_DATA = 'UPDATE_NOTIFICATION_DATA';
+export const UPDATE_NOTIFICATIONS_ENABLED = 'UPDATE_NOTIFICATIONS_ENABLED';
 export function updateNotificationsEnabled(enabled) {
   return { type: UPDATE_NOTIFICATIONS_ENABLED, enabled: enabled };
+}
+
+export const SILENCE_NOTIFICATION_PROMPT = 'SILENCE_NOTIFICATION_PROMPT';
+export function silenceNotificationPrompt() {
+  return { type: SILENCE_NOTIFICATION_PROMPT };
 }
 
 export const ADD_BEACON = 'ADD_BEACON';
