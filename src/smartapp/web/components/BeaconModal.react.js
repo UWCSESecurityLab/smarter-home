@@ -36,8 +36,6 @@ class BeaconModal extends React.Component {
         this.setState({
           error: `No beacon named ${this.state.name}, did you mispell it?`
         });
-      } else {
-        this.setState({ error: JSON.stringify(err) });
       }
     });
   }
