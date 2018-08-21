@@ -58,8 +58,19 @@ function sendActivityNotification(data, token) {
         data: {
           activity: JSON.stringify(data)
         }
+      },
+      apns: {
+        payload: {
+          aps: {
+            alert: {
+              title: `${data.device} | ${data.capability} → ${data.value}`,
+              body: `Triggered by ${data.trigger}`
+            },
+            badge: 0,
+            sound: 'default'
+          }
+        }
       }
-      // TODO: APNS
     }
   }
   console.log(message);
