@@ -1,6 +1,7 @@
 import { CommonActions, SmartAppClient } from 'common';
 import { store } from '../redux/reducers';
 import * as Actions from '../redux/actions';
+import * as Flags from '../../flags';
 
 const smartAppClient = new SmartAppClient();
 
@@ -38,20 +39,12 @@ class HomeState {
 
       // Create beacon regions for each beacon device.
       // TODO: reevaluate whether this is the right place for this code.
-      if (window.cordova) {
+      if (window.cordova &&
+          store.getState().flags.nearbyNotifications ===
+            Flags.NearbyNotifications.ON) {
         descs.filter((desc) => desc.deviceTypeName === 'beacon')
           .forEach((beacon) => {
-            console.log('Adding region for beacon:');
-            console.log(beacon);
-            let region = new cordova.plugins.locationManager.BeaconRegion(
-              beacon.name,
-              beacon.uuid,
-              beacon.major,
-              beacon.minor
-            );
-            cordova.plugins.locationManager.startMonitoringForRegion(region)
-              .fail((e) => { console.error(e) })
-              .done();
+            store.dispatch(Actions.addBeaconRegion(beacon));
           });
       }
     });

@@ -57,3 +57,18 @@ export const SET_FLAG = 'SET_FLAG';
 export function setFlag(flag) {
   return { type: SET_FLAG, flag: flag };
 }
+
+export const ADD_BEACON_REGION = 'ADD_BEACON_REGION';
+export function addBeaconRegion(beaconRegion) {
+  return { type: ADD_BEACON_REGION, beaconRegion: beaconRegion };
+}
+
+export const REMOVE_BEACON_REGION = 'REMOVE_BEACON_REGION';
+export function removeBeaconRegion(name) {
+  return { type: REMOVE_BEACON_REGION, name: name };
+}
+
+export const REMOVE_ALL_BEACON_REGIONS = 'REMOVE_ALL_BEACON_REGIONS';
+export function removeAllBeaconRegions() {
+  return { type: REMOVE_ALL_BEACON_REGIONS };
+}

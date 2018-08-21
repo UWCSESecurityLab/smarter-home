@@ -111,6 +111,29 @@ function flags(state = defaultState, action) {
   }
 }
 
+function activeBeaconRegions(state = JSON.parse(localStorage.getItem('beaconRegions')), action) {
+  switch (action.type) {
+    case Actions.ADD_BEACON_REGION: {
+      const newState = Object.assign({}, state,
+          { [action.beaconRegion.name]: action.beaconRegion });
+      localStorage.setItem('beaconRegions', newState);
+      return newState;
+    }
+    case Actions.REMOVE_BEACON_REGION: {
+      const newState = Object.assign({}, state);
+      delete newState[action.name];
+      localStorage.setItem('beaconRegions', newState);
+      return newState;
+    }
+    case Actions.REMOVE_ALL_BEACON_REGIONS: {
+      localStorage.setItem('beaconRegions', {});
+      return {};
+    }
+    default:
+      return state;
+  }
+}
+
 const fcmReducers = combineReducers({
   fcmToken: fcmToken,
   notificationsEnabled: notificationsEnabled,
@@ -123,6 +146,7 @@ const store = createStore(combineReducers({
   fcm: fcmReducers,
   nearbyBeacons: nearbyBeacons,
   devices: combineReducers({
+    activeBeaconRegions: activeBeaconRegions,
     deviceDesc: CommonReducers.deviceDesc,
     deviceStatus: CommonReducers.deviceStatus,
     homeConfig: CommonReducers.homeConfig,
