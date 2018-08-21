@@ -97,3 +97,15 @@ code {
   color: white;
   z-index: 3;
 }
+
+// Make the top appear below the Material Top Bar. !important because the
+// Toast component sets element.style directly, and doesn't support media
+// queries.
+.toast-notification {
+  top: 64px !important;
+}
+@media (max-width: 599px) {
+  .toast-notification {
+    top: 56px !important;
+  }
+}

@@ -2,6 +2,8 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import MaterialIcon from '@material/react-material-icon';
 import TopAppBar from '@material/react-top-app-bar';
+import Button from '@material/react-button';
+import Toast, {notify as toast} from 'react-notify-toast';
 import { connect } from 'react-redux';
 import { Route, Switch } from 'react-router-dom';
 
@@ -87,6 +89,7 @@ class Home extends React.Component {
         />
         <div className="container mdc-top-app-bar--fixed-adjust"
              style={this.state.visible ? null : hidden}>
+          <Toast options={{ zIndex: 3 }}/>
 
           { !this.props.notificationsEnabled && !this.props.silenceNotificationPrompt
             ? <div id="notifications-prompt">
