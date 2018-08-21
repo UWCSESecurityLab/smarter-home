@@ -1,5 +1,6 @@
 import React from 'react';
 import Button from '@material/react-button';
+import HomeState from '../lib/home-state';
 import MaterialIcon from '@material/react-material-icon';
 import PropTypes from 'prop-types';
 import { SmartAppClient } from 'common';
@@ -27,14 +28,14 @@ class BeaconModal extends React.Component {
     this.setState({error: ''});
     smartAppClient.addBeacon(this.state.beaconName).then(() => {
       this.setState({ name: '' });
+      HomeState.resetDevices();
       this.close();
     }).catch((err) => {
+      console.error(err);
       if (err.error === 'BEACON_NOT_FOUND') {
         this.setState({
           error: `No beacon named ${this.state.name}, did you mispell it?`
         });
-      } else {
-        this.setState({ error: JSON.stringify(err) });
       }
     });
   }
