@@ -54,7 +54,7 @@ class Drawer extends React.Component {
           in={this.props.open}
           classNames={'drawer-shadow'}
           timeout={300}
-          onClick={() => {this.props.closeFn()}}
+          onClick={this.props.closeFn}
           mountOnEnter unmountOnExit>
           <div className="drawer-shadow"></div>
         </CSSTransition>
@@ -65,13 +65,13 @@ class Drawer extends React.Component {
             mountOnEnter unmountOnExit>
           <div className="drawer">
             <div className="drawer-header" ><h3>Settings</h3></div>
-            <Link to="/home" className="link-plain">
+            <Link to="/home" className="link-plain" onClick={this.props.closeFn}>
               <RippleItem className="drawer-item">
                 <MaterialIcon icon="home"/>
                 Home
               </RippleItem>
             </Link>
-            <Link to="/notificationSettings" className="link-plain">
+            <Link to="/notificationSettings" className="link-plain" onClick={this.props.closeFn}>
               <RippleItem className="drawer-item">
                 <MaterialIcon icon="notifications_active"/>
                 Notification Settings

@@ -79,6 +79,10 @@ $drawer-padding: 15px;
   cursor: pointer;
 }
 
+.drawer-item > i {
+  margin-right: 8px;
+}
+
 .drawer-header {
   border-bottom: 1px solid #eeeeee;
   width: $drawer-width - 2 * $drawer-padding;
