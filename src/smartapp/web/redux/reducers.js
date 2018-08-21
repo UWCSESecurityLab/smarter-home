@@ -116,17 +116,17 @@ function activeBeaconRegions(state = JSON.parse(localStorage.getItem('beaconRegi
     case Actions.ADD_BEACON_REGION: {
       const newState = Object.assign({}, state,
           { [action.beaconRegion.name]: action.beaconRegion });
-      localStorage.setItem('beaconRegions', newState);
+      localStorage.setItem('beaconRegions', JSON.stringify(newState));
       return newState;
     }
     case Actions.REMOVE_BEACON_REGION: {
       const newState = Object.assign({}, state);
       delete newState[action.name];
-      localStorage.setItem('beaconRegions', newState);
+      localStorage.setItem('beaconRegions', JSON.stringify(newState));
       return newState;
     }
     case Actions.REMOVE_ALL_BEACON_REGIONS: {
-      localStorage.setItem('beaconRegions', {});
+      localStorage.setItem('beaconRegions', JSON.stringify({}));
       return {};
     }
     default:

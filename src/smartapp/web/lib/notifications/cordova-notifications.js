@@ -69,7 +69,7 @@ function showNearbyDevices() {
   const nearbyDevices = nearbyRooms
     .map((room) =>
       room.devices.filter((device) => !nearbyBeacons.includes(device)))
-    .reduce((accumulator, current) => accumulator.concat(current));
+    .reduce((accumulator, current) => accumulator.concat(current), []);
 
   const group = {
     id: NEARBY_SUMMARY_ID,
@@ -112,7 +112,9 @@ function showNearbyDevices() {
 let activeBeaconState = {};
 function updateBeaconMonitoring() {
   const newState = store.getState().devices.activeBeaconRegions;
-
+  if (!newState) {
+    return;  // If localStorage doesn't exist and returns undefined
+  }
   const oldNames = Object.keys(activeBeaconState);
   const newNames = Object.keys(newState);
   let removed = [];
@@ -160,6 +162,7 @@ function updateBeaconMonitoring() {
       })
       .catch(console.error);
   });
+  activeBeaconState = newState;
 }
 store.subscribe(updateBeaconMonitoring);
 
