@@ -12,8 +12,8 @@ const smartAppClient = new SmartAppClient();
 async function generateDeviceKeys() {
   console.log('Generating keys...');
   let keys = await crypto.subtle.generateKey(
-      {name: 'ECDSA', namedCurve: 'P-521'}, true, ['sign', 'verify']);
-
+      {name: 'ECDSA', namedCurve: 'P-384'}, true, ['sign', 'verify']);
+  console.log(keys);
   let [pub, priv] = await Promise.all([
     crypto.subtle.exportKey('jwk', keys.publicKey),
     crypto.subtle.exportKey('jwk', keys.privateKey)
@@ -29,7 +29,7 @@ async function signChallenge(challenge, privateJwk) {
   let privateKey = await crypto.subtle.importKey(
     'jwk',
     privateJwk,
-    {name: 'ECDSA', namedCurve: 'P-521'},
+    {name: 'ECDSA', namedCurve: 'P-384'},
     true,
     ['sign']
   );
@@ -48,13 +48,13 @@ async function verifyChallenge(signature, text, publicJwk) {
   let publicKey = await crypto.subtle.importKey(
     'jwk',
     publicJwk,
-    {name: 'ECDSA', namedCurve: 'P-521'},
+    {name: 'ECDSA', namedCurve: 'P-384'},
     true,
     ['verify']
   );
   let mergedSignature = new Uint8Array(signature.r.concat(signature.s)).buffer;
   let challengeBuf = new TextEncoder('utf-8').encode(text);
-  let res = await crypto.subtle.verify({name: 'ECDSA', namedCurve: 'P-521', hash: 'SHA-512'}, publicKey, mergedSignature, challengeBuf.buffer);
+  let res = await crypto.subtle.verify({name: 'ECDSA', namedCurve: 'P-384', hash: 'SHA-512'}, publicKey, mergedSignature, challengeBuf.buffer);
   if (res) {
     console.log('Verified own key');
   } else {

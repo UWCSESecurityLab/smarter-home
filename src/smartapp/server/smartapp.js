@@ -27,7 +27,7 @@ const User = require('./db/user');
 
 const PUBLIC_KEY = require('../config/smartapp-config.js').key;
 
-let ec = new EC('p521');
+let ec = new EC('p384');
 
 mongoose.connect('mongodb://localhost:27017,localhost:27018,localhost:27019/test?replicaSet=rs');
 let db = mongoose.connection;
