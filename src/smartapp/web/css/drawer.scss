@@ -1,7 +1,7 @@
 @import "@material/ripple/common";
 @import "@material/ripple/mixins";
 
-$drawer-width: 225px;
+$drawer-width: 250px;
 $drawer-padding: 15px;
 
 .drawer {
@@ -75,18 +75,19 @@ $drawer-padding: 15px;
   display: flex;
   align-items: center;
   height: 1em;
-  padding: 10px $drawer-padding;
+  padding: 14px $drawer-padding;
   cursor: pointer;
 }
 
 .drawer-item > i {
-  margin-right: 8px;
+  margin-right: 12px;
+  color: #8c8c8c;
 }
 
 .drawer-header {
   border-bottom: 1px solid #eeeeee;
   width: $drawer-width - 2 * $drawer-padding;
-  padding: 10px $drawer-padding;
+  padding: 14px $drawer-padding;
   cursor: default;
 }
 
