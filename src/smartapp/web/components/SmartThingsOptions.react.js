@@ -3,6 +3,8 @@ import { SmartAppClient } from 'common';
 
 let smartAppClient = new SmartAppClient();
 
+import '../css/spinner.scss';
+
 class SmartThingsOptions extends React.Component {
   constructor(props, context) {
     super(props, context);

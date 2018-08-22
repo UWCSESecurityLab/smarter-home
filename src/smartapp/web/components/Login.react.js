@@ -6,6 +6,7 @@ import { SmartAppClient } from 'common';
 import * as Actions from '../redux/actions';
 
 import '../css/authenticate.scss';
+import '../css/spinner.scss';
 
 class Login extends React.Component {
   constructor(props) {

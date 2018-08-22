@@ -37,9 +37,6 @@ module.exports = [{
           },
         },
       }, {
-        test: /\.css$/,
-        use: [ 'style-loader', 'css-loader' ]
-      }, {
         test: /\.scss$/,
         use: [
             "style-loader",  // creates style nodes from JS strings
@@ -105,9 +102,6 @@ module.exports = [{
           },
         },
       }, {
-        test: /\.css$/,
-        use: [ 'style-loader', 'css-loader' ]
-      }, {
         test: /\.scss$/,
         use: [
             "style-loader",  // creates style nodes from JS strings
@@ -163,9 +157,6 @@ module.exports = [{
             plugins: [ 'syntax-dynamic-import', "transform-object-rest-spread" ]
           },
         },
-      }, {
-        test: /\.css$/,
-        use: [ 'style-loader', 'css-loader' ]
       }, {
         test: /\.scss$/,
         use: [

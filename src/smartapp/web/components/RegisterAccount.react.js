@@ -5,6 +5,8 @@ import PropTypes from 'prop-types';
 import { SmartAppClient } from 'common';
 import { Link, Redirect } from 'react-router-dom';
 
+import '../css/spinner.scss';
+
 let smartAppClient = new SmartAppClient();
 
 class RegisterAccount extends React.Component {
