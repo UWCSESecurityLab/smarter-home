@@ -56,14 +56,14 @@ class NotificationSettings extends React.Component {
     }
   }
 
-  renderRadio({id, checked, label, name, isAndroidSpecific = false}) {
+  renderRadio({id, checked, label, name, isAndroidSpecific = false, isMobileSpecific = false}) {
     let isAndroid = false;
     if (window.cordova && device.platform == 'Android') {
       isAndroid = true;
     }
 
     let disableClassName = '';
-    if (isAndroidSpecific && !isAndroid) {
+    if (isAndroidSpecific && !isAndroid || isMobileSpecific && !window.cordova) {
       disableClassName = ' mdc-radio--disabled'
     }
     return (
@@ -140,11 +140,11 @@ class NotificationSettings extends React.Component {
             label: 'Disabled'
         })}
 
-        <h4>Background Beacons Scanning</h4>
+        <h4>Background Beacon Scanning</h4>
         <p>
           Allow your phone to scan for beacons when the
-          SmarterHome app is closed. You can turn this off to save battery
-          power. However, it must be enabled to enable Nearby Notifications
+          SmarterHome app is closed. You can turn this off to reduce battery
+          usage.However, it must be enabled to enable Nearby Notifications
           and proximity-based Activity Notifications.
         </p>
         { this.renderRadio({
