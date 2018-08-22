@@ -21,6 +21,10 @@ class Feedback extends React.Component {
       bugInput: '',
       experienceInput: ''
     }
+    if (location.search.substring(1) === 'diary') {
+      this.state.feedbackType = FeedbackType.EXPERIENCE;
+    }
+
     this.changeType = this.changeType.bind(this);
     this.submitBugReport = this.submitBugReport.bind(this);
     this.submitExperienceSample = this.submitExperienceSample.bind(this);

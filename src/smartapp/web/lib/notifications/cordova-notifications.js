@@ -3,10 +3,12 @@ import Notifications from './notifications';
 import * as Actions from '../../redux/actions';
 import * as DeviceType from '../capabilities/DeviceType';
 import * as Flags from '../../../flags';
+import myHistory from '../../lib/history';
 
 const PROXIMITY_ID = 0;
-const NEARBY_SUMMARY_ID = 1;
-const NEARBY_GROUP_ID_OFFSET = 2;
+const DIARY_REMINDER_ID = 1;
+const NEARBY_SUMMARY_ID = 2;
+const NEARBY_GROUP_ID_OFFSET = 3;
 
 class CordovaNotifications extends Notifications {
   static async updateToken() {
@@ -210,9 +212,49 @@ function initializeFirebaseMessaging() {
   CordovaNotifications.updateToken().catch(console.error);
 }
 
+function scheduleNextDiaryNotification() {
+  let now = new Date();
+  let nextDiary = localStorage.getItem('nextDiary');
+  if (!nextDiary) {
+    // Set the first notification to 8:00PM tomorrow
+    let tomorrowEvening = new Date();
+    tomorrowEvening.setSeconds(0);
+    tomorrowEvening.setMinutes(0);
+    tomorrowEvening.setHours(20);
+    tomorrowEvening.setDate(now.getDate() + 1);
+
+    cordova.plugins.notification.local.schedule({
+      id: DIARY_REMINDER_ID,
+      title: "Anything interesting happen lately?",
+      text: "Let us know! For science!",
+      at: tomorrowEvening
+    });
+    return;
+  }
+
+  let nextDiaryDate = new Date(JSON.parse(nextDiary));
+  if (now >= nextDiaryDate) {
+    // Schedule another in two days
+    let twoEveningsFromNow = new Date();
+    twoEveningsFromNow.setSeconds(0);
+    twoEveningsFromNow.setMinutes(0);
+    twoEveningsFromNow.setHours(20);
+    twoEveningsFromNow.setDate(now.getDate() + 2);
+
+    cordova.plugins.notification.local.schedule({
+      id: DIARY_REMINDER_ID,
+      title: "Anything interesting happen lately?",
+      text: "Let us know! For science!",
+      at: twoEveningsFromNow,
+    });
+    return;
+  }
+}
+
 document.addEventListener('deviceready', () => {
   initializeFirebaseMessaging();
   initializeBeaconMonitoring();
+  scheduleNextDiaryNotification();
 });
 
 document.addEventListener('pause', () => {
@@ -230,6 +272,18 @@ document.addEventListener('resume', () => {
   cordova.plugins.notification.local.cancelAll(() => {
     console.log('cancelled all notifications');
   });
+});
+
+cordova.plugins.notification.local.on('click', (notification) => {
+  if (notification.id === DIARY_REMINDER_ID) {
+    myHistory.push('/feedback?diary');
+  }
+});
+
+cordova.plugins.notification.local.on('trigger', (notification) => {
+  if (notification.id === DIARY_REMINDER_ID) {
+    scheduleNextDiaryNotification();
+  }
 });
 
 

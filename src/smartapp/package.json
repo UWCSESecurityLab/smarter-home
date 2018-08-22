@@ -37,6 +37,7 @@
     "express-session": "^1.15.6",
     "firebase": "^5.2.0",
     "googleapis": "^32.0.0",
+    "history": "^4.7.2",
     "http-signature": "^1.2.0",
     "mongoose": "^5.2.4",
     "mongoose-unique-validator": "^2.0.1",

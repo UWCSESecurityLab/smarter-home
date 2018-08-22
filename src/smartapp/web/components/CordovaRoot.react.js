@@ -1,8 +1,9 @@
 import React from 'react'
-import { HashRouter as Router } from 'react-router-dom';
+import { Router } from 'react-router-dom';
 import { Provider } from 'react-redux'
 import { store } from '../redux/reducers';
 import App from './App.react';
+import myHistory from '../lib/history';
 import * as Actions from '../redux/actions';
 import * as Flags from '../../flags';
 import '../lib/notifications/cordova-notifications';
@@ -34,7 +35,7 @@ document.addEventListener('deviceready', onDeviceReady, false);
 
 const CordovaRoot = () => (
   <Provider store={store}>
-    <Router>
+    <Router history={myHistory}>
       <App/>
     </Router>
   </Provider>

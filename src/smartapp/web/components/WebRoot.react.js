@@ -1,14 +1,15 @@
 import React from 'react'
-import { BrowserRouter as Router } from 'react-router-dom';
+import { Router } from 'react-router-dom';
 import { Provider } from 'react-redux'
 import { store } from '../redux/reducers';
 import App from './App.react';
+import myHistory from '../lib/history';
 import * as Actions from '../redux/actions';
 import * as Flags from '../../flags';
 
 const WebRoot = () => (
   <Provider store={store}>
-    <Router>
+    <Router history={myHistory}>
       <App/>
     </Router>
   </Provider>
