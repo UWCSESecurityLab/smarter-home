@@ -35,16 +35,20 @@ h4 {
   font-weight: 500;
 }
 
-input {
+input, textarea {
   font-size: 11pt;
   border: none;
-  border-bottom: 1px solid rgb(185, 231, 255);
-  width: 80%;
+  border-bottom: 1px solid #b9e7ff;
+  width: 100%;
   padding: 6px 3px;
   margin: 6px 0;
 }
 
-input:focus {
+textarea {
+  height: 120px;
+}
+
+input:focus, textarea:focus {
   border: none;
   border-bottom: 2px solid #5FC4FA;
   outline: none;

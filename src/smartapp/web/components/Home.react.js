@@ -10,6 +10,7 @@ import AddUserModal from './AddUserModal.react';
 import BeaconModal from './BeaconModal.react';
 import Devices from './Devices.react';
 import Drawer from './Drawer.react';
+import Feedback from './Feedback.react';
 import HomeState from '../lib/home-state';
 import NotificationSettings from './NotificationSettings.react';
 import Users from './Users.react';
