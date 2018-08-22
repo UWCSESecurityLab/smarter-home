@@ -24,6 +24,7 @@ const Room = require('./db/room');
 const RoomTransaction = require('./db/room-transaction');
 const SmartThingsClient = require('./SmartThingsClient');
 const User = require('./db/user');
+const UserReport = require('./db/user-report');
 
 const PUBLIC_KEY = require('../config/smartapp-config.js').key;
 
@@ -729,6 +730,22 @@ app.get('/refresh', checkAuth, (req, res) => {
     res.status(200).json(tokens);
   }).catch((err) => {
     res.status(500).send(err);
+  });
+});
+
+app.post('/userReport/:type', checkAuth, (req, res) => {
+  let report = new UserReport({
+    timestamp: new Date(),
+    userId: req.user.id,
+    installedAppId: req.session.installedAppId,
+    type: req.params.type,
+    report: req.body.report
+  });
+  report.save().then(() => {
+    res.status(200).json({});
+  }).catch((err) => {
+    console.log(err);
+    res.status(500).json({ error: 'DB_ERROR' });
   });
 });
 

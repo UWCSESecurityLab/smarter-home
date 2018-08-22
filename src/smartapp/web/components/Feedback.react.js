@@ -1,12 +1,16 @@
 import React from 'react';
 import Button from '@material/react-button';
 import PropTypes from 'prop-types';
-import {notify as toast} from 'react-notify-toast';
+import { SmartAppClient } from 'common';
+import { notify as toast } from 'react-notify-toast';
 import { withRouter } from 'react-router-dom';
+import errorToaster from '../lib/error-toaster';
+
+const smartAppClient = new SmartAppClient();
 
 const FeedbackType = {
-  BUG: 'BUG',
-  ANECDOTE: 'ANECDOTE'
+  BUG: 'bug',
+  EXPERIENCE: 'experience'
 }
 
 class Feedback extends React.Component {
@@ -27,13 +31,19 @@ class Feedback extends React.Component {
   }
 
   submitBugReport() {
-    toast.show('Thanks for the bug report! We will get back to you ASAP', 'success');
-    this.props.history.push('/home');
+    smartAppClient.postUserReport(this.state.bugInput, FeedbackType.BUG)
+      .then(() => {
+        toast.show('Thanks for the bug report! We will get back to you ASAP', 'success');
+        this.props.history.push('/home');
+      }).catch(errorToaster);
   }
 
   submitExperienceSample() {
-    toast.show('Thanks for sharing!', 'success');
-    this.props.history.push('/home');
+    smartAppClient.postUserReport(this.state.experienceInput, FeedbackType.EXPERIENCE)
+      .then(() => {
+        toast.show('Thanks for sharing!', 'success');
+        this.props.history.push('/home');
+      }).catch(errorToaster);
   }
 
   renderBugReport() {
@@ -85,17 +95,17 @@ class Feedback extends React.Component {
         <div className="mdc-form-field">
           <div className="mdc-radio">
             <input className="mdc-radio__native-control"
-                  type="radio" id="feedback-anecdote" name="feedback-type"
-                  checked={this.state.feedbackType === FeedbackType.ANECDOTE}
+                  type="radio" id="feedback-experience" name="feedback-type"
+                  checked={this.state.feedbackType === FeedbackType.EXPERIENCE}
                   onChange={() => {
-                      this.changeType(FeedbackType.ANECDOTE)
+                      this.changeType(FeedbackType.EXPERIENCE)
                   }}/>
             <div className="mdc-radio__background">
               <div className="mdc-radio__outer-circle"></div>
               <div className="mdc-radio__inner-circle"></div>
             </div>
           </div>
-          <label htmlFor="feedback-anecdote">
+          <label htmlFor="feedback-experience">
             Something interesting happened
           </label>
         </div>
@@ -114,7 +124,7 @@ class Feedback extends React.Component {
           </div>
           <label htmlFor="feedback-bug">Something isn't working</label>
         </div>
-        { this.state.feedbackType === FeedbackType.ANECDOTE
+        { this.state.feedbackType === FeedbackType.EXPERIENCE
           ? this.renderExperienceSample()
           : null
         }

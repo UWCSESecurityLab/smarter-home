@@ -305,6 +305,18 @@ class SmartAppClient {
       body: JSON.stringify({ signature: signature })
     }).then(handleJsonResponse);
   }
+
+  postUserReport(report, type) {
+    return fetch(`${this.host}/userReport/${type}`, {
+      method: 'POST',
+      credentials: 'same-origin',
+      headers: {
+        'Client-Session': this.sessionId,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ report: report })
+    }).then(handleJsonResponse);
+  }
 }
 
 export default SmartAppClient;
