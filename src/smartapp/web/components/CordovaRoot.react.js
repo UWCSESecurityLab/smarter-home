@@ -22,7 +22,8 @@ function onDeviceReady () {
     } else if (device.platform === 'iOS') {
       flags = {
         activityNotifications: Flags.ActivityNotifications.ON,
-        nearbyNotifications: Flags.NearbyNotifications.OFF
+        nearbyNotifications: Flags.NearbyNotifications.OFF,
+        backgroundScanning: Flags.BackgroundScanning.ON
       }
     }
   }

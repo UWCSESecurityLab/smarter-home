@@ -92,7 +92,8 @@ function users(state = {}, action) {
 
 const defaultState = {
   activityNotifications: Flags.ActivityNotifications.OFF,
-  nearbyNotifications: Flags.NearbyNotifications.OFF
+  nearbyNotifications: Flags.NearbyNotifications.OFF,
+  backgroundScanning: Flags.BackgroundScanning.OFF
 }
 
 function flags(state = defaultState, action) {

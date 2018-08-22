@@ -25,7 +25,8 @@ window.onload = function() {
   } else {
     flags = {
       activityNotifications: Flags.ActivityNotifications.ON,
-      nearbyNotifications: Flags.NearbyNotifications.OFF
+      nearbyNotifications: Flags.NearbyNotifications.OFF,
+      backgroundScanning: Flags.BackgroundScanning.OFF
     };
   }
   store.dispatch(Actions.setAllFlags(flags));

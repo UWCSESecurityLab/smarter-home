@@ -7,5 +7,9 @@ module.exports = {
   NearbyNotifications: {
     ON: 'NearbyNotifications_ON',
     OFF: 'NearbyNotifications_OFF'
+  },
+  BackgroundScanning: {
+    ON: 'BackgroundScanning_ON',
+    OFF: 'BackgroundScanning_OFF'
   }
 };

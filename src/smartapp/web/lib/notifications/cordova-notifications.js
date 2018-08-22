@@ -215,8 +215,15 @@ document.addEventListener('deviceready', () => {
   initializeBeaconMonitoring();
 });
 
-// Set up nearby device access
-document.addEventListener('pause', showNearbyDevices, false);
+document.addEventListener('pause', () => {
+  let flags = store.getState().flags;
+  // If background scanning is off, stop monitoring for all beacon regions.
+  if (flags.backgroundScanning === Flags.BackgroundScanning.OFF) {
+    store.dispatch(Actions.removeAllBeaconRegions());
+  } else if (flags.nearbyNotifications === Flags.NearbyNotifications.ON) {
+    showNearbyDevices();
+  }
+}, false);
 
 // Cancel notifications when the app is reopened
 document.addEventListener('resume', () => {

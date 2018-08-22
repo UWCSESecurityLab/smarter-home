@@ -182,11 +182,14 @@ class Devices extends React.Component {
           <div ref={provided.innerRef} {...provided.droppableProps}>
             { this.state.edit
               ? <div className="room-label">
-                  <input name={room.roomId}
-                         value={room.name}
-                         onChange={this.onRoomNameChange}
-                         className="room-label-edit">
-                  </input>
+                  <div className="room-edit">
+                    <div className="room-input-label">Room Name</div>
+                    <input name={room.roomId}
+                          value={room.name}
+                          onChange={this.onRoomNameChange}
+                          className="room-input">
+                    </input>
+                  </div>
                   { room.default ? null :
                     <MaterialIcon hasRipple icon="clear"
                       style={{ color: '#3c98ca' }}
@@ -228,6 +231,7 @@ class Devices extends React.Component {
             Add Beacon
           </Button>
           <Button className="mdc-button-green devices-header-button"
+                  id="edit-rooms"
                   onClick={() => { this.setState({ edit: false })}}>
             Done
           </Button>
@@ -237,7 +241,8 @@ class Devices extends React.Component {
       return (
         <div className="devices-header">
           <h3 className="devices-heading">My Home</h3>
-          <Button className="mdc-button-green" id="edit-rooms"
+          <Button className="mdc-button-green devices-header-button"
+                  id="edit-rooms"
                   onClick={() => { this.setState({ edit: true }) }}>
             Configure
           </Button>

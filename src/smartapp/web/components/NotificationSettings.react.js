@@ -32,6 +32,19 @@ class NotificationSettings extends React.Component {
   changeFlag(key, value) {
     this.props.dispatch(Actions.setFlag({ [key]: value }));
     this.state.notifications.updateToken();
+
+    // If turning background scanning off, disable anything that depends on it.
+    if (value === Flags.BackgroundScanning.OFF) {
+      this.props.dispatch(Actions.setFlag({
+        nearbyNotifications: Flags.NearbyNotifications.OFF
+      }));
+      if (this.props.flags.activityNotifications ===
+          Flags.ActivityNotifications.PROXIMITY) {
+        this.props.dispatch(Actions.setFlag({
+          activityNotifications: Flags.ActivityNotifications.ON
+        }));
+      }
+    }
   }
 
   async enableNotifications() {
@@ -75,6 +88,7 @@ class NotificationSettings extends React.Component {
   render() {
     const activityFlag = this.props.flags.activityNotifications;
     const nearbyFlag = this.props.flags.nearbyNotifications;
+    const backgroundFlag = this.props.flags.backgroundScanning;
 
     return (
       <section className="home-item">
@@ -92,20 +106,20 @@ class NotificationSettings extends React.Component {
             name: 'activityNotifications',
             id: Flags.ActivityNotifications.ON,
             checked: activityFlag === Flags.ActivityNotifications.ON,
-            label: 'On'
+            label: 'Enabled'
           })}
         { this.renderRadio({
             name: 'activityNotifications',
             id: Flags.ActivityNotifications.PROXIMITY,
             checked: activityFlag === Flags.ActivityNotifications.PROXIMITY,
-            label: 'On, but only for activity in the same room as me (Android only)',
+            label: 'Enabled, but only for activity in the same room as me (Android only)',
             isAndroidSpecific: true
         })}
         { this.renderRadio({
             name: 'activityNotifications',
             id: Flags.ActivityNotifications.OFF,
             checked: activityFlag === Flags.ActivityNotifications.OFF,
-            label: 'Off'
+            label: 'Disabled'
         })}
 
         <h4>Nearby Device Notifications</h4>
@@ -116,14 +130,34 @@ class NotificationSettings extends React.Component {
             name: 'nearbyNotifications',
             id: Flags.NearbyNotifications.ON,
             checked: nearbyFlag === Flags.NearbyNotifications.ON,
-            label: 'On (Android only)',
+            label: 'Enabled (Android only)',
             isAndroidSpecific: true
         })}
         { this.renderRadio({
             name: 'nearbyNotifications',
             id: Flags.NearbyNotifications.OFF,
             checked: nearbyFlag === Flags.NearbyNotifications.OFF,
-            label: 'Off'
+            label: 'Disabled'
+        })}
+
+        <h4>Background Beacons Scanning</h4>
+        <p>
+          Allow your phone to scan for beacons when the
+          SmarterHome app is closed. You can turn this off to save battery
+          power. However, it must be enabled to enable Nearby Notifications
+          and proximity-based Activity Notifications.
+        </p>
+        { this.renderRadio({
+          name: 'backgroundScanning',
+          id: Flags.BackgroundScanning.ON,
+          checked: backgroundFlag === Flags.BackgroundScanning.ON,
+          label: 'Enabled (mobile only)',
+        })}
+        { this.renderRadio({
+          name: 'backgroundScanning',
+          id: Flags.BackgroundScanning.OFF,
+          checked: backgroundFlag === Flags.BackgroundScanning.OFF,
+          label: 'Disabled',
         })}
       </section>
     );
