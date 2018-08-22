@@ -227,8 +227,10 @@ function scheduleNextDiaryNotification() {
       id: DIARY_REMINDER_ID,
       title: "Anything interesting happen lately?",
       text: "Let us know! For science!",
-      at: tomorrowEvening
+      trigger: { at: tomorrowEvening }
     });
+    console.log('Scheduled diary notification for ' + tomorrowEvening);
+    localStorage.setItem('nextDiary', JSON.stringify(tomorrowEvening));
     return;
   }
 
@@ -245,8 +247,10 @@ function scheduleNextDiaryNotification() {
       id: DIARY_REMINDER_ID,
       title: "Anything interesting happen lately?",
       text: "Let us know! For science!",
-      at: twoEveningsFromNow,
+      trigger: { at: twoEveningsFromNow }
     });
+    console.log('Scheduled diary notification for ' + twoEveningsFromNow);
+    localStorage.setItem('nextDiary', JSON.stringify(twoEveningsFromNow));
     return;
   }
 }
@@ -255,6 +259,17 @@ document.addEventListener('deviceready', () => {
   initializeFirebaseMessaging();
   initializeBeaconMonitoring();
   scheduleNextDiaryNotification();
+
+  cordova.plugins.notification.local.on('click', (notification) => {
+    if (notification.id === DIARY_REMINDER_ID) {
+      myHistory.push('/feedback?diary');
+    }
+  });
+  cordova.plugins.notification.local.on('trigger', (notification) => {
+    if (notification.id === DIARY_REMINDER_ID) {
+      scheduleNextDiaryNotification();
+    }
+  });
 });
 
 document.addEventListener('pause', () => {
@@ -273,18 +288,5 @@ document.addEventListener('resume', () => {
     console.log('cancelled all notifications');
   });
 });
-
-cordova.plugins.notification.local.on('click', (notification) => {
-  if (notification.id === DIARY_REMINDER_ID) {
-    myHistory.push('/feedback?diary');
-  }
-});
-
-cordova.plugins.notification.local.on('trigger', (notification) => {
-  if (notification.id === DIARY_REMINDER_ID) {
-    scheduleNextDiaryNotification();
-  }
-});
-
 
 export default CordovaNotifications;
