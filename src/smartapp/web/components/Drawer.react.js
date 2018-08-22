@@ -71,6 +71,12 @@ class Drawer extends React.Component {
                 Home
               </RippleItem>
             </Link>
+            <Link to="/feedback" className="link-plain" onClick={this.props.closeFn}>
+              <RippleItem className="drawer-item">
+                <MaterialIcon icon="feedback"/>
+                Feedback
+              </RippleItem>
+            </Link>
             <Link to="/notificationSettings" className="link-plain" onClick={this.props.closeFn}>
               <RippleItem className="drawer-item">
                 <MaterialIcon icon="notifications_active"/>

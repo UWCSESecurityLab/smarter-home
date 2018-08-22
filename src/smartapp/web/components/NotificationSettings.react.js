@@ -5,8 +5,6 @@ import { connect } from 'react-redux';
 import * as Actions from '../redux/actions';
 import * as Flags from '../../flags';
 
-import '../css/notificationSettings.scss';
-
 class NotificationSettings extends React.Component {
   constructor(props) {
     super(props);
