@@ -105,6 +105,8 @@ code {
 // queries.
 .toast-notification {
   top: 64px !important;
+  width: 85% !important;
+  max-width: 400px !important;
 }
 @media (max-width: 599px) {
   .toast-notification {
