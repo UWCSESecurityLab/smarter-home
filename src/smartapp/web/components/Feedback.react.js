@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import { SmartAppClient } from 'common';
 import { notify as toast } from 'react-notify-toast';
 import { withRouter } from 'react-router-dom';
-import errorToaster from '../lib/error-toaster';
+import toastError from '../lib/error-toaster';
 
 const smartAppClient = new SmartAppClient();
 
@@ -39,7 +39,7 @@ class Feedback extends React.Component {
       .then(() => {
         toast.show('Thanks for the bug report! We will get back to you ASAP', 'success');
         this.props.history.push('/home');
-      }).catch(errorToaster);
+      }).catch(toastError);
   }
 
   submitExperienceSample() {
@@ -47,7 +47,7 @@ class Feedback extends React.Component {
       .then(() => {
         toast.show('Thanks for sharing!', 'success');
         this.props.history.push('/home');
-      }).catch(errorToaster);
+      }).catch(toastError);
   }
 
   renderBugReport() {

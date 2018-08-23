@@ -1,6 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import Lock from '../../lib/capabilities/Lock';
+import toastError from '../../lib/error-toaster';
 import { connect } from 'react-redux';
 
 class LockStatus extends React.Component {
@@ -19,8 +20,7 @@ class LockStatus extends React.Component {
         console.error('Invalid state: ' + this.props.status);
       }
     } catch(e) {
-      // TODO: show visible error - toast?
-      console.error(e.stack);
+      toastError(e);
     }
   }
 

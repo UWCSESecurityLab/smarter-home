@@ -1,6 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import Button from '@material/react-button';
+import toastError from '../lib/error-toaster';
 import { connect } from 'react-redux';
 import * as Actions from '../redux/actions';
 import * as Flags from '../../flags';
@@ -50,7 +51,7 @@ class NotificationSettings extends React.Component {
       await this.state.notifications.enableNotifications();
       await this.state.notifications.updateToken();
     } catch (e) {
-      console.error(e);
+      toastError(e);
     }
   }
 

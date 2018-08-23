@@ -41,9 +41,7 @@ class SmartAppClient {
         'Client-Session': this.sessionId
       },
       body: JSON.stringify(args)
-    }).then((response) => {
-      return response;
-    });
+    }).then(handleJsonResponse)
   }
 
   logout() {
@@ -73,7 +71,7 @@ class SmartAppClient {
         password: password,
         confirm: confirmPassword
       })
-    });
+    }).then(handleJsonResponse);
   }
 
   executeDeviceCommand(params) {
@@ -85,7 +83,7 @@ class SmartAppClient {
       },
       credentials: 'same-origin',
       body: JSON.stringify(params.command)
-    });
+    }).then(handleJsonResponse);
   }
 
   getDeviceStatus(deviceId) {
@@ -94,7 +92,7 @@ class SmartAppClient {
       headers: {
         'Client-Session': this.sessionId
       },
-    }).then((response) => response.json());
+    }).then(handleJsonResponse);
   }
 
   getHomeConfig() {
@@ -103,7 +101,7 @@ class SmartAppClient {
       headers: {
         'Client-Session': this.sessionId
       },
-    }).then((response) => response.json());
+    }).then(handleJsonResponse);
   }
 
   getDeviceDescription(deviceId) {
@@ -112,7 +110,7 @@ class SmartAppClient {
       headers: {
         'Client-Session': this.sessionId
       },
-    }).then((response) => response.json());
+    }).then(handleJsonResponse);
   }
 
   updateNotificationToken(token, flags) {
@@ -127,7 +125,7 @@ class SmartAppClient {
         token: token,
         flags: flags
       })
-    });
+    }).then(handleJsonResponse);
   }
 
   refreshAccessToken() {
@@ -145,7 +143,7 @@ class SmartAppClient {
       headers: {
         'Client-Session': this.sessionId
       }
-    }).then((response) => response.json());
+    }).then(handleJsonResponse);
   }
 
   createRoom(name, roomId) {

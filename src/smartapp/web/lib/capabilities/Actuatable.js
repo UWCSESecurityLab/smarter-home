@@ -1,6 +1,7 @@
 import { CommonActions, SmartAppClient } from 'common';
 import { store } from '../../redux/reducers';
 import Capability from './Capability';
+import toastError from '../../lib/error-toaster';
 
 let smartAppClient = new SmartAppClient();
 
@@ -20,7 +21,7 @@ class Actuatable extends Capability {
         CommonActions.updateDeviceStatus(newStatus.deviceId, newStatus.status)
       );
     } catch (e) {
-      throw(e)
+      toastError(e);
     }
   }
 }

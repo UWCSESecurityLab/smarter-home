@@ -5,6 +5,7 @@ import MaterialIcon from '@material/react-material-icon';
 import PropTypes from 'prop-types';
 import { SmartAppClient } from 'common';
 import { withRouter } from 'react-router-dom';
+import * as Errors from '../../errors';
 
 let smartAppClient = new SmartAppClient();
 
@@ -31,12 +32,8 @@ class BeaconModal extends React.Component {
       HomeState.resetDevices();
       this.close();
     }).catch((err) => {
-      console.error(err);
-      if (err.error === 'BEACON_NOT_FOUND') {
-        this.setState({
-          error: `No beacon named ${this.state.name}, did you mispell it?`
-        });
-      }
+      console.log(err);
+      this.setState({ error: err })
     });
   }
 
@@ -46,6 +43,17 @@ class BeaconModal extends React.Component {
   }
 
   render() {
+    let errorMessage = null;
+    if (this.state.error.error === Errors.BEACON_NOT_FOUND) {
+      errorMessage = `No beacon named ${this.state.name}, did you mispell it?`
+    } else if (this.state.error.error === Errors.DB_ERROR) {
+      errorMessage = 'SmarterHome database error. Please try again later.';
+    } else if (this.state.error.name === 'TypeError') {
+      errorMessage = 'Couldn\'t connect to SmarterHome.';
+    } else if (this.state.error) {
+      errorMessage = 'Unknown error: ' + JSON.stringify(this.state.error);
+    }
+
     return (
       <div>
         <div className="modal-bg" onClick={this.close}/>
@@ -66,7 +74,7 @@ class BeaconModal extends React.Component {
             Submit
           </Button>
           { this.state.error
-            ? <div className="error">{this.state.error}</div>
+            ? <div className="error">{errorMessage}</div>
             : null
           }
         </div>

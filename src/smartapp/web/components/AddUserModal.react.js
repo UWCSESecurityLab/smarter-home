@@ -4,6 +4,7 @@ import HomeState from '../lib/home-state';
 import MaterialIcon from '@material/react-material-icon';
 import PropTypes from 'prop-types';
 import strToColor from '../lib/strToColor';
+import * as Errors from '../../errors';
 import { SmartAppClient } from 'common';
 import { connect } from 'react-redux';
 import { withRouter } from 'react-router-dom';
@@ -64,7 +65,7 @@ class AddUserModal extends React.Component {
       await HomeState.fetchUsers();
       this.close();
     } catch(err) {
-      this.setState({ error: err.error });
+      this.setState({ error: err });
     }
   }
   async addKeyToUser(userId) {
@@ -72,7 +73,7 @@ class AddUserModal extends React.Component {
       await smartAppClient.addKeyToUser(this.state.key, userId);
       this.close();
     } catch(err) {
-      this.setState({ error: err.error });
+      this.setState({ error: err });
     }
   }
 
@@ -102,6 +103,17 @@ class AddUserModal extends React.Component {
   }
 
   renderUserPicker() {
+    let errorMessage = null;
+    if (this.state.error.error === Errors.DB_ERROR) {
+      errorMessage = 'SmarterHome database error. Please try again later.';
+    } else if (this.state.error.error === Errors.CR_CODE_USED) {
+      errorMessage = 'Someone has already scanned this QR code before. If the new user can\'t log in, try having them reinstall their app.';
+    } else if (this.state.error.name === 'TypeError') {
+      errorMessage = 'Couldn\'t connect to SmarterHome. Please try again later';
+    } else if (this.state.error) {
+      errorMessage = 'Unknown error: ' + JSON.stringify(this.state.error);
+    }
+
     return (
       <div>
         <div className="modal-bg" onClick={this.close}/>
@@ -134,7 +146,7 @@ class AddUserModal extends React.Component {
             Add
           </Button>
           { this.state.error
-            ? <div className="error">{this.state.error}</div>
+            ? <div className="error">{errorMessage}</div>
             : null
           }
         </div>

@@ -1,3 +1,4 @@
+import toastError from '../lib/error-toaster';
 import { CommonActions, SmartAppClient } from 'common';
 import { store } from '../redux/reducers';
 import * as Actions from '../redux/actions';
@@ -18,13 +19,13 @@ class HomeState {
             this.fetchAllDeviceStatuses(rooms)
           ]);
         });
-    });
+    }).catch(toastError);
   }
 
   static fetchUsers() {
     smartAppClient.listUsers().then((users) => {
       store.dispatch(Actions.setUsers(users));
-    });
+    }).catch(toastError);
   }
 
   // Fetches the descriptions of all of the devices in the given rooms,
@@ -47,7 +48,7 @@ class HomeState {
             store.dispatch(Actions.addBeaconRegion(beacon));
           });
       }
-    });
+    }).catch(toastError);
   }
 
   // Fetches the status of all of the devices in the given rooms,
@@ -59,7 +60,7 @@ class HomeState {
       statuses.forEach((status) => {
         store.dispatch(CommonActions.updateDeviceStatus(status.deviceId, status.status));
       });
-    });
+    }).catch(toastError);
   }
 
   // Fetches all rooms from the server, and replaces the |rooms| reducer with

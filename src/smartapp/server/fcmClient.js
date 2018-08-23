@@ -1,4 +1,5 @@
 const log = require('./log');
+const Errors = require('../errors');
 const Flags = require('../flags');
 const request = require('request');
 const {google} = require('googleapis');
@@ -127,7 +128,7 @@ function updateActivityNotifications({ flags, user, token }) {
       tokenGroup: ActivityGroup
     });
   } else {
-    return Promise.reject({ error: 'Missing ActivityNotifications flag'});
+    return Promise.reject({ error: Errors.MISSING_FLAGS });
   }
 }
 

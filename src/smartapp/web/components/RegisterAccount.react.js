@@ -4,6 +4,7 @@ import MaterialIcon from '@material/react-material-icon';
 import PropTypes from 'prop-types';
 import { SmartAppClient } from 'common';
 import { Link, Redirect } from 'react-router-dom';
+import * as Errors from '../../errors';
 
 import '../css/spinner.scss';
 
@@ -29,39 +30,39 @@ class RegisterAccount extends React.Component {
     this.updateConfirmPassword = this.updateConfirmPassword.bind(this);
   }
 
-  async register(e) {
+  register(e) {
     e.preventDefault();
     this.setState({ loading: true });
 
     if (this.state.password !== this.state.confirmPassword) {
-      this.setState({ error: 'PW_MISMATCH', loading: false });
+      this.setState({ error: Errors.REGISTER_PW_MISMATCH, loading: false });
+      return;
     }
 
     if (this.state.password.length < 8) {
-      this.setState({ error: 'PW_TOO_SHORT', loading: false });
+      this.setState({ error: Errors.REGISTER_PW_TOO_SHORT, loading: false });
+      return;
     }
 
-    try {
-      let res = await smartAppClient.register(
+    smartAppClient.register(
         this.state.username,
         this.state.displayName,
         this.state.password,
-        this.state.confirmPassword);
-
-      if (res.status === 400) {
-        let body = await res.json();
-        this.setState({ error: body.message, loading: false });
-        return;
-      }
-
-      if (res.status !== 200) {
-        this.setState({ error: 'UNKNOWN', loading: false });
-        return;
-      }
+        this.state.confirmPassword)
+    .then(() => {
       this.setState({ success: true });
-    } catch (e) {
-      this.setState({ error: 'NETWORK', loading: false});
-    }
+    }).catch((err) => {
+      console.log(err);
+      this.setState({ loading: false });
+      if (err.error) {
+        this.setState({ error: err.error });
+      } else if (err.name === 'TypeError') {
+        this.setState({ error: 'NETWORK' });
+      } else {
+        this.setState({ error: 'UNKNOWN' });
+      }
+    });
+
   }
 
   updateUsername(e) {
@@ -81,6 +82,38 @@ class RegisterAccount extends React.Component {
   }
 
   render() {
+    let errorMessage;
+    if (this.state.error) {
+      switch (this.state.error) {
+        case 'NETWORK':
+          errorMessage = 'Couldn\'t connect to the SmartApp server.';
+          break;
+        case Errors.REGISTER_MISSING_FIELD:
+          errorMessage = 'Missing a field; please fill out all fields.';
+          break;
+        case Errors.REGISTER_PW_MISMATCH:
+          errorMessage = 'Passwords don\'t match. Please try again.';
+          break;
+        case Errors.REGISTER_USERNAME_TAKEN:
+          errorMessage = 'Username has already been taken';
+          break;
+        case Errors.REGISTER_PW_TOO_SHORT:
+          errorMessage = 'Password is too short. It must be at least 8 characters long.';
+          break;
+        case Errors.DB_ERROR:
+          errorMessage = 'SmartApp database error. Please try again later.';
+          break;
+        default:
+          errorMessage = 'Unknown error: ' + this.state.error;
+      }
+    }
+
+    let error = this.state.error ? (
+      <div className="alert alert-danger" role="alert" id="error">
+        {errorMessage}
+      </div>
+    ) : null;
+
     return (
       <div className="container">
         { this.state.success ? <Redirect to="/registerSuccess"/> : null}
@@ -137,6 +170,7 @@ class RegisterAccount extends React.Component {
             : null
           }
           </div>
+          {error}
       </div>
     );
   }

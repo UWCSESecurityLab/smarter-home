@@ -14,6 +14,7 @@ const uuid = require('uuid/v4');
 const MongoStore = require('connect-mongo')(session);
 
 const auth = require('./auth');
+const Errors = require('../errors');
 const fcmClient = require('./fcmClient');
 const InstallData = require('./db/installData');
 const lifecycle = require('./lifecycle');
@@ -88,11 +89,11 @@ function getInstallData(req, res, next) {
     'installedApp.installedAppId': req.session.installedAppId
   }, (err, installData) => {
     if (err) {
-      res.status(500).json({ message: 'DB_ERROR' });
+      res.status(500).json({ error: Errors.DB_ERROR });
       return;
     }
     if (!installData) {
-      res.status(404).json({ message: 'APP_NOT_FOUND' });
+      res.status(404).json({ error: Errors.APP_NOT_FOUND });
       return;
     }
 
@@ -105,13 +106,13 @@ function getInstallData(req, res, next) {
 function checkAuth(req, res, next) {
   User.findOne({ id: req.session.user }, function(err, user) {
     if (err) {
-      res.status(500).json({ message: 'DB_ERROR'});
+      res.status(500).json({ error: Errors.DB_ERROR });
       return;
     }
     if (!user) {
       log.error('Unauthorized user');
       console.log(req.session);
-      res.status(401).json({ message: 'NOT_LOGGED_IN'});
+      res.status(401).json({ error: Errors.NOT_LOGGED_IN });
       return;
     }
     req.user = user;
@@ -119,10 +120,7 @@ function checkAuth(req, res, next) {
     if (!req.session.installedAppId && user.installedAppId) {
       req.session.installedAppId = user.installedAppId;
     } else if (!req.session.installedAppId && !user.installedAppId) {
-      res.status(403).json({
-        error: 'USER_NOT_LINKED',
-        message: 'User is not associated with an installedApp'
-      });
+      res.status(403).json({ error: Errors.USER_NOT_LINKED });
       return;
     }
 
@@ -193,59 +191,58 @@ app.post('/', (req, res) => {
 app.post('/login', (req, res) => {
   auth.verifyUser(req.body.username, req.body.password).then((user) => {
     if (req.body.oauth == 'true') {
-      res.status(200).send(`https://api.smartthings.com/oauth/callback?state=${req.body.oauthState}&token=${user.id}`);
+      res.status(200).json({ redirect: `https://api.smartthings.com/oauth/callback?state=${req.body.oauthState}&token=${user.id}`});
       return;
     }
 
     req.session.regenerate((err) => {
       if (err) {
         console.log(err);
-        res.status(500).json(err);
+        res.status(500).json({ error: Errors.SESSION_ERROR });
         return;
       }
       req.session.user = user.id;
       req.session.installedAppId = user.installedAppId;
       req.session.save((err) => {
         if (err) {
-          res.status(500).json(err);
+          console.log(err);
+          res.status(500).json({ error: Errors.SESSION_ERROR });
           return;
         }
         console.log('Saved session');
         console.log(req.session);
-        res.status(200).send();
+        res.status(200).json({});
       });
     });
   }).catch((err) => {
-    if (err.message === 'BAD_USERNAME' || err.message === 'BAD_PASSWORD') {
-      res.status(401).send({ error: 'BAD_USER_PW' });
+    if (err.error === Errors.LOGIN_BAD_USER_PW) {
+      res.status(401).json({ error: Errors.LOGIN_BAD_USER_PW });
     } else {
       console.log(err);
-      res.status(500).send({ error: 'DB_ERROR'});
+      res.status(500).json({ error: Errors.DB_ERROR });
     }
   });
 });
 
 app.post('/register', (req, res) => {
   if (!req.body.username || !req.body.displayName || !req.body.password || !req.body.confirm) {
-    res.status(400).json({ message: 'MISSING_FIELD' });
+    res.status(400).json({ error: Errors.REGISTER_MISSING_FIELD });
     return;
   }
 
   if (req.body.password !== req.body.confirm) {
-    res.status(400).json({ message: 'PW_MISMATCH' });
+    res.status(400).json({ error: Errors.REGISTER_PW_MISMATCH });
     return;
   }
 
   auth.createUser(req.body.username, req.body.displayName, req.body.password).then(() => {
-    res.status(200);
-    res.send();
+    res.status(200).json({});
   }).catch((err) => {
-    if (err.message == 'USERNAME_TAKEN') {
-      res.status(400);
+    if (err.error == Errors.REGISTER_USERNAME_TAKEN) {
+      res.status(400).json(err);
     } else {
-      res.status(500);
+      res.status(500).json(err);
     }
-    res.json(err);
   });
 });
 
@@ -258,7 +255,8 @@ app.post('/authChallenge', (req, res) => {
     x: req.body.publicKey.x, y: req.body.publicKey.y
   }}}).then((user) => {
     if (!user) {
-      res.status(401).send({ error: 'UNRECOGNIZED_KEY' });
+      log.error('Unrecognized key')
+      res.status(401).json({ error: Errors.UNRECOGNIZED_KEY });
       return;
     }
     // Generate challenge, save user and challenge in session
@@ -268,6 +266,7 @@ app.post('/authChallenge', (req, res) => {
     log.log('Challenge: ' + challenge);
     res.status(200).json({ challenge: challenge });
   }).catch((err) => {
+    console.error(err);
     res.status(500).json(err);
   });
 });
@@ -278,7 +277,7 @@ app.post('/authChallenge', (req, res) => {
 // sent their key in the challenge.
 app.post('/authResponse', (req, res) => {
   if (!req.session.challenge || !req.session.challengeUser) {
-    res.status(401).send({ error: 'MISSING_CHALLENGE' });
+    res.status(401).json({ error: Errors.CR_MISSING_CHALLENGE });
     return;
   }
 
@@ -310,14 +309,14 @@ app.post('/authResponse', (req, res) => {
         req.session.regenerate((err) => {
           if (err) {
             console.log(err);
-            res.status(500).json(err);
+            res.status(500).json({ error: Errors.SESSION_ERROR });
             return;
           }
           req.session.user = challengeUser.id;
           req.session.installedAppId = challengeUser.installedAppId;
           req.session.save((err) => {
             if (err) {
-              res.status(500).json(err);
+              res.status(500).json({ error: Errors.SESSION_ERROR });
               return;
             }
             log.log('Challenge-Response Login Success');
@@ -329,20 +328,20 @@ app.post('/authResponse', (req, res) => {
     }
     // Fail
     log.error('Failed to verify signature');
-    res.status(401).json({ error: 'Failed challenge-response' });
+    res.status(401).json({ error: Errors.CR_FAIL });
   }).catch((err) => {
-    log.error(err);
-    res.status(500).json({ error: 'DB_ERROR' });
+    console.log(err);
+    res.status(500).json(err);
   });
 });
 
 app.post('/logout', (req, res) => {
   req.session.destroy((err) => {
     if (err) {
-      log.error(err);
-      res.status(500).send(err);
+      console.log(err);
+      res.status(500).json({ error: Errors.SESSION_ERROR });
     }
-    res.status(200).json({message: 'ok'});
+    res.status(200).json({});
   })
 });
 
@@ -356,7 +355,7 @@ app.post('/notificationToken', checkAuth, async (req, res) => {
   }).then(() => {
     res.status(200).json({});
   }).catch((err) => {
-    if (err.error === 'Missing ActivityNotifications flag') {
+    if (err.error === Errors.MISSING_FLAGS) {
       log.error(err.error);
       res.status(400).json(err);
     } else {
@@ -373,8 +372,7 @@ app.get('/listDevices', checkAuth, getInstallData, (req, res) => {
   }).then((results) => {
     res.json(results);
   }).catch((err) => {
-    log.error(err);
-    res.status(500).json({ message: 'SMARTTHINGS_ERROR' });
+    res.status(500).json(err);
   });
 });
 
@@ -404,7 +402,6 @@ app.get('/devices/:deviceId/status', checkAuth, getInstallData, (req, res) => {
       }).then((status) => {
         res.json(status);
       }).catch((err) => {
-        log.error(err);
         res.status(500).json(err);
       });
     } else {
@@ -419,7 +416,7 @@ app.get('/devices/:deviceId/status', checkAuth, getInstallData, (req, res) => {
     }
   }).catch((err) => {
     log.error(err);
-    res.status(500).json(err);
+    res.status(500).json({ error: Errors.DB_ERROR });
   });
 });
 
@@ -433,7 +430,7 @@ app.get('/devices/:deviceId/description', checkAuth, getInstallData,
       }).then((description) => {
         res.json(description);
       }).catch((err) => {
-        res.status(500).send(err);
+        res.status(500).json(err);
       });
     } else {
       res.status(200).json({
@@ -450,7 +447,7 @@ app.get('/devices/:deviceId/description', checkAuth, getInstallData,
       });
     }
   }).catch((err) => {
-    res.status(500).json(err);
+    res.status(500).json({ error: Errors.DB_ERROR });
   });
 });
 
@@ -475,9 +472,8 @@ app.post('/devices/:deviceId/commands', checkAuth, getInstallData,
     authToken: req.installData.authToken
   }).then(() => command.save())
     .then(() => {
-      res.status(200).send();
+      res.status(200).json({});
   }).catch((err) => {
-    log.error(err);
     res.status(500).json(err);
   });
 });
@@ -490,7 +486,8 @@ app.get('/beacon/list', (req, res) => {
   Beacon.find().then((beacons) => {
     res.status(200).json(beacons);
   }).catch((err) => {
-    res.status(500).json(err);
+    console.log(err);
+    res.status(500).json({ error: Errors.DB_ERROR });
   });
 });
 
@@ -501,7 +498,7 @@ app.post('/beacon/new', (req, res) => {
     name: req.body.name
   });
   beacon.save().then(() => {
-    res.status(200).send();
+    res.status(200).json({});
   }).catch((err) => {
     res.status(500).json(err);
   });
@@ -510,7 +507,7 @@ app.post('/beacon/new', (req, res) => {
 app.post('/beacon/add', checkAuth, getInstallData, (req, res) => {
   Beacon.findOne({ name: req.body.name }).then((beacon) => {
     if (!beacon) {
-      res.status(404).json({ error: 'BEACON_NOT_FOUND' });
+      res.status(404).json({ error: Errors.BEACON_NOT_FOUND });
     } else {
       Room.findOneAndUpdate({
         installedAppId: req.installData.installedApp.installedAppId,
@@ -519,19 +516,19 @@ app.post('/beacon/add', checkAuth, getInstallData, (req, res) => {
         res.status(200).json(beacon);
       }).catch((err) => {
         log.error(err);
-        res.status(500).json({ error: 'DB_ERROR' });
+        res.status(500).json({ error: Errors.DB_ERROR });
       });
     }
   }).catch((err) => {
     log.error(err);
-    res.status(500).json({ error: 'DB_ERROR' });
+    res.status(500).json({ error: Errors.DB_ERROR });
   });
 });
 
 app.post('/beacon/remove', checkAuth, getInstallData, (req, res) => {
   Beacon.findOne({ name: req.body.name }).then((beacon) => {
     if (!beacon) {
-      res.status(404).json({ error: 'BEACON_NOT_FOUND' });
+      res.status(404).json({ error: Errors.BEACON_NOT_FOUND });
     } else {
       Room.findOneAndUpdate({
         installedAppId: req.installData.installedApp.installedAppId,
@@ -540,12 +537,12 @@ app.post('/beacon/remove', checkAuth, getInstallData, (req, res) => {
         res.status(200).json({});
       }).catch((err) => {
         log.error(err);
-        res.status(500).json({ error: 'DB_ERROR'});
+        res.status(500).json({ error: Errors.DB_ERROR });
       });
     }
   }).catch((err) => {
     log.error(err);
-    res.status(500).json({ error: 'DB_ERROR' });
+    res.status(500).json({ error: Errors.DB_ERROR });
   });
 });
 
@@ -556,14 +553,9 @@ app.get('/rooms', checkAuth, getInstallData, (req, res) => {
       res.status(200).json(rooms);
     }).catch((err) => {
       log.error(err);
-      res.status(500).send(err);
+      res.status(500).json({ error: Errors.DB_ERROR });
     });
 });
-
-// Generates an eddystone-compatible namespace from uuid-v4.
-function generateEddystoneNamespace(uuidv4) {
-  return uuidv4.slice(0, 8) + uuidv4.slice(24);
-}
 
 // Create a new room
 app.post('/rooms/create', checkAuth, getInstallData, (req, res) => {
@@ -580,17 +572,18 @@ app.post('/rooms/create', checkAuth, getInstallData, (req, res) => {
     log.log('Successfully created room');
     res.status(200).json(room);
   }).catch((err) => {
-    res.status(500).json(err);
+    console.log(err);
+    res.status(500).json({ error: Errors.DB_ERROR });
   });
 });
 
 app.post('/rooms/:roomId/delete', checkAuth, getInstallData, (req, res) => {
   RoomTransaction.deleteRoom(req.params.roomId).then(() => {
     log.log('Successfully deleted room ' + req.params.roomId);
-    res.status(200).send({});
+    res.status(200).json({});
   }).catch((err) => {
     console.log(err);
-    res.status(500).send(err);
+    res.status(500).json({ error: Errors.DB_ERROR });
   });
 });
 
@@ -604,7 +597,7 @@ app.post('/rooms/:roomId/updateName', checkAuth, getInstallData, (req, res) => {
     res.status(200).json({});
   }).catch((err) => {
     console.log(err);
-    res.status(500).json(err);
+    res.status(500).json({ error: Errors.DB_ERROR });
   });
 });
 
@@ -621,10 +614,10 @@ app.post('/rooms/:roomId/reorderDeviceInRoom', checkAuth, getInstallData,
     return room.save();
   }).then((room) => {
     log.log('Successfully reordered devices');
-    res.status(200).send(room);
+    res.status(200).json(room);
   }).catch((err) => {
     console.log(err);
-    res.status(500).send(err);
+    res.status(500).json({ error: Errors.DB_ERROR });
   });
 });
 
@@ -637,16 +630,19 @@ app.post('/rooms/moveDeviceBetweenRooms', checkAuth, getInstallData,
     req.body.destIdx
   ).then(() => {
     log.log('Successfully moved device between rooms');
-    res.status(200).send({});
+    res.status(200).json({});
   }).catch((err) => {
    console.log(err);
-   res.status(500).send(err);
+   res.status(500).json({ error: Errors.DB_ERROR });
   });
 });
 
 app.get('/users', checkAuth, (req, res) => {
   User.find({ installedAppId: req.session.installedAppId }).then((users) => {
     res.status(200).json(users);
+  }).catch((err) => {
+    console.log(err);
+    res.status(500).json({ error: Errors.DB_ERROR });
   });
 });
 
@@ -655,9 +651,7 @@ app.post('/users/new', checkAuth, (req, res) => {
   let key = req.body.publicKey;
   User.findOne({ publicKeys: { $elemMatch: { x: key.x, y: key.y }}}).then((keyExists) => {
     if (keyExists) {
-      res.status(400).json({
-        error: 'Couldn\'t add user: this code has already been used.'
-      });
+      res.status(400).json({ error: Errors.CR_CODE_USED });
       return;
     }
     let newUser = new User({
@@ -670,9 +664,7 @@ app.post('/users/new', checkAuth, (req, res) => {
       res.status(200).json({});
     }).catch((err) => {
       log.error(JSON.stringify(err));
-      res.status(500).json({
-        error: 'Couldn\'t add user: SmarterHome database error.'
-      });
+      res.status(500).json({ error: Errors.DB_ERROR });
     });
   });
 });
@@ -682,9 +674,7 @@ app.post('/users/addKey', checkAuth, (req, res) => {
   User.findOne({ publicKeys: { $elemMatch: { x: key.x, y: key.y }}})
     .then((keyExists) => {
       if (keyExists) {
-        res.status(400).json({
-          error: 'Couldn\'t add device: this code has already been used.'
-        });
+        res.status(400).json({ error: Errors.CR_CODE_USED });
         return;
       }
       User.findOneAndUpdate({ id: req.body.userId}, {
@@ -693,15 +683,11 @@ app.post('/users/addKey', checkAuth, (req, res) => {
         res.status(200).json({});
       }).catch((err) => {
         console.log(err);
-        res.status(500).json({
-          error: 'Couldn\'t add device: SmarterHome database error.'
-        });
+        res.status(500).json({ error: Errors.DB_ERROR });
       });
   }).catch((err) => {
     console.log(err);
-    res.status(500).json({
-      error: 'Couldn\'t add device: SmarterHome database error.'
-    });
+    res.status(500).json({ error: Errors.DB_ERROR });
   });
 });
 
@@ -714,13 +700,13 @@ app.get('/users/:userId', checkAuth, (req, res) => {
     installedAppId: req.session.installedAppId, id: req.params.userId
   }).then((user) => {
     if (!user) {
-      res.status(404).json({ error: 'NOT_FOUND' });
+      res.status(404).json({ error: Errors.USER_NOT_FOUND });
     } else {
       res.status(200).json(user);
     }
   }).catch((err) => {
     log.error(JSON.stringify(err));
-    res.status(500).json({ error: 'DB_ERROR' });
+    res.status(500).json({ error: Errors.DB_ERROR });
   });
 });
 
@@ -729,7 +715,7 @@ app.get('/refresh', checkAuth, (req, res) => {
   SmartThingsClient.renewTokens(req.session.installedAppId).then((tokens) => {
     res.status(200).json(tokens);
   }).catch((err) => {
-    res.status(500).send(err);
+    res.status(500).json(err);
   });
 });
 
@@ -745,7 +731,7 @@ app.post('/userReport/:type', checkAuth, (req, res) => {
     res.status(200).json({});
   }).catch((err) => {
     console.log(err);
-    res.status(500).json({ error: 'DB_ERROR' });
+    res.status(500).json({ error: Errors.DB_ERROR });
   });
 });
 
@@ -771,7 +757,6 @@ function renewAllAccessTokens() {
     });
   });
 }
-
 // Refresh access tokens regularly to ensure all commands are authenticated
 setInterval(renewAllAccessTokens, 1000 * 60 * 4.5);
 // Renew 15 seconds after the server starts

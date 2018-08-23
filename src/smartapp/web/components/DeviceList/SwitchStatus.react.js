@@ -1,6 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import Switch from '../../lib/capabilities/Switch';
+import toastError from '../../lib/error-toaster';
 import { connect } from 'react-redux';
 
 class SwitchStatus extends React.Component {
@@ -19,8 +20,7 @@ class SwitchStatus extends React.Component {
         console.error('Invalid state: ' + status);
       }
     } catch(e) {
-      // TODO: show visible error - toast?
-      console.error(e.stack);
+      toastError(e);
     }
   }
 

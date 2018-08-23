@@ -1,3 +1,4 @@
+const Errors = require('../errors');
 const InstallData = require('./db/installData');
 const log = require('./log');
 const request = require('request');
@@ -12,11 +13,11 @@ function rejectErrors(err, resp, body, reject) {
     return true;
   } else if (resp.statusCode !== 200) {
     log.red('SmartThings Request Error', resp.statusCode);
-    console.log(body);
-    if (body) {
-      reject(body);
+    if (resp.statusCode === 401) {
+      reject({ error: Errors.SMARTTHINGS_AUTH_ERROR });
     } else {
-      reject(resp.statusCode);
+      console.log(body);
+      reject({ error: Errors.SMARTTHINGS_ERROR });
     }
     return true;
   } else {
@@ -183,7 +184,7 @@ class SmartThingsClient {
           installData.refreshToken = tokens.refresh_token;
           installData.save((err) => {
             if (err) {
-              reject(err);
+              reject({ error: Errors.DB_ERROR });
             } else {
               resolve(tokens);
             }

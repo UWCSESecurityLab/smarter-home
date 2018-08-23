@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import MaterialIcon from '@material/react-material-icon';
 import TopAppBar from '@material/react-top-app-bar';
-import Toast, {notify as toast} from 'react-notify-toast';
+import Toast from 'react-notify-toast';
 import { connect } from 'react-redux';
 import { Route, Switch } from 'react-router-dom';
 
@@ -13,6 +13,7 @@ import Drawer from './Drawer.react';
 import Feedback from './Feedback.react';
 import HomeState from '../lib/home-state';
 import NotificationSettings from './NotificationSettings.react';
+import toastError from '../lib/error-toaster';
 import Users from './Users.react';
 import * as Actions from '../redux/actions';
 
@@ -54,7 +55,7 @@ class Home extends React.Component {
   }
 
   async refresh() {
-    HomeState.resetDevices();
+    HomeState.resetDevices().catch(toastError);
     HomeState.fetchUsers();
   }
 

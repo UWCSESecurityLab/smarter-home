@@ -1,6 +1,7 @@
 import React from 'react';
 import MaterialIcon from '@material/react-material-icon';
 import PropTypes from 'prop-types';
+import toastError from '../lib/error-toaster';
 import { SmartAppClient } from 'common';
 import { Link } from 'react-router-dom';
 import { CSSTransition } from 'react-transition-group';
@@ -16,6 +17,8 @@ function logout() {
   console.log('logout clicked');
   smartAppClient.logout().then(() => {
     store.dispatch(Actions.logout());
+  }).catch((err) => {
+    toastError(err);
   });
 }
 

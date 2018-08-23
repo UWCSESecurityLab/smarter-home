@@ -4,6 +4,7 @@ import MaterialIcon from '@material/react-material-icon';
 import PropTypes from 'prop-types';
 import { SmartAppClient } from 'common';
 import * as Actions from '../redux/actions';
+import * as Errors from '../../errors';
 
 import '../css/authenticate.scss';
 import '../css/spinner.scss';
@@ -49,22 +50,21 @@ class Login extends React.Component {
       this.props.oauth,
       this.props.oauthState
     ).then((response) => {
-      if (response.status === 401) {
-        this.setState({ error: 'BAD_USER_PW', loading: false });
-      } else if (!response.ok) {
-        this.setState({ error: 'UNKNOWN', loading: false });
+      if (this.props.oauth) {
+        window.location.href = response.redirect;
       } else {
-        if (this.props.oauth) {
-          response.text().then((text) => {
-            window.location.href = text;
-          });
-        } else {
-          this.state.dispatch(Actions.login());
-        }
+        this.state.dispatch(Actions.login());
       }
-    }).catch((e) => {
-      console.error(e);
-      this.setState({ error: 'NETWORK', loading: false});
+    }).catch((err) => {
+      console.log(err);
+      this.setState({ loading: false });
+      if (err.error) {
+        this.setState({ error: err.error });
+      } else if (err.name === 'TypeError') {
+        this.setState({ error: 'NETWORK' });
+      } else {
+        this.setState({ error: 'UNKNOWN' });
+      }
     });
   }
 
@@ -85,8 +85,11 @@ class Login extends React.Component {
         case 'NETWORK':
           errorMessage = 'Couldn\'t connect to the SmartApp server.';
           break;
-        case 'BAD_USER_PW':
+        case Errors.LOGIN_BAD_USER_PW:
           errorMessage = 'Incorrect email/username or password - please try again.';
+          break;
+        case Errors.DB_ERROR:
+          errorMessage = 'SmartApp database error. Please try again later.';
           break;
         default:
           errorMessage = 'Unknown error: ' + this.state.error;

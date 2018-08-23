@@ -12,6 +12,7 @@ import { withRouter } from 'react-router-dom';
 import ContactSensorStatus from './DeviceList/ContactSensorStatus.react';
 import BeaconStatus from './DeviceList/BeaconStatus.react';
 import DeviceListItem from './DeviceList/DeviceListItem.react';
+import toastError from '../lib/error-toaster';
 import HomeState from '../lib/home-state';
 import LockStatus from './DeviceList/LockStatus.react';
 import SwitchStatus from './DeviceList/SwitchStatus.react';
@@ -57,8 +58,7 @@ class Devices extends React.Component {
       }
     }));
     smartAppClient.createRoom(name, roomId).catch((err) => {
-      console.error(err);
-      // TODO: display error
+      toastError(err);
       this.fetchRooms();
     });
   }
@@ -66,8 +66,7 @@ class Devices extends React.Component {
   removeRoom(roomId) {
     this.props.dispatch(CommonActions.removeRoom(roomId));
     smartAppClient.deleteRoom(roomId).catch((err) => {
-      console.error(err);
-      // TODO: display error
+      toastError(err);
       this.fetchRooms();
     });
   }
@@ -77,8 +76,7 @@ class Devices extends React.Component {
     const newName = e.target.value;
     this.props.dispatch(CommonActions.updateRoomName(roomId, newName));
     smartAppClient.updateRoomName(roomId, newName).catch((err) => {
-      console.error(err);
-      // TODO: display error
+      toastError(err);
       this.fetchRooms();
     });
   }
@@ -99,8 +97,7 @@ class Devices extends React.Component {
         source.index,
         destination.index
       ).catch((err) => {
-        console.error(err);
-        // TODO: display error
+        toastError(err);
         this.fetchRooms();
       });
 
@@ -117,8 +114,7 @@ class Devices extends React.Component {
         source.index,
         destination.index
       ).catch((err) => {
-        console.error(err);
-        // TODO: display error
+        toastError(err);
         this.fetchRooms();
       });
     }
@@ -132,7 +128,7 @@ class Devices extends React.Component {
     smartAppClient.removeBeacon(beaconName).then(() => {
       return HomeState.resetDevices();
     }).catch((err) => {
-      console.error(err);
+      toastError(err);
     });
   }
 
