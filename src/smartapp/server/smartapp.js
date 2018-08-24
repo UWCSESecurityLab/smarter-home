@@ -31,7 +31,17 @@ const PUBLIC_KEY = require('../config/smartapp-config.js').key;
 
 let ec = new EC('p384');
 
-mongoose.connect('mongodb://localhost:27017,localhost:27018,localhost:27019/test?replicaSet=rs');
+const TEST_DB = 'mongodb://localhost:27017,localhost:27018,localhost:27019/test?replicaSet=rs';
+const PILOT_DB = 'mongodb://localhost:27017,localhost:27018,localhost:27019/pilot?replicaSet=rs';
+
+if (process.argv.length === 3 && process.argv[2] === 'pilot') {
+  log.log('Starting pilot server instance');
+  mongoose.connect(PILOT_DB);
+} else {
+  log.log('Starting development server instance');
+  mongoose.connect(TEST_DB);
+}
+
 let db = mongoose.connection;
 db.on('error', console.error.bind(console, 'connection error:'));
 db.once('open', function() {
@@ -385,9 +395,11 @@ app.get('/homeConfig', checkAuth, getInstallData, (req, res) => {
   // Remove extraneous information from device entries, just preserve the
   // device ids.
   for (let deviceType of deviceTypes) {
-    ourConfig[deviceType] = stConfig[deviceType].map((entry) => {
-      return entry.deviceConfig.deviceId;
-    });
+    if (stConfig[deviceType]) {
+      ourConfig[deviceType] = stConfig[deviceType].map((entry) => {
+        return entry.deviceConfig.deviceId;
+      });
+    }
   }
   res.json(ourConfig);
 });
@@ -762,5 +774,9 @@ setInterval(renewAllAccessTokens, 1000 * 60 * 4.5);
 // Renew 15 seconds after the server starts
 setTimeout(renewAllAccessTokens, 1000 * 15);
 
+// if (process.argv.length === 3 && process.argv[2] === 'pilot') {
+  // app.listen(5001);
+  // log.log('Listening on port 5001');
+// } else {
 app.listen(5000);
 log.log('Listening on port 5000');
