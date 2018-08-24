@@ -11,7 +11,11 @@ class Capability {
   static getLabel(state, deviceId) {
     let deviceDesc = state.devices.deviceDesc;
     if (deviceDesc[deviceId]) {
-      return deviceDesc[deviceId].label;
+      if (deviceDesc[deviceId].label) {
+        return deviceDesc[deviceId].label;
+      } else {
+        return deviceDesc[deviceId].name;
+      }
     } else {
       return null;
     }
