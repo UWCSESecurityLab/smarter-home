@@ -60,6 +60,9 @@
     "react-transition-group": "^2.4.0",
     "redux": "^4.0.0",
     "request": "^2.83.0",
+    "winston": "^3.0.0",
+    "winston-daily-rotate-file": "^3.3.2",
+    "winston-mongodb": "^4.0.3",
     "xhr": "^2.4.1"
   },
   "devDependencies": {

@@ -34,6 +34,9 @@ const mongoose = require('mongoose');
 const path = require('path');
 const session = require('express-session');
 const uuid = require('uuid/v4');
+const winston = require('winston');
+require('winston-mongodb');
+
 
 const MongoStore = require('connect-mongo')(session);
 
@@ -88,7 +91,19 @@ mongoose.connect(db_url);
 let db = mongoose.connection;
 db.on('error', console.error.bind(console, 'connection error:'));
 db.once('open', function() {
-  log.log('Database connection established');
+  logger.verbose('Database connection established');
+});
+
+const logger = winston.createLogger({
+  level: 'verbose',
+  format: winston.format.json(),
+  transports: [
+    new winston.transports.MongoDB({ level: 'verbose', db: db_url, collection: 'log'}),
+    new winston.transports.Console({
+      format: winston.format.simple(),
+      level: 'verbose'
+    })
+  ]
 });
 
 let app = express();
@@ -101,7 +116,18 @@ app.use(bodyParser.json());
 
 // Middleware that logs when a request is received.
 app.use(function(req, res, next) {
-  log.magenta('Incoming Request', req.method + ' ' + req.originalUrl);
+  let meta = {
+    session: req.get('Client-Session'),
+    method: req.method,
+    url: req.originalUrl,
+    // headers: req.headers,
+  };
+  if (!req.originalUrl.startsWith('/login') || !req.originalUrl.startsWith('/register')) {
+    meta.body = req.body
+  }
+  req.logMeta = meta;
+  logger.verbose({ message: 'Client Request', meta: meta });
+  // log.magenta('Incoming request', req.method + ' ' + req.originalUrl);
   next();
 });
 
@@ -111,7 +137,6 @@ app.use(function(req, res, next) {
   let sessionId = req.get('Client-Session');
   // if there was a session id passed add it to the cookies
   if (sessionId) {
-    // log.log(req.originalUrl + ': Parsed client-side session ' + sessionId);
     // sign the cookie so Express Session unsigns it correctly
     let signedCookie = 's:' + cookieSignature.sign(sessionId, 'cat keyboard');
     req.headers.cookie = cookie.serialize('connect.sid', signedCookie);
@@ -138,14 +163,24 @@ app.use(session({
 
 // Middleware that attaches a user's SmartThings InstallData to the request.
 function getInstallData(req, res, next) {
+  let fnLogMeta = { ...req.logMeta, context: 'getInstallData' };
   InstallData.findOne({
     'installedApp.installedAppId': req.session.installedAppId
   }, (err, installData) => {
     if (err) {
+      logger.error({
+        message: Errors.DB_ERROR,
+        meta: { ...fnLogMeta, error: err }
+      });
+
       res.status(500).json({ error: Errors.DB_ERROR });
       return;
     }
     if (!installData) {
+      logger.error({
+        message: Errors.APP_NOT_FOUND,
+        meta: { ...req.fnLogMeta, installedAppId: req.session.installedAppId }
+      });
       res.status(404).json({ error: Errors.APP_NOT_FOUND });
       return;
     }
@@ -157,26 +192,35 @@ function getInstallData(req, res, next) {
 
 // Middleware that checks if request is authenticated, attaches user to req.
 function checkAuth(req, res, next) {
+  let fnLogMeta = { ...req.logMeta, context: 'checkAuth' };
   User.findOne({ id: req.session.user }, function(err, user) {
     if (err) {
+      logger.error({
+        message: Errors.DB_ERROR,
+        meta: { ...fnLogMeta, error: err }
+      });
       res.status(500).json({ error: Errors.DB_ERROR });
       return;
     }
     if (!user) {
-      log.error('Unauthorized user');
-      console.log(req.session);
+      logger.error({
+        message: Errors.NOT_LOGGED_IN,
+        meta: { ...fnLogMeta, user: req.session.user }
+      });
       res.status(401).json({ error: Errors.NOT_LOGGED_IN });
       return;
     }
     req.user = user;
-
     if (!req.session.installedAppId && user.installedAppId) {
       req.session.installedAppId = user.installedAppId;
     } else if (!req.session.installedAppId && !user.installedAppId) {
+      logger.error({
+        message: Errors.USER_NOT_LINKED,
+        meta: { ...fnLogMeta, user: req.session.user }
+      });
       res.status(403).json({ error: Errors.USER_NOT_LINKED });
       return;
     }
-
     next();
   });
 }
@@ -185,18 +229,22 @@ function signatureIsVerified(req) {
   try {
     let parsed = httpSignature.parseRequest(req);
     if (!httpSignature.verifySignature(parsed, PUBLIC_KEY)) {
-      log.error('forbidden - failed verifySignature');
+      logger.error({
+        message: 'Failed to verify SmartThings signature',
+        meta: { ...req.logMeta, context: 'signatureIsVerified', signature: parsed }
+      });
       return false;
     }
   } catch (error) {
-    log.error(error);
-    return false;
+    logger.error({
+      message: 'Failed to verify SmartThings signature',
+      meta: { ...req.logMeta, context: 'signatureIsVerified', error: error }
+    });
   }
   return true;
 }
 
 app.post('/', (req, res) => {
-  log.blue('SmartThings Event', req.method + ' ' + req.originalUrl);
   if (!req.body) {
     res.status(400).send('Invalid request');
     return;
@@ -213,7 +261,7 @@ app.post('/', (req, res) => {
     return;
   }
 
-  console.log(JSON.stringify(req.body, null, 2));
+  logger.verbose('SmartThings Event', { eventData: req.body });
   switch (req.body.lifecycle) {
     case 'CONFIGURATION':
       lifecycle.handleConfiguration(req, res);
@@ -243,14 +291,25 @@ app.post('/', (req, res) => {
 
 app.post('/login', (req, res) => {
   auth.verifyUser(req.body.username, req.body.password).then((user) => {
+    logger.info({
+      message: 'Login Success',
+      meta: { ...req.logMeta, user: user.id }
+    });
     if (req.body.oauth == 'true') {
+      logger.info({
+        message: 'OAuth Redirect Success',
+        meta: { ...req.logMeta, user: user.id }
+      });
       res.status(200).json({ redirect: `https://api.smartthings.com/oauth/callback?state=${req.body.oauthState}&token=${user.id}`});
       return;
     }
 
     req.session.regenerate((err) => {
       if (err) {
-        console.log(err);
+        logger.error({
+          message: Errors.SESSION_ERROR,
+          meta: { ...req.logMeta, error: err }
+        });
         res.status(500).json({ error: Errors.SESSION_ERROR });
         return;
       }
@@ -258,20 +317,28 @@ app.post('/login', (req, res) => {
       req.session.installedAppId = user.installedAppId;
       req.session.save((err) => {
         if (err) {
-          console.log(err);
+          logger.error({
+            message: Errors.SESSION_ERROR,
+            meta: { ...req.logMeta, error: err }
+          });
           res.status(500).json({ error: Errors.SESSION_ERROR });
           return;
         }
-        console.log('Saved session');
-        console.log(req.session);
         res.status(200).json({});
       });
     });
   }).catch((err) => {
     if (err.error === Errors.LOGIN_BAD_USER_PW) {
+      logger.error({
+        message: Errors.LOGIN_BAD_USER_PW,
+        meta: { ...req.logMeta, user: req.body.username }
+      });
       res.status(401).json({ error: Errors.LOGIN_BAD_USER_PW });
     } else {
-      console.log(err);
+      logger.error({
+        message: Errors.UNKNOWN,
+        meta: { ...req.logMeta, error: err }
+      });
       res.status(500).json({ error: Errors.DB_ERROR });
     }
   });
@@ -279,21 +346,34 @@ app.post('/login', (req, res) => {
 
 app.post('/register', (req, res) => {
   if (!req.body.username || !req.body.displayName || !req.body.password || !req.body.confirm) {
+    logger.error({ message: Errors.REGISTER_MISSING_FIELD, meta: req.logMeta });
     res.status(400).json({ error: Errors.REGISTER_MISSING_FIELD });
     return;
   }
 
   if (req.body.password !== req.body.confirm) {
+    logger.error({ message: Errors.REGISTER_PW_MISMATCH, meta: req.logMeta });
     res.status(400).json({ error: Errors.REGISTER_PW_MISMATCH });
     return;
   }
 
   auth.createUser(req.body.username, req.body.displayName, req.body.password).then(() => {
+    logger.info({
+      message: 'Created User', meta: { ...req.logMeta, user: req.body.username }
+    });
     res.status(200).json({});
   }).catch((err) => {
     if (err.error == Errors.REGISTER_USERNAME_TAKEN) {
+      logger.error({
+        message: Errors.REGISTER_USERNAME_TAKEN,
+        meta: { ...req.logMeta, username: req.body.username }
+      });
       res.status(400).json(err);
     } else {
+      logger.error({
+        message: Errors.UNKNOWN,
+        meta: { ...req.logMeta, username: err }
+      });
       res.status(500).json(err);
     }
   });
@@ -308,18 +388,26 @@ app.post('/authChallenge', (req, res) => {
     x: req.body.publicKey.x, y: req.body.publicKey.y
   }}}).then((user) => {
     if (!user) {
-      log.error('Unrecognized key')
-      res.status(401).json({ error: Errors.UNRECOGNIZED_KEY });
+      logger.error({
+        message: Errors.UNRECOGNIZED_KEY,
+        meta: { ...req.logMeta, key: req.body.publicKey }
+      });
       return;
     }
     // Generate challenge, save user and challenge in session
     const challenge = uuid();
     req.session.challenge = challenge;
     req.session.challengeUser = user.id;
-    log.log('Challenge: ' + challenge);
+    logger.verbose({
+      message: 'Sending Challenge',
+      meta: { ...req.logMeta, challenge: challenge }
+    });
     res.status(200).json({ challenge: challenge });
   }).catch((err) => {
-    console.error(err);
+    logger.error({
+      message: Errors.UNKNOWN,
+      meta: { ...req.logMeta, error: err }
+    });
     res.status(500).json(err);
   });
 });
@@ -330,13 +418,12 @@ app.post('/authChallenge', (req, res) => {
 // sent their key in the challenge.
 app.post('/authResponse', (req, res) => {
   if (!req.session.challenge || !req.session.challengeUser) {
+    logger.error({ message: Errors.CR_MISSING_CHALLENGE, meta: req.logMeta });
     res.status(401).json({ error: Errors.CR_MISSING_CHALLENGE });
     return;
   }
 
   User.findOne({ id: req.session.challengeUser }).then((challengeUser) => {
-    log.log('Verifying signature from ' + challengeUser.id + ' for challenge ' + req.session.challenge);
-
     // Turn JSON arrays into ArrayBuffer
     let r = Buffer.from(new Uint8Array(req.body.signature.r).buffer);
     let s = Buffer.from(new Uint8Array(req.body.signature.s).buffer);
@@ -348,20 +435,24 @@ app.post('/authResponse', (req, res) => {
     const hash = crypto.createHash('sha512');
     hash.update(challengeBuf);
     const msgHash = hash.digest();
-    console.log('SHA-512 hash of challenge:');
-    console.log(msgHash);
 
     // Try each of user's public keys
     for (let jwk of challengeUser.publicKeys) {
       let hex_x = Buffer.from(jwk.x, 'base64').toString('hex');
       let hex_y = Buffer.from(jwk.y, 'base64').toString('hex');
       let publicKey = ec.keyFromPublic({x: hex_x, y: hex_y }, 'hex');
-      if ( publicKey.verify(msgHash, signature)) {
-        log.log('Signature verified');
+      if (publicKey.verify(msgHash, signature)) {
+        logger.info({
+          message: 'Verified signed challenge',
+          meta: { ...req.logMeta, user: challengeUser.id }
+        });
         // Success
         req.session.regenerate((err) => {
           if (err) {
-            console.log(err);
+            logger.error({
+              message: Errors.SESSION_ERROR,
+              meta: { ...req.logMeta, error: err }
+            });
             res.status(500).json({ error: Errors.SESSION_ERROR });
             return;
           }
@@ -369,10 +460,13 @@ app.post('/authResponse', (req, res) => {
           req.session.installedAppId = challengeUser.installedAppId;
           req.session.save((err) => {
             if (err) {
+              logger.error({
+                message: Errors.SESSION_ERROR,
+                meta: { ...req.logMeta, error: err }
+              });
               res.status(500).json({ error: Errors.SESSION_ERROR });
               return;
             }
-            log.log('Challenge-Response Login Success');
             res.status(200).json({});
           });
         });
@@ -380,10 +474,13 @@ app.post('/authResponse', (req, res) => {
       }
     }
     // Fail
-    log.error('Failed to verify signature');
+    logger.error({
+      message: Errors.CR_FAIL,
+      meta: { ...req.logMeta, user: challengeUser.id }
+    });
     res.status(401).json({ error: Errors.CR_FAIL });
   }).catch((err) => {
-    console.log(err);
+    logger.error({ message: Errors.UNKNOWN, meta: { ...req.logMeta, error: err }});
     res.status(500).json(err);
   });
 });
@@ -391,7 +488,10 @@ app.post('/authResponse', (req, res) => {
 app.post('/logout', (req, res) => {
   req.session.destroy((err) => {
     if (err) {
-      console.log(err);
+      logger.error({
+        message: Errors.SESSION_ERROR,
+        meta: { ...req.logMeta, error: err }
+      });
       res.status(500).json({ error: Errors.SESSION_ERROR });
     }
     res.status(200).json({});
@@ -400,7 +500,6 @@ app.post('/logout', (req, res) => {
 
 // Registers the FCM notification token with the current user.
 app.post('/notificationToken', checkAuth, async (req, res) => {
-  log.log('Received token ' + req.body.token);
   fcmClient.updateActivityNotifications({
     flags: req.body.flags,
     user: req.user,
@@ -409,10 +508,13 @@ app.post('/notificationToken', checkAuth, async (req, res) => {
     res.status(200).json({});
   }).catch((err) => {
     if (err.error === Errors.MISSING_FLAGS) {
-      log.error(err.error);
+      logger.error({
+        message: Errors.MISSING_FLAGS,
+        meta: { ...req.logMeta, error: err }
+      });
       res.status(400).json(err);
     } else {
-      log.error(JSON.stringify(err));
+      logger.error({ message: Errors.UNKNOWN, meta: { ...req.logMeta, error: err }});
       res.status(500).json(err);
     }
   });
@@ -425,6 +527,10 @@ app.get('/listDevices', checkAuth, getInstallData, (req, res) => {
   }).then((results) => {
     res.json(results);
   }).catch((err) => {
+    logger.error({
+      message: Errors.SMARTTHINGS_ERROR,
+      meta: { ...req.logMeta, error: err }
+    });
     res.status(500).json(err);
   });
 });
@@ -457,6 +563,10 @@ app.get('/devices/:deviceId/status', checkAuth, getInstallData, (req, res) => {
       }).then((status) => {
         res.json(status);
       }).catch((err) => {
+        logger.error({
+          message: Errors.SMARTTHINGS_ERROR,
+          meta: { ...req.logMeta, error: err }
+        });
         res.status(500).json(err);
       });
     } else {
@@ -470,7 +580,10 @@ app.get('/devices/:deviceId/status', checkAuth, getInstallData, (req, res) => {
       });
     }
   }).catch((err) => {
-    log.error(err);
+    logger.error({
+      message: Errors.DB_ERROR,
+      meta: { ...req.logMeta, error: err }
+    });
     res.status(500).json({ error: Errors.DB_ERROR });
   });
 });
@@ -485,6 +598,10 @@ app.get('/devices/:deviceId/description', checkAuth, getInstallData,
       }).then((description) => {
         res.json(description);
       }).catch((err) => {
+        logger.error({
+          message: Errors.SMARTTHINGS_ERROR,
+          meta: { ...req.logMeta, error: err }
+        });
         res.status(500).json(err);
       });
     } else {
@@ -502,6 +619,10 @@ app.get('/devices/:deviceId/description', checkAuth, getInstallData,
       });
     }
   }).catch((err) => {
+    logger.error({
+      message: Errors.DB_ERROR,
+      meta: { ...req.logMeta, error: err }
+    });
     res.status(500).json({ error: Errors.DB_ERROR });
   });
 });
@@ -530,6 +651,13 @@ app.post('/devices/:deviceId/commands', checkAuth, getInstallData,
   }).then(() => {
     res.status(200).json({});
   }).catch((err) => {
+    let msg;
+    if (err.name === 'MongoError') {
+      msg = Errors.DB_ERROR;
+    } else {
+      msg = Errors.SMARTTHINGS_ERROR;
+    }
+    logger.error({ message: msg, meta: { ...req.logMeta, error: err } });
     res.status(500).json(err);
   });
 });
@@ -542,7 +670,10 @@ app.get('/beacon/list', (req, res) => {
   Beacon.find().then((beacons) => {
     res.status(200).json(beacons);
   }).catch((err) => {
-    console.log(err);
+    logger.error({
+      message: Errors.DB_ERROR,
+      meta: { ...req.logMeta, error: err }
+    });
     res.status(500).json({ error: Errors.DB_ERROR });
   });
 });
@@ -556,6 +687,10 @@ app.post('/beacon/new', (req, res) => {
   beacon.save().then(() => {
     res.status(200).json({});
   }).catch((err) => {
+    logger.error({
+      message: Errors.DB_ERROR,
+      meta: { ...req.logMeta, error: err }
+    });
     res.status(500).json(err);
   });
 });
@@ -576,7 +711,10 @@ app.post('/beacon/add', checkAuth, getInstallData, (req, res) => {
       });
     }
   }).catch((err) => {
-    log.error(err);
+    logger.error({
+      message: Errors.DB_ERROR,
+      meta: { ...req.logMeta, error: err }
+    });
     res.status(500).json({ error: Errors.DB_ERROR });
   });
 });
@@ -592,12 +730,18 @@ app.post('/beacon/remove', checkAuth, getInstallData, (req, res) => {
       }, { $pull: { devices: beacon.name }}).then(() => {
         res.status(200).json({});
       }).catch((err) => {
-        log.error(err);
+        logger.error({
+          message: Errors.DB_ERROR,
+          meta: { ...req.logMeta, error: err }
+        });
         res.status(500).json({ error: Errors.DB_ERROR });
       });
     }
   }).catch((err) => {
-    log.error(err);
+    logger.error({
+      message: Errors.DB_ERROR,
+      meta: { ...req.logMeta, error: err }
+    });
     res.status(500).json({ error: Errors.DB_ERROR });
   });
 });
@@ -608,7 +752,10 @@ app.get('/rooms', checkAuth, getInstallData, (req, res) => {
     .then((rooms) => {
       res.status(200).json(rooms);
     }).catch((err) => {
-      log.error(err);
+      logger.error({
+        message: Errors.DB_ERROR,
+        meta: { ...req.logMeta, error: err }
+      });
       res.status(500).json({ error: Errors.DB_ERROR });
     });
 });
@@ -628,7 +775,10 @@ app.post('/rooms/create', checkAuth, getInstallData, (req, res) => {
     log.log('Successfully created room');
     res.status(200).json(room);
   }).catch((err) => {
-    console.log(err);
+    logger.error({
+      message: Errors.DB_ERROR,
+      meta: { ...req.logMeta, error: err }
+    });
     res.status(500).json({ error: Errors.DB_ERROR });
   });
 });
@@ -638,7 +788,10 @@ app.post('/rooms/:roomId/delete', checkAuth, getInstallData, (req, res) => {
     log.log('Successfully deleted room ' + req.params.roomId);
     res.status(200).json({});
   }).catch((err) => {
-    console.log(err);
+    logger.error({
+      message: Errors.DB_ERROR,
+      meta: { ...req.logMeta, error: err }
+    });
     res.status(500).json({ error: Errors.DB_ERROR });
   });
 });
@@ -652,7 +805,10 @@ app.post('/rooms/:roomId/updateName', checkAuth, getInstallData, (req, res) => {
     log.log('Successfully updated name');
     res.status(200).json({});
   }).catch((err) => {
-    console.log(err);
+    logger.error({
+      message: Errors.DB_ERROR,
+      meta: { ...req.logMeta, error: err }
+    });
     res.status(500).json({ error: Errors.DB_ERROR });
   });
 });
@@ -672,7 +828,10 @@ app.post('/rooms/:roomId/reorderDeviceInRoom', checkAuth, getInstallData,
     log.log('Successfully reordered devices');
     res.status(200).json(room);
   }).catch((err) => {
-    console.log(err);
+    logger.error({
+      message: Errors.DB_ERROR,
+      meta: { ...req.logMeta, error: err }
+    });
     res.status(500).json({ error: Errors.DB_ERROR });
   });
 });
@@ -688,7 +847,10 @@ app.post('/rooms/moveDeviceBetweenRooms', checkAuth, getInstallData,
     log.log('Successfully moved device between rooms');
     res.status(200).json({});
   }).catch((err) => {
-   console.log(err);
+    logger.error({
+      message: Errors.DB_ERROR,
+      meta: { ...req.logMeta, error: err }
+    });
    res.status(500).json({ error: Errors.DB_ERROR });
   });
 });
@@ -697,7 +859,10 @@ app.get('/users', checkAuth, (req, res) => {
   User.find({ installedAppId: req.session.installedAppId }).then((users) => {
     res.status(200).json(users);
   }).catch((err) => {
-    console.log(err);
+    logger.error({
+      message: Errors.DB_ERROR,
+      meta: { ...req.logMeta, error: err }
+    });
     res.status(500).json({ error: Errors.DB_ERROR });
   });
 });
@@ -707,6 +872,7 @@ app.post('/users/new', checkAuth, (req, res) => {
   let key = req.body.publicKey;
   User.findOne({ publicKeys: { $elemMatch: { x: key.x, y: key.y }}}).then((keyExists) => {
     if (keyExists) {
+      logger.error({ message: Errors.CR_CODE_USED, meta: req.logMeta });
       res.status(400).json({ error: Errors.CR_CODE_USED });
       return;
     }
@@ -719,9 +885,18 @@ app.post('/users/new', checkAuth, (req, res) => {
     newUser.save().then(() => {
       res.status(200).json({});
     }).catch((err) => {
-      log.error(JSON.stringify(err));
+      logger.error({
+        message: Errors.DB_ERROR,
+        meta: { ...req.logMeta, error: err }
+      });
       res.status(500).json({ error: Errors.DB_ERROR });
     });
+  }).catch((err) => {
+    logger.error({
+      message: Errors.DB_ERROR,
+      meta: { ...req.logMeta, error: err }
+    });
+    res.status(500).json({ error: Errors.DB_ERROR });
   });
 });
 
@@ -730,6 +905,7 @@ app.post('/users/addKey', checkAuth, (req, res) => {
   User.findOne({ publicKeys: { $elemMatch: { x: key.x, y: key.y }}})
     .then((keyExists) => {
       if (keyExists) {
+        logger.error({ message: Errors.CR_CODE_USED, meta: req.logMeta });
         res.status(400).json({ error: Errors.CR_CODE_USED });
         return;
       }
@@ -738,11 +914,17 @@ app.post('/users/addKey', checkAuth, (req, res) => {
       }).then(() => {
         res.status(200).json({});
       }).catch((err) => {
-        console.log(err);
+        logger.error({
+          message: Errors.DB_ERROR,
+          meta: { ...req.logMeta, error: err }
+        });
         res.status(500).json({ error: Errors.DB_ERROR });
       });
   }).catch((err) => {
-    console.log(err);
+    logger.error({
+      message: Errors.DB_ERROR,
+      meta: { ...req.logMeta, error: err }
+    });
     res.status(500).json({ error: Errors.DB_ERROR });
   });
 });
@@ -756,12 +938,16 @@ app.get('/users/:userId', checkAuth, (req, res) => {
     installedAppId: req.session.installedAppId, id: req.params.userId
   }).then((user) => {
     if (!user) {
+      logger.error({ message: Errors.USER_NOT_FOUND, meta: req.logMeta });
       res.status(404).json({ error: Errors.USER_NOT_FOUND });
     } else {
       res.status(200).json(user);
     }
   }).catch((err) => {
-    log.error(JSON.stringify(err));
+    logger.error({
+      message: Errors.DB_ERROR,
+      meta: { ...req.logMeta, error: err }
+    });
     res.status(500).json({ error: Errors.DB_ERROR });
   });
 });
@@ -772,6 +958,10 @@ app.get('/refresh', checkAuth, (req, res) => {
     .then((tokens) => {
       res.status(200).json(tokens);
     }).catch((err) => {
+      logger.error({
+        message: Errors.SMARTTHINGS_AUTH_ERROR,
+        meta: { ...req.logMeta, installedAppId: req.session.installedAppId }
+      });
       res.status(500).json(err);
     });
 });
@@ -787,7 +977,10 @@ app.post('/userReport/:type', checkAuth, (req, res) => {
   report.save().then(() => {
     res.status(200).json({});
   }).catch((err) => {
-    console.log(err);
+    logger.error({
+      message: Errors.DB_ERROR,
+      meta: { ...req.logMeta, error: err }
+    });
     res.status(500).json({ error: Errors.DB_ERROR });
   });
 });

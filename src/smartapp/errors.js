@@ -35,4 +35,5 @@ module.exports = {
   BEACON_NOT_FOUND: 'BEACON_NOT_FOUND',
   // Couldn't find user in database
   USER_NOT_FOUND: 'USER_NOT_FOUND',
+  UNKNOWN: 'UNKNOWN'
 }
