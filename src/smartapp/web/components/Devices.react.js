@@ -134,11 +134,14 @@ class Devices extends React.Component {
 
   renderDevice(deviceId, index) {
     let status = null;
-    if (this.props.homeConfig.contactSensors.includes(deviceId)) {
+    if (this.props.homeConfig.contactSensors &&
+        this.props.homeConfig.contactSensors.includes(deviceId)) {
       status = <ContactSensorStatus deviceId={deviceId}/>
-    } else if (this.props.homeConfig.switches.includes(deviceId)) {
+    } else if (this.props.homeConfig.switches && 
+               this.props.homeConfig.switches.includes(deviceId)) {
       status = <SwitchStatus deviceId={deviceId}/>
-    } else if (this.props.homeConfig.doorLocks.includes(deviceId)) {
+    } else if (this.props.homeConfig.doorLocks &&
+               this.props.homeConfig.doorLocks.includes(deviceId)) {
       status = <LockStatus deviceId={deviceId}/>
     } else if (this.props.deviceDesc[deviceId] &&
                this.props.deviceDesc[deviceId].deviceTypeName === 'beacon') {
