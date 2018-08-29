@@ -2,7 +2,6 @@ import toastError from '../lib/error-toaster';
 import { CommonActions, SmartAppClient } from 'common';
 import { store } from '../redux/reducers';
 import * as Actions from '../redux/actions';
-import * as Flags from '../../flags';
 
 const smartAppClient = new SmartAppClient();
 
@@ -37,18 +36,23 @@ class HomeState {
       descs.forEach((desc) => {
         store.dispatch(CommonActions.updateDeviceDescription(desc.deviceId, desc));
       });
-
-      // Create beacon regions for each beacon device.
-      // TODO: reevaluate whether this is the right place for this code.
-      if (window.cordova &&
-          store.getState().flags.nearbyNotifications ===
-            Flags.NearbyNotifications.ON) {
-        descs.filter((desc) => desc.deviceTypeName === 'beacon')
-          .forEach((beacon) => {
-            store.dispatch(Actions.addBeaconRegion(beacon));
-          });
-      }
+      this.resetBeaconRegions();
     }).catch(toastError);
+  }
+
+  // Ensure beacon regions exist for each beacon device.
+  // Safe to call even if beacon regions exist
+  static resetBeaconRegions() {
+    console.log('resetBeaconRegions called');
+    if (window.cordova) {
+      console.log(store.getState().devices.deviceDesc);
+      Object.values(store.getState().devices.deviceDesc)
+        .filter((desc) => desc.deviceTypeName === 'beacon')
+        .forEach((beacon) => {
+          console.log(beacon);
+          store.dispatch(Actions.addBeaconRegion(beacon));
+        });
+    }
   }
 
   // Fetches the status of all of the devices in the given rooms,

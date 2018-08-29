@@ -4,6 +4,7 @@ import * as Actions from '../../redux/actions';
 import * as DeviceType from '../capabilities/DeviceType';
 import * as Flags from '../../../flags';
 import myHistory from '../../lib/history';
+import HomeState from '../home-state';
 
 const PROXIMITY_ID = 0;
 const DIARY_REMINDER_ID = 1;
@@ -169,6 +170,7 @@ function updateBeaconMonitoring() {
 store.subscribe(updateBeaconMonitoring);
 
 function initializeBeaconMonitoring() {
+  console.log('initializeBeaconMonitoring called');
   // Initialize beacon scanning code here:
   let delegate = new cordova.plugins.locationManager.Delegate();
   delegate.didDetermineStateForRegion = (result) => {
@@ -284,9 +286,8 @@ document.addEventListener('pause', () => {
 
 // Cancel notifications when the app is reopened
 document.addEventListener('resume', () => {
-  cordova.plugins.notification.local.cancelAll(() => {
-    console.log('cancelled all notifications');
-  });
+  cordova.plugins.notification.local.cancelAll();
+  HomeState.resetDevices();
 });
 
 export default CordovaNotifications;
