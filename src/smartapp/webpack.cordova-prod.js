@@ -4,7 +4,7 @@ const webpack = require('webpack');
 
 module.exports = {
   entry: {
-    'cordova': ['babel-polyfill', './web/entrypoints/cordova.js']
+    'cordova-bundle': ['babel-polyfill', './web/entrypoints/cordova.js']
   },
   output: {
     filename: '[name].js',
