@@ -1,13 +1,21 @@
 const configuration = require('./configuration');
+const Beacon = require('./db/beacon');
+const Command = require('./db/command');
 const fcmClient = require('./fcmClient');
 const InstallData = require('./db/installData');
 const log = require('./log');
 const SmartThingsClient = require('./SmartThingsClient');
-const Beacon = require('./db/beacon');
-const Command = require('./db/command');
+const SmartappConfig = require('../config/smartapp-config.js');
 const Room = require('./db/room');
 const User = require('./db/user');
 const uuid = require('uuid/v4');
+
+let APP_CONFIG;
+if (process.env.NODE_ENV === 'pilot') {
+  APP_CONFIG = SmartappConfig.pilotApp;
+} else if (process.env.NODE_ENV === 'dev') {
+  APP_CONFIG = SmartappConfig.devApp;
+}
 
 module.exports = {
   handleConfiguration: function(req, res) {
@@ -151,7 +159,7 @@ module.exports = {
         return;
       }
 
-      const newTokens = await SmartThingsClient.renewTokens(installedAppId);
+      const newTokens = await SmartThingsClient.renewTokens(installedAppId, APP_CONFIG);
 
       // Get details about the device
       let description = await SmartThingsClient.getDeviceDescription({
@@ -190,7 +198,7 @@ module.exports = {
   },
 
   handleUpdateTokens: function(req, res) {
-    SmartThingsClient.renewTokens(req.body.eventData.installedApp.installedAppId);
+    SmartThingsClient.renewTokens(req.body.eventData.installedApp.installedAppId, APP_CONFIG);
   },
 
   handleOAuthCallback: function(req, res) {

@@ -3,8 +3,6 @@ const InstallData = require('./db/installData');
 const log = require('./log');
 const request = require('request');
 
-const CONFIG = require('../config/smartapp-config.js').app;
-
 // Helper function for handling errors from the API.
 function rejectErrors(err, resp, body, reject) {
   if (err) {
@@ -144,7 +142,7 @@ class SmartThingsClient {
     });
   }
 
-  static renewTokens(installedAppId) {
+  static renewTokens(installedAppId, appConfig) {
     return new Promise((resolve, reject) => {
       InstallData.findOne({'installedApp.installedAppId': installedAppId }, (err, installData) => {
         if (err) {
@@ -163,16 +161,16 @@ class SmartThingsClient {
           method: 'POST',
           url: 'https://auth-global.api.smartthings.com/oauth/token',
           auth: {
-            user: CONFIG.oauthClientId,
-            pass: CONFIG.oauthClientSecret
+            user: appConfig.oauthClientId,
+            pass: appConfig.oauthClientSecret
           },
           headers: {
             'Content-Type': 'application/x-www-form-urlencoded'
           },
           form: {
             'grant_type': 'refresh_token',
-            'client_id': CONFIG.oauthClientId,
-            'client_secret': CONFIG.oauthClientSecret,
+            'client_id': appConfig.oauthClientId,
+            'client_secret': appConfig.oauthClientSecret,
             'refresh_token': installData.refreshToken
           }
         }, (err, res, body) => {

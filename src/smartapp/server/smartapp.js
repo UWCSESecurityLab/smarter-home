@@ -1,3 +1,20 @@
+if (process.argv.length !== 3) {
+  console.log('Usage: node server/smartapp.js [ dev | pilot ]');
+  process.exit(1);
+}
+
+switch (process.argv[2]) {
+  case 'pilot':
+    process.env.NODE_ENV = 'pilot';
+    break;
+  case 'dev':
+    process.env.NODE_ENV = 'dev';
+    break;
+  default:
+    console.log('Usage: node server/smartapp.js [ dev | pilot ]');
+    process.exit(1);
+}
+
 const bodyParser = require('body-parser');
 const compression = require('compression');
 const cookie = require('cookie');
@@ -26,19 +43,23 @@ const RoomTransaction = require('./db/room-transaction');
 const SmartThingsClient = require('./SmartThingsClient');
 const User = require('./db/user');
 const UserReport = require('./db/user-report');
-
-const PUBLIC_KEY = require('../config/smartapp-config.js').key;
+const SmartappConfig = require('../config/smartapp-config.js');
 
 let ec = new EC('p384');
 
 const TEST_DB = 'mongodb://localhost:27017,localhost:27018,localhost:27019/test?replicaSet=rs';
 const PILOT_DB = 'mongodb://localhost:27017,localhost:27018,localhost:27019/pilot?replicaSet=rs';
 
-if (process.argv.length === 3 && process.argv[2] === 'pilot') {
+let APP_CONFIG, PUBLIC_KEY;
+if (process.env.NODE_ENV === 'pilot') {
   log.log('Starting pilot server instance');
+  APP_CONFIG = SmartappConfig.pilotApp;
+  PUBLIC_KEY = SmartappConfig.pilotKey;
   mongoose.connect(PILOT_DB);
-} else {
+} else if (process.env.NODE_ENV === 'dev') {
   log.log('Starting development server instance');
+  APP_CONFIG = SmartappConfig.devApp;
+  PUBLIC_KEY = SmartappConfig.devKey;
   mongoose.connect(TEST_DB);
 }
 
@@ -724,11 +745,12 @@ app.get('/users/:userId', checkAuth, (req, res) => {
 
 
 app.get('/refresh', checkAuth, (req, res) => {
-  SmartThingsClient.renewTokens(req.session.installedAppId).then((tokens) => {
-    res.status(200).json(tokens);
-  }).catch((err) => {
-    res.status(500).json(err);
-  });
+  SmartThingsClient.renewTokens(req.session.installedAppId, APP_CONFIG)
+    .then((tokens) => {
+      res.status(200).json(tokens);
+    }).catch((err) => {
+      res.status(500).json(err);
+    });
 });
 
 app.post('/userReport/:type', checkAuth, (req, res) => {
@@ -748,11 +770,19 @@ app.post('/userReport/:type', checkAuth, (req, res) => {
 });
 
 app.get('/oauth', (req, res) => {
-  res.sendFile(path.join(__dirname, '../web/html/oauth.html'));
+  if (process.env.NODE_ENV === 'pilot') {
+    res.sendFile(path.join(__dirname, '../web/html/oauth-prod.html'));
+  } else if (process.env.NODE_ENV === 'dev') {
+    res.sendFile(path.join(__dirname, '../web/html/oauth-dev.html'));
+  }
 });
 
 app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, '../web/html/index.html'));
+  if (process.env.NODE_ENV === 'pilot') {
+    res.sendFile(path.join(__dirname, '../web/html/index-prod.html'));
+  } else if (process.env.NODE_ENV === 'dev') {
+    res.sendFile(path.join(__dirname, '../web/html/index-dev.html'));
+  }
 });
 
 function renewAllAccessTokens() {
@@ -760,7 +790,7 @@ function renewAllAccessTokens() {
     installDatas.forEach((installData) => {
       let installedAppId = installData.installedApp.installedAppId;
       log.log('Automatically renewing tokens for ' + installedAppId);
-      SmartThingsClient.renewTokens(installedAppId).then(() => {
+      SmartThingsClient.renewTokens(installedAppId, APP_CONFIG).then(() => {
         log.log('Renewed tokens for ' + installedAppId);
       }).catch((err) => {
         log.error('Failed to renew tokens for ' + installedAppId);
@@ -774,9 +804,10 @@ setInterval(renewAllAccessTokens, 1000 * 60 * 4.5);
 // Renew 15 seconds after the server starts
 setTimeout(renewAllAccessTokens, 1000 * 15);
 
-// if (process.argv.length === 3 && process.argv[2] === 'pilot') {
-  // app.listen(5001);
-  // log.log('Listening on port 5001');
-// } else {
-app.listen(5000);
-log.log('Listening on port 5000');
+if (process.argv.length === 3 && process.argv[2] === 'pilot') {
+  app.listen(5001);
+  log.log('Listening on port 5001');
+} else {
+  app.listen(5000);
+  log.log('Listening on port 5000');
+}

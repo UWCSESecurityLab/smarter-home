@@ -5,11 +5,17 @@
   "main": "smartapp.js",
   "scripts": {
     "build": "webpack --config webpack.config.js",
+    "build:web": "webpack --config webpack.config.js",
+    "build:cordova-dev": "webpack --config webpack.cordova-dev.js",
+    "build:cordova-prod": "webpack --config webpack.cordova-prod.js",
     "clean": "rm -rf dist/ && rm -rf cordova/www/css && rm -rf cordova/www/js",
     "delete": "node scripts/delete-installed.js",
     "mongo": "run-rs -v 4.0.0 --shell --keep",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "watch": "webpack --watch --config webpack.config.js"
+    "watch": "webpack --watch --config webpack.config.js",
+    "watch:web": "webpack --watch --config webpack.config.js",
+    "watch:cordova-dev": "webpack --watch --config webpack.cordova-dev.js",
+    "watch:cordova-prod": "webpack --watch --config webpack.cordova-prod.js"
   },
   "author": "",
   "license": "",

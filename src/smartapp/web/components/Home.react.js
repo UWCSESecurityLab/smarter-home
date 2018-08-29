@@ -73,13 +73,14 @@ class Home extends React.Component {
   }
 
   render() {
+    let devFlag = process.env.NODE_ENV === 'development' ? ' (Dev)' : '';
     const hidden = { visibility: 'hidden' };
     return (
       <div>
         <Drawer open={this.state.drawerOpen} closeFn={() => this.setState({drawerOpen: false})}/>
         <TopAppBar
           fixed
-          title='SmarterHome'
+          title={'SmarterHome' + devFlag}
           navigationIcon={<MaterialIcon
             icon='menu'
             onClick={() => { this.setState({ drawerOpen: !this.state.drawerOpen })}}

@@ -75,6 +75,10 @@ class Authenticate extends React.Component {
             </div>
           </div>
         )}/>
+        { process.env.NODE_ENV === 'development'
+          ? <div id="dev-flag">Running in Dev Environment</div>
+          : null
+        }
       </div>
     );
   }

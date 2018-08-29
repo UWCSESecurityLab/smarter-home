@@ -10,7 +10,10 @@ class SmartAppClient {
   // @param noSession: set to true if we shouldn't generate a session, i.e.
   // in OAuth mode.
   constructor(noSession) {
-    this.host = 'https://kadara.cs.washington.edu';
+    this.host = process.env.NODE_ENV === 'production'
+    ? 'https://kadara.cs.washington.edu'
+    : 'https://dev.kadara.cs.washington.edu';
+
     if (noSession) {
       // Early exit here, because the SmartThings Android App's Webview doesn't
       // support localStorage, and will crash and fail to render the page.
