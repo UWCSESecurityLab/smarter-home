@@ -33,7 +33,7 @@ BeaconStatus.propTypes = {
 
 function mapStateToProps(state) {
   return {
-    nearbyBeacons: state.nearbyBeacons,
+    nearbyBeacons: state.beacons.nearbyBeacons,
   }
 }
 

@@ -1,11 +1,13 @@
 import React from 'react';
 import MaterialIcon from '@material/react-material-icon';
 import PropTypes from 'prop-types';
+import SmartAppClient from '../lib/SmartAppClient';
 import toastError from '../lib/error-toaster';
-import { SmartAppClient } from 'common';
+
 import { Link } from 'react-router-dom';
 import { CSSTransition } from 'react-transition-group';
 import { store } from '../redux/reducers';
+
 import * as Actions from '../redux/actions';
 
 import withRipple from '@material/react-ripple';

@@ -35,7 +35,7 @@ class CordovaNotifications extends Notifications {
     console.log('Background message');
     console.log(payload);
 
-    const nearby = store.getState().nearbyBeacons;
+    const nearby = store.getState().beacons.nearbyBeacons;
     console.log('Currently nearby beacons:');
     console.log(nearby);
 
@@ -65,7 +65,7 @@ function showNearbyDevices() {
     return;
   }
 
-  const nearbyBeacons = Object.values(state.nearbyBeacons).map((beacon) => beacon.identifier);
+  const nearbyBeacons = Object.values(state.beacons.nearbyBeacons).map((beacon) => beacon.identifier);
   const nearbyRooms = Object.values(state.devices.rooms).filter((room) =>
     room.devices.filter((device) =>
       nearbyBeacons.includes(device)).length > 0);
@@ -114,7 +114,7 @@ function showNearbyDevices() {
 
 let activeBeaconState = {};
 function updateBeaconMonitoring() {
-  const newState = store.getState().devices.activeBeaconRegions;
+  const newState = store.getState().beacons.activeBeaconRegions;
   if (!newState) {
     return;  // If localStorage doesn't exist and returns undefined
   }

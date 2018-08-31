@@ -1,10 +1,6 @@
+import SmartAppClient from '../SmartAppClient';
 import { store } from '../../redux/reducers';
-import {
-  updateFcmToken,
-  updateNotificationsEnabled,
-  updateNotificationData
-} from '../../redux/actions';
-import { CommonActions, SmartAppClient } from 'common';
+import * as Actions from '../../redux/actions';
 
 let smartAppClient = new SmartAppClient();
 
@@ -12,11 +8,11 @@ class Notifications {
   static onMessage(message) {
     console.log('Foreground notification');
     console.log(message)
-    store.dispatch(updateNotificationData(message));
+    store.dispatch(Actions.updateNotificationData(message));
     smartAppClient.getDeviceStatus(message.deviceId)
       .then((newStatus) => {
         store.dispatch(
-          CommonActions.updateDeviceStatus(newStatus.deviceId, newStatus.status));
+          Actions.updateDeviceStatus(newStatus.deviceId, newStatus.status));
       });
     }
   static updateToken(currentToken) {
@@ -24,16 +20,16 @@ class Notifications {
       // TODO: check cordova behavior
       // If getToken doesn't return a token, we don't have the notification
       // permission.
-      store.dispatch(updateNotificationsEnabled(false));
-      store.dispatch(updateFcmToken(null));
+      store.dispatch(Actions.updateNotificationsEnabled(false));
+      store.dispatch(Actions.updateFcmToken(null));
       throw 'Need to request permissions';
     }
-    store.dispatch(updateNotificationsEnabled(true));
+    store.dispatch(Actions.updateNotificationsEnabled(true));
     return smartAppClient.updateNotificationToken(
       currentToken,
       store.getState().flags
     ).then(() => {
-      store.dispatch(updateFcmToken(currentToken));
+      store.dispatch(Actions.updateFcmToken(currentToken));
     });
   }
 }

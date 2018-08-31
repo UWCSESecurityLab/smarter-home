@@ -5,7 +5,7 @@ import MaterialIcon from '@material/react-material-icon';
 import PropTypes from 'prop-types';
 import strToColor from '../lib/strToColor';
 import * as Errors from '../../errors';
-import { SmartAppClient } from 'common';
+import SmartAppClient from '../lib/SmartAppClient';
 import { connect } from 'react-redux';
 import { withRouter } from 'react-router-dom';
 

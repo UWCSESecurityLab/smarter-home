@@ -1,7 +1,7 @@
 import React from 'react';
 import Button from '@material/react-button';
 import PropTypes from 'prop-types';
-import { SmartAppClient } from 'common';
+import SmartAppClient from '../lib/SmartAppClient';
 import { notify as toast } from 'react-notify-toast';
 import { withRouter } from 'react-router-dom';
 import toastError from '../lib/error-toaster';

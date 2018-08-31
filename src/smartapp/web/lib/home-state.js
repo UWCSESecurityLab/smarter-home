@@ -1,5 +1,5 @@
 import toastError from '../lib/error-toaster';
-import { CommonActions, SmartAppClient } from 'common';
+import SmartAppClient from './SmartAppClient';
 import { store } from '../redux/reducers';
 import * as Actions from '../redux/actions';
 
@@ -12,7 +12,7 @@ class HomeState {
     return smartAppClient.refreshAccessToken().then(() => {
       return Promise.all([smartAppClient.getHomeConfig(), this.fetchRooms()])
         .then(([config, rooms]) => {
-          store.dispatch(CommonActions.updateHomeConfig(config));
+          store.dispatch(Actions.updateHomeConfig(config));
           return Promise.all([
             this.fetchAllDeviceDescriptions(rooms),
             this.fetchAllDeviceStatuses(rooms)
@@ -34,7 +34,7 @@ class HomeState {
       return smartAppClient.getDeviceDescription(deviceId);
     })).then((descs) => {
       descs.forEach((desc) => {
-        store.dispatch(CommonActions.updateDeviceDescription(desc.deviceId, desc));
+        store.dispatch(Actions.updateDeviceDescription(desc.deviceId, desc));
       });
       this.resetBeaconRegions();
     }).catch(toastError);
@@ -62,7 +62,7 @@ class HomeState {
       return smartAppClient.getDeviceStatus(deviceId);
     })).then((statuses) => {
       statuses.forEach((status) => {
-        store.dispatch(CommonActions.updateDeviceStatus(status.deviceId, status.status));
+        store.dispatch(Actions.updateDeviceStatus(status.deviceId, status.status));
       });
     }).catch(toastError);
   }
@@ -74,7 +74,7 @@ class HomeState {
       let idToRoom = Object.assign({}, ...rooms.map((room) => {
         return { [room.roomId]: room }
       }));
-      store.dispatch(CommonActions.setRooms(idToRoom));
+      store.dispatch(Actions.setRooms(idToRoom));
       return idToRoom;
     });
   }

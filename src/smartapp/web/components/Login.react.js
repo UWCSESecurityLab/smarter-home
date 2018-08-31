@@ -2,7 +2,7 @@ import React from 'react';
 import Button from '@material/react-button';
 import MaterialIcon from '@material/react-material-icon';
 import PropTypes from 'prop-types';
-import { SmartAppClient } from 'common';
+import SmartAppClient from '../lib/SmartAppClient';
 import * as Actions from '../redux/actions';
 import * as Errors from '../../errors';
 

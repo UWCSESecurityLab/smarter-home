@@ -3,7 +3,7 @@ import Button from '@material/react-button';
 import HomeState from '../lib/home-state';
 import MaterialIcon from '@material/react-material-icon';
 import PropTypes from 'prop-types';
-import { SmartAppClient } from 'common';
+import SmartAppClient from '../lib/SmartAppClient';
 import { withRouter } from 'react-router-dom';
 import * as Errors from '../../errors';
 

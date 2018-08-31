@@ -2,7 +2,7 @@ import React from 'react';
 import Button from '@material/react-button';
 import MaterialIcon from '@material/react-material-icon';
 import PropTypes from 'prop-types';
-import { SmartAppClient } from 'common';
+import SmartAppClient from '../lib/SmartAppClient';
 import { Link, Redirect } from 'react-router-dom';
 import * as Errors from '../../errors';
 

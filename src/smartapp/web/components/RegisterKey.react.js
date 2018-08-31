@@ -2,10 +2,10 @@ import React from 'react';
 import qrcode from 'qrcode';
 import Button from '@material/react-button';
 import MaterialIcon from '@material/react-material-icon';
+import SmartAppClient from '../lib/SmartAppClient';
 import * as Actions from '../redux/actions';
 import { store } from '../redux/reducers';
 import { Link } from 'react-router-dom';
-import { SmartAppClient } from 'common';
 
 const smartAppClient = new SmartAppClient();
 

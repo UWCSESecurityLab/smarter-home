@@ -4,7 +4,6 @@ import MaterialIcon from '@material/react-material-icon';
 import PropTypes from 'prop-types';
 import uuid from 'uuid/v4';
 
-import { CommonActions, SmartAppClient } from 'common';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import { connect } from 'react-redux';
 import { withRouter } from 'react-router-dom';
@@ -15,7 +14,10 @@ import DeviceListItem from './DeviceList/DeviceListItem.react';
 import toastError from '../lib/error-toaster';
 import HomeState from '../lib/home-state';
 import LockStatus from './DeviceList/LockStatus.react';
+import SmartAppClient from '../lib/SmartAppClient';
 import SwitchStatus from './DeviceList/SwitchStatus.react';
+
+import * as Actions from '../redux/actions';
 
 import '../css/devices.scss';
 
@@ -48,7 +50,7 @@ class Devices extends React.Component {
   addRoom() {
     const name = 'New Room'
     const roomId = uuid();
-    this.props.dispatch(CommonActions.addRoom({
+    this.props.dispatch(Actions.addRoom({
       [roomId]: {
         installedAppId: null,
         roomId: roomId,
@@ -64,7 +66,7 @@ class Devices extends React.Component {
   }
 
   removeRoom(roomId) {
-    this.props.dispatch(CommonActions.removeRoom(roomId));
+    this.props.dispatch(Actions.removeRoom(roomId));
     smartAppClient.deleteRoom(roomId).catch((err) => {
       toastError(err);
       this.fetchRooms();
@@ -74,7 +76,7 @@ class Devices extends React.Component {
   onRoomNameChange(e) {
     const roomId = e.target.name;
     const newName = e.target.value;
-    this.props.dispatch(CommonActions.updateRoomName(roomId, newName));
+    this.props.dispatch(Actions.updateRoomName(roomId, newName));
     smartAppClient.updateRoomName(roomId, newName).catch((err) => {
       toastError(err);
       this.fetchRooms();
@@ -87,7 +89,7 @@ class Devices extends React.Component {
       return;
     }
     if (source.droppableId === destination.droppableId) {
-      this.props.dispatch(CommonActions.reorderDeviceInRoom(
+      this.props.dispatch(Actions.reorderDeviceInRoom(
         source.droppableId,
         source.index,
         destination.index
@@ -102,7 +104,7 @@ class Devices extends React.Component {
       });
 
     } else {
-      this.props.dispatch(CommonActions.moveDeviceBetweenRooms(
+      this.props.dispatch(Actions.moveDeviceBetweenRooms(
         source.droppableId,
         destination.droppableId,
         source.index,
@@ -137,7 +139,7 @@ class Devices extends React.Component {
     if (this.props.homeConfig.contactSensors &&
         this.props.homeConfig.contactSensors.includes(deviceId)) {
       status = <ContactSensorStatus deviceId={deviceId}/>
-    } else if (this.props.homeConfig.switches && 
+    } else if (this.props.homeConfig.switches &&
                this.props.homeConfig.switches.includes(deviceId)) {
       status = <SwitchStatus deviceId={deviceId}/>
     } else if (this.props.homeConfig.doorLocks &&
@@ -292,7 +294,7 @@ function mapStateToProps(state) {
     deviceDesc: state.devices.deviceDesc,
     deviceStatus: state.devices.deviceStatus,
     homeConfig: state.devices.homeConfig,
-    nearbyBeacons: state.nearbyBeacons,
+    nearbyBeacons: state.beacons.nearbyBeacons,
     rooms: state.devices.rooms
   };
 }

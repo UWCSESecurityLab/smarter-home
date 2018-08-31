@@ -1,5 +1,5 @@
 import React from 'react';
-import { SmartAppClient } from 'common';
+import SmartAppClient from '../lib/SmartAppClient';
 
 let smartAppClient = new SmartAppClient();
 
