@@ -38,6 +38,9 @@ is named "my-mongo-set".
 
 Some useful commands:
 * `rs.status()` - see status of replica set, including which is primary
-* `mongobackup --db={dbname}` - dump database into json/bson
+* `mongodump --db={dbname}` - dump database into json/bson
 * `mongorestore --db={dbname} --drop {backups}` - restore database from backup, drop existing database
+
+There is a cron job that runs mongodump every day. The backups are located at
+`/home/ericzeng/mongobackup`.
 
