@@ -47,8 +47,8 @@ const SmartappConfig = require('../config/smartapp-config.js');
 
 let ec = new EC('p384');
 
-const TEST_DB = 'mongodb://localhost:27017,localhost:27018,localhost:27019/test?replicaSet=rs';
-const PILOT_DB = 'mongodb://localhost:27017,localhost:27018,localhost:27019/pilot?replicaSet=rs';
+const TEST_DB = 'mongodb://localhost:27017,localhost:27018,localhost:27019/test?replicaSet=my-mongo-set';
+const PILOT_DB = 'mongodb://localhost:27017,localhost:27018,localhost:27019/pilot?replicaSet=my-mongo-set';
 
 let APP_CONFIG, PUBLIC_KEY;
 if (process.env.NODE_ENV === 'pilot') {
