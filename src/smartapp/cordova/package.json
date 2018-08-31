@@ -35,12 +35,12 @@
             "cordova-support-google-services": {},
             "com.unarin.cordova.beacon": {},
             "cordova-plugin-qrscanner": {},
-            "cordova-plugin-local-notification": {},
             "cordova-plugin-firebase-messaging": {
                 "FIREBASE_MESSAGING_VERSION": "17.1.+",
                 "ANDROID_SUPPORT_VERSION": "27.+"
             },
-            "cordova-plugin-statusbar": {}
+            "cordova-plugin-statusbar": {},
+            "cordova-plugin-local-notification": {}
         }
     }
 }
