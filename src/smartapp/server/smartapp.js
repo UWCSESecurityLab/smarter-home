@@ -1,18 +1,25 @@
-if (process.argv.length !== 3) {
-  console.log('Usage: node server/smartapp.js [ dev | pilot ]');
+console.log(`NODE_ENV=${process.env.NODE_ENV}`);
+console.log(`SERVER_MODE=${process.env.SERVER_MODE}`);
+console.log(`IS_DOCKER=${process.env.IS_DOCKER}`);
+
+if (!process.env.SERVER_MODE && process.argv.length !== 3) {
+  console.log('Usage: node server/smartapp.js [ dev | prod ]');
+  console.log('Or, set the SERVER_MODE environmental variable to dev or prod.');
   process.exit(1);
 }
 
-switch (process.argv[2]) {
-  case 'pilot':
-    process.env.NODE_ENV = 'pilot';
-    break;
-  case 'dev':
-    process.env.NODE_ENV = 'dev';
-    break;
-  default:
-    console.log('Usage: node server/smartapp.js [ dev | pilot ]');
-    process.exit(1);
+if (!process.env.SERVER_MODE) {
+  switch (process.argv[2]) {
+    case 'prod':
+      process.env.SERVER_MODE = 'prod';
+      break;
+    case 'dev':
+      process.env.SERVER_MODE = 'dev';
+      break;
+    default:
+      console.log('Usage: node server/smartapp.js [ dev | prod ]');
+      process.exit(1);
+  }
 }
 
 const bodyParser = require('body-parser');
@@ -47,21 +54,36 @@ const SmartappConfig = require('../config/smartapp-config.js');
 
 let ec = new EC('p384');
 
-const TEST_DB = 'mongodb://localhost:27017,localhost:27018,localhost:27019/test?replicaSet=my-mongo-set';
-const PILOT_DB = 'mongodb://localhost:27017,localhost:27018,localhost:27019/pilot?replicaSet=my-mongo-set';
-
 let APP_CONFIG, PUBLIC_KEY;
-if (process.env.NODE_ENV === 'pilot') {
-  log.log('Starting pilot server instance');
+if (process.env.SERVER_MODE === 'prod') {
+  log.log('Starting prod server instance');
   APP_CONFIG = SmartappConfig.pilotApp;
   PUBLIC_KEY = SmartappConfig.pilotKey;
-  mongoose.connect(PILOT_DB);
-} else if (process.env.NODE_ENV === 'dev') {
+} else if (process.env.SERVER_MODE === 'dev') {
   log.log('Starting development server instance');
   APP_CONFIG = SmartappConfig.devApp;
   PUBLIC_KEY = SmartappConfig.devKey;
-  mongoose.connect(TEST_DB);
 }
+
+const DOCKER_DB_URL = 'mongodb://mongo1:27017,mongo2:27018,mongo3:27019';
+const LOCALHOST_DB_URL = 'mongodb://localhost:27017,localhost:27018,localhost:27019';
+const TEST_DB_PATH = '/test';
+const PILOT_DB_PATH = '/pilot';
+const REPLICA_SET = '?replicaSet=my-mongo-set';
+
+let db_url = '';
+if (process.env.IS_DOCKER === 'true') {
+  db_url += DOCKER_DB_URL;
+} else {
+  db_url += LOCALHOST_DB_URL;
+}
+if (process.env.SERVER_MODE === 'dev') {
+  db_url += TEST_DB_PATH;
+} else if (process.env.SERVER_MODE === 'prod') {
+  db_url += PILOT_DB_PATH;
+}
+db_url += REPLICA_SET;
+mongoose.connect(db_url);
 
 let db = mongoose.connection;
 db.on('error', console.error.bind(console, 'connection error:'));
@@ -770,17 +792,17 @@ app.post('/userReport/:type', checkAuth, (req, res) => {
 });
 
 app.get('/oauth', (req, res) => {
-  if (process.env.NODE_ENV === 'pilot') {
+  if (process.env.SERVER_MODE === 'prod') {
     res.sendFile(path.join(__dirname, '../web/html/oauth-prod.html'));
-  } else if (process.env.NODE_ENV === 'dev') {
+  } else if (process.env.SERVER_MODE === 'dev') {
     res.sendFile(path.join(__dirname, '../web/html/oauth-dev.html'));
   }
 });
 
 app.get('*', (req, res) => {
-  if (process.env.NODE_ENV === 'pilot') {
+  if (process.env.SERVER_MODE === 'prod') {
     res.sendFile(path.join(__dirname, '../web/html/index-prod.html'));
-  } else if (process.env.NODE_ENV === 'dev') {
+  } else if (process.env.SERVER_MODE === 'dev') {
     res.sendFile(path.join(__dirname, '../web/html/index-dev.html'));
   }
 });
@@ -804,10 +826,5 @@ setInterval(renewAllAccessTokens, 1000 * 60 * 4.5);
 // Renew 15 seconds after the server starts
 setTimeout(renewAllAccessTokens, 1000 * 15);
 
-if (process.argv.length === 3 && process.argv[2] === 'pilot') {
-  app.listen(5001);
-  log.log('Listening on port 5001');
-} else {
-  app.listen(5000);
-  log.log('Listening on port 5000');
-}
+app.listen(5000);
+log.log('Listening on local port 5000');
