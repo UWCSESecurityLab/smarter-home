@@ -144,7 +144,7 @@ class NotificationSettings extends React.Component {
         <p>
           Allow your phone to scan for beacons when the
           SmarterHome app is closed. You can turn this off to reduce battery
-          usage.However, it must be enabled to enable Nearby Notifications
+          usage. However, it must be enabled to enable Nearby Notifications
           and proximity-based Activity Notifications.
         </p>
         { this.renderRadio({
