@@ -18,7 +18,8 @@ function onDeviceReady () {
     if (device.platform === 'Android') {
       flags = {
         activityNotifications: Flags.ActivityNotifications.PROXIMITY,
-        nearbyNotifications: Flags.NearbyNotifications.OFF
+        nearbyNotifications: Flags.NearbyNotifications.ON,
+        backgroundScanning: Flags.BackgroundScanning.ON
       }
     } else if (device.platform === 'iOS') {
       flags = {
