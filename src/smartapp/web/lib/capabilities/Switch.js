@@ -34,7 +34,7 @@ export default Switch;
 
 async function onNotificationAction(notification, command) {
   try {
-    await Switch.actuate(notification.data.deviceId, 'switch', command);
+    await Switch.actuate(notification.data.deviceId, command);
     const state = store.getState();
     const switchStatus = Switch.getStatus(state, notification.data.deviceId);
     const switchName = Switch.getLabel(state, notification.data.deviceId);
