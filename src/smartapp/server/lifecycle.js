@@ -145,7 +145,7 @@ module.exports = {
       let trigger;
       if (closestCommand) {
         let triggerUser = await User.findOne({ id: closestCommand.userId });
-        trigger = triggerUser.username;
+        trigger = triggerUser.displayName;
         await Command.deleteOne({ _id: closestCommand._id });
       } else {
         trigger = "another app, or manually";

@@ -521,13 +521,14 @@ app.post('/devices/:deviceId/commands', checkAuth, getInstallData,
     command: req.body.command
   });
 
-  SmartThingsClient.executeDeviceCommand({
-    deviceId: req.params.deviceId,
-    command: req.body,
-    authToken: req.installData.authToken
-  }).then(() => command.save())
-    .then(() => {
-      res.status(200).json({});
+  command.save().then(() => {
+    return SmartThingsClient.executeDeviceCommand({
+      deviceId: req.params.deviceId,
+      command: req.body,
+      authToken: req.installData.authToken
+    });
+  }).then(() => {
+    res.status(200).json({});
   }).catch((err) => {
     res.status(500).json(err);
   });
