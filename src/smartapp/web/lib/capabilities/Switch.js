@@ -37,7 +37,7 @@ async function onNotificationAction(notification, command) {
     await Switch.actuate(notification.data.deviceId, 'switch', command);
     const state = store.getState();
     const switchStatus = Switch.getStatus(state, notification.data.deviceId);
-    const switchName = Switch.getLabel(notification.data.deviceId);
+    const switchName = Switch.getLabel(state, notification.data.deviceId);
     cordova.plugins.notification.local.update({
       id: notification.id,
       title: switchName + ' is ' + switchStatus
