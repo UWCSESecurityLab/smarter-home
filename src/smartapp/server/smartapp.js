@@ -110,6 +110,7 @@ app.use(compression());
 app.set('views', __dirname + '/../web/views');
 app.use(express.static('dist'));
 app.use(express.static('web/sw'));
+app.use('/favicon.ico', express.static('web/favicon.ico'));
 app.use('/css', express.static('web/css'));
 app.use(bodyParser.json());
 
