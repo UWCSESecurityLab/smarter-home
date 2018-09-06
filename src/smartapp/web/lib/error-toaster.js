@@ -29,7 +29,7 @@ export default function(error) {
         toast.show('Couldn\'t connect to SmartThings. Please try again later.', 'error');
         break;
       case Errors.SMARTTHINGS_ERROR:
-        toast.show('There was a problem with SmartThings. Please try again later.');
+        toast.show('There was a problem with SmartThings. Please try again later.', 'error');
         break;
       default:
         toast.show(error.error, 'error');
