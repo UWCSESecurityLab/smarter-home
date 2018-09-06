@@ -113,3 +113,9 @@ code {
     top: 56px !important;
   }
 }
+
+.device-modal-item {
+  display: flex;
+  justify-content: space-between;
+  margin: 10px 0;
+}

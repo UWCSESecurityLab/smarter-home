@@ -21,6 +21,14 @@ class Capability {
     }
   }
 
+  static getDesc(state, deviceId) {
+    return state.devices.deviceDesc[deviceId];
+  }
+
+  static getStatus(state, deviceId) {
+    return state.devices.deviceStatus[deviceId];
+  }
+
   static getNotificationActions() {
     return null;
   }

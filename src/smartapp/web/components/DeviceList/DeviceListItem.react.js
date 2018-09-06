@@ -1,13 +1,23 @@
 import React from 'react';
-import { connect } from 'react-redux';
+import Capability from '../../lib/capabilities/Capability';
 import MaterialIcon from '@material/react-material-icon';
 import PropTypes from 'prop-types';
-import Capability from '../../lib/capabilities/Capability';
+import { connect } from 'react-redux';
+import { withRouter } from 'react-router-dom';
+
 
 class DeviceListItem extends React.Component {
   constructor(props, context) {
     super(props, context);
+    this.showDeviceModal = this.showDeviceModal.bind(this);
   }
+
+  showDeviceModal() {
+    this.props.history.push(
+      `${this.props.history.location.pathname}/device/${this.props.deviceId}`
+    );
+  }
+
   render() {
     let label = this.props.label;
     if (label && this.props.isBeacon) {
@@ -16,7 +26,7 @@ class DeviceListItem extends React.Component {
 
     return (
       <div className="device-li">
-        <span className="device-li-label">
+        <span className="device-li-label" onClick={this.showDeviceModal}>
           {this.props.draggable
             ? <span className="device-li-edit">
                 <MaterialIcon icon="reorder"/>
@@ -35,6 +45,7 @@ DeviceListItem.propTypes = {
   children: PropTypes.node,
   deviceId: PropTypes.string,
   draggable: PropTypes.bool,
+  history: PropTypes.object,
   isBeacon: PropTypes.bool,
   label: PropTypes.string
 }
@@ -46,4 +57,4 @@ const mapStateToProps = (state, ownProps) => {
   }
 };
 
-export default connect(mapStateToProps)(DeviceListItem);
+export default withRouter(connect(mapStateToProps)(DeviceListItem));

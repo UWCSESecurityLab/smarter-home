@@ -9,6 +9,7 @@ import { Route, Switch } from 'react-router-dom';
 import AddUserModal from './AddUserModal.react';
 import BeaconModal from './BeaconModal.react';
 import Devices from './Devices.react';
+import DeviceModal from './DeviceModal.react';
 import Drawer from './Drawer.react';
 import Feedback from './Feedback.react';
 import HomeState from '../lib/home-state';
@@ -112,6 +113,8 @@ class Home extends React.Component {
           <Route path={`${this.props.match.url}/addUser`}
                  render={() =>
                   <AddUserModal setVisibility={this.setVisibility}/>} />
+          <Route path={`${this.props.match.url}/device/:deviceId`}
+                 component={DeviceModal}/>
           <Switch>
             <Route path="/home" render={() => (
               <div>
