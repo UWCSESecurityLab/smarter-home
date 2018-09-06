@@ -36,8 +36,6 @@ const session = require('express-session');
 const uuid = require('uuid/v4');
 const winston = require('winston');
 require('winston-mongodb');
-
-
 const MongoStore = require('connect-mongo')(session);
 
 const auth = require('./auth');
@@ -48,6 +46,7 @@ const lifecycle = require('./lifecycle');
 const log = require('./log');
 const Beacon = require('./db/beacon');
 const Command = require('./db/command');
+const Permission = require('./db/permissions');
 const Room = require('./db/room');
 const RoomTransaction = require('./db/room-transaction');
 const SmartThingsClient = require('./SmartThingsClient');
@@ -572,9 +571,11 @@ app.get('/devices/:deviceId/status', checkAuth, getInstallData, (req, res) => {
     } else {
       res.status(200).json({
         deviceId: beacon.name,
-        components: {
-          main: {
-            beacon: {}
+        status: {
+          components: {
+            main: {
+              beacon: {}
+            }
           }
         }
       });
@@ -658,7 +659,70 @@ app.post('/devices/:deviceId/commands', checkAuth, getInstallData,
       msg = Errors.SMARTTHINGS_ERROR;
     }
     logger.error({ message: msg, meta: { ...req.logMeta, error: err } });
-    res.status(500).json(err);
+    res.status(500).json({ error: err });
+  });
+});
+
+app.get('/devices/:deviceId/permissions', checkAuth, (req, res) => {
+  Permission.findOne({
+    deviceId: req.params.deviceId,
+    installedAppId: req.session.installedAppId
+  }).then((permission) => {
+    if (!permission) {
+      Room.find({
+        installedAppId: req.session.installedAppId,
+        devices: req.params.deviceId
+      }).then((room) => {
+        if (room) {
+          let newPermission = new Permission({
+            deviceId: req.params.deviceId,
+            installedAppId: req.session.installedAppId,
+          });
+          newPermission.save().then(() => {
+            res.status(200).json(newPermission);
+          }).catch((err) => {
+            logger.error({
+              message: Errors.DB_ERROR,
+              meta: { ...req.logMeta, error: err }
+            });
+            res.status(500).json(Errors.DB_ERROR);
+          });
+        } else {
+          res.status(404).json({ error: Errors.DEVICE_NOT_FOUND });
+        }
+      });
+    } else {
+      res.status(200).json(permission);
+    }
+  }).catch((err) => {
+    logger.error({
+      message: Errors.DB_ERROR,
+      meta: { ...req.logMeta, error: err }
+    });
+    res.status(500).json(Errors.DB_ERROR);
+  });
+});
+
+app.post('/devices/:deviceId/permissions', checkAuth, (req, res) => {
+  let update = {};
+  if (req.body.hasOwnProperty('locationRestrictions')) {
+    update.locationRestrictions = req.body.locationRestrictions
+  }
+  if (req.body.hasOwnProperty('parentalRestrictions')) {
+    update.parentalRestrictions = req.body.parentalRestrictions;
+  }
+
+  Permission.findOneAndUpdate({
+    deviceId: req.params.deviceId,
+    installedAppId: req.session.installedAppId
+  }, update).then(() => {
+    res.status(200).json({});
+  }).catch((err) => {
+    logger.error({
+      message: Errors.DB_ERROR,
+      meta: { ...req.logMeta, error: err }
+    });
+    res.status(500).json(Errors.DB_ERROR);
   });
 });
 

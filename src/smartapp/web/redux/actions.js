@@ -128,3 +128,23 @@ export function moveDeviceBetweenRooms(
     destIndex: destIndex
   };
 }
+
+export const SET_ALL_PERMISSIONS = 'SET_ALL_PERMISSIONS';
+export function setAllPermissions(permissions) {
+  return {
+    type: SET_ALL_PERMISSIONS,
+    permissions: permissions
+  }
+}
+
+// Update the value of a permission for a single device.
+// The |permission| param is an object, containing the key value pairs for each
+// updated permission type -> permission value.
+export const UPDATE_PERMISSION = 'UPDATE_PERMISSION';
+export function updatePermission({ deviceId, ...permissions }) {
+  return {
+    type: UPDATE_PERMISSION,
+    deviceId: deviceId,
+    permissions: permissions,
+  }
+}

@@ -15,7 +15,8 @@ class HomeState {
           store.dispatch(Actions.updateHomeConfig(config));
           return Promise.all([
             this.fetchAllDeviceDescriptions(rooms),
-            this.fetchAllDeviceStatuses(rooms)
+            this.fetchAllDeviceStatuses(rooms),
+            this.fetchAllDevicePermissions(rooms)
           ]);
         });
     }).catch(toastError);
@@ -79,6 +80,17 @@ class HomeState {
     });
   }
 
+  static fetchAllDevicePermissions(rooms) {
+    Promise.all(this.getDeviceIdsFromRooms(rooms).map((deviceId) => {
+      return smartAppClient.getPermissions(deviceId);
+    })).then((permissions) => {
+      const idToPermission = Object.assign({}, ...permissions.map((permission) => {
+        return { [permission.deviceId]: permission };
+      }));
+      store.dispatch(Actions.setAllPermissions(idToPermission));
+    }).catch(toastError);
+  }
+
   // Flattens |homeConfig|, an object of arrays, into a single array containing
   // all the deviceIds of the devices in the home.
   static getDeviceIdsFromHomeConfig(homeConfig) {
@@ -94,6 +106,7 @@ class HomeState {
       .map((room => room.devices))
       .reduce((accumulator, current) => { return accumulator.concat(current) });
   }
+
 }
 
 export default HomeState;

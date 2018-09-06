@@ -35,6 +35,19 @@ export function deviceStatus(state = {}, action) {
   }
 }
 
+export function permissions(state = {}, action) {
+  switch (action.type) {
+    case Actions.SET_ALL_PERMISSIONS:
+      return action.permissions;
+    case Actions.UPDATE_PERMISSION:
+      return Object.assign({}, state, {
+        [action.deviceId]: Object.assign({}, state[action.deviceId], action.permissions)
+      });
+    default:
+      return state;
+  }
+}
+
 export function rooms(state = {}, action) {
   switch (action.type) {
     case Actions.SET_ROOMS: {

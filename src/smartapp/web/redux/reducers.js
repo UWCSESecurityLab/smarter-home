@@ -103,6 +103,7 @@ const store = createStore(combineReducers({
     deviceDesc: DeviceReducers.deviceDesc,
     deviceStatus: DeviceReducers.deviceStatus,
     homeConfig: DeviceReducers.homeConfig,
+    permissions: DeviceReducers.permissions,
     rooms: DeviceReducers.rooms
   }),
   flags: flags,

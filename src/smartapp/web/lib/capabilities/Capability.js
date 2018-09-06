@@ -29,6 +29,10 @@ class Capability {
     return state.devices.deviceStatus[deviceId];
   }
 
+  static getPermissions(state, deviceId) {
+    return state.devices.permissions[deviceId];
+  }
+
   static getNotificationActions() {
     return null;
   }

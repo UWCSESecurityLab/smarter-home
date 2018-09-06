@@ -318,6 +318,28 @@ class SmartAppClient {
       body: JSON.stringify({ report: report })
     }).then(handleJsonResponse);
   }
+
+  getPermissions(deviceId) {
+    return fetch(`${this.host}/devices/${deviceId}/permissions`, {
+      method: 'GET',
+      credentials: 'same-origin',
+      headers: {
+        'Client-Session': this.sessionId
+      }
+    }).then(handleJsonResponse);
+  }
+
+  modifyPermission({ deviceId, ...permissions }) {
+    return fetch(`${this.host}/devices/${deviceId}/permissions`, {
+      method: 'POST',
+      credentials: 'same-origin',
+      headers: {
+        'Client-Session': this.sessionId,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(permissions)
+    }).then(handleJsonResponse);
+  }
 }
 
 export default SmartAppClient;
