@@ -38,7 +38,7 @@ class Actuatable extends Capability {
   static async actuate(deviceId, capability, command) {
     const state = store.getState();
     const permissions = state.devices.permissions[deviceId];
-    const nearbyBeacons = state.beacons.nearbyBeacons[deviceId];
+    const nearbyBeacons = state.beacons.nearbyBeacons;
 
     if (!permissions) {
       return this.actuallyActuate(deviceId, capability, command);
