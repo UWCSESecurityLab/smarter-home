@@ -1058,6 +1058,10 @@ app.get('/oauth', (req, res) => {
   }
 });
 
+app.get('/privacy', (req, res) => {
+  res.sendFile(path.join(__dirname, '../web/html/privacy.html'));
+});
+
 app.get('*', (req, res) => {
   if (process.env.SERVER_MODE === 'prod') {
     res.sendFile(path.join(__dirname, '../web/html/index-prod.html'));
