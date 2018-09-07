@@ -14,6 +14,7 @@ import Drawer from './Drawer.react';
 import Feedback from './Feedback.react';
 import HomeState from '../lib/home-state';
 import NotificationSettings from './NotificationSettings.react';
+import PermissionsPrompt from './PermissionsPrompt.react';
 import toastError from '../lib/error-toaster';
 import Users from './Users.react';
 import * as Actions from '../redux/actions';
@@ -34,6 +35,7 @@ class Home extends React.Component {
 
     this.goToDeviceStatus = this.goToDeviceStatus.bind(this);
     this.refresh = this.refresh.bind(this);
+    this.renderNotificationsPrompt = this.renderNotificationsPrompt.bind(this);
     this.setVisibility = this.setVisibility.bind(this);
     this.updateDeviceId = this.updateDeviceId.bind(this);
   }
@@ -73,6 +75,25 @@ class Home extends React.Component {
     this.setState({ visible: value });
   }
 
+  renderNotificationsPrompt() {
+    if (!this.props.notificationsEnabled && !this.props.silenceNotificationPrompt) {
+      return (
+        <div id="notifications-prompt">
+          <span onClick={() => {
+            this.state.notifications.enableNotifications();
+          }}>
+            Tap here to enable notifications about activity in your home.
+          </span>
+          <MaterialIcon icon="close" onClick={() => {
+            this.props.dispatch(Actions.silenceNotificationPrompt());
+          }}/>
+        </div>
+      );
+    } else {
+      return null;
+    }
+  }
+
   render() {
     let devFlag = process.env.NODE_ENV === 'development' ? ' (Dev)' : '';
     const hidden = { visibility: 'hidden' };
@@ -93,21 +114,6 @@ class Home extends React.Component {
         <div className="container mdc-top-app-bar--fixed-adjust"
              style={this.state.visible ? null : hidden}>
           <Toast options={{ zIndex: 3 }}/>
-
-          { !this.props.notificationsEnabled && !this.props.silenceNotificationPrompt
-            ? <div id="notifications-prompt">
-                <span onClick={() => {
-                  this.state.notifications.enableNotifications();
-                }}>
-                  Tap here to enable notifications about activity in your home.
-                </span>
-                <MaterialIcon icon="close" onClick={() => {
-                  this.props.dispatch(Actions.silenceNotificationPrompt());
-                }}/>
-              </div>
-            : null
-          }
-
           <Route path={`${this.props.match.url}/addBeacon`}
                  component={BeaconModal}/>
           <Route path={`${this.props.match.url}/addUser`}
@@ -115,6 +121,8 @@ class Home extends React.Component {
                   <AddUserModal setVisibility={this.setVisibility}/>} />
           <Route path={`${this.props.match.url}/device/:deviceId`}
                  component={DeviceModal}/>
+          {this.renderNotificationsPrompt()}
+          <PermissionsPrompt/>
           <Switch>
             <Route path="/home" render={() => (
               <div>

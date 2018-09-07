@@ -63,6 +63,29 @@ function users(state = {}, action) {
   }
 }
 
+function permissionPrompts(state = [], action) {
+  switch (action.type) {
+    case Actions.ADD_LOCATION_PROMPT: {
+      let newState = Array.from(state);
+      newState.push({
+        promptType: 'location',
+        deviceId: action.deviceId,
+        capability: action.capability,
+        command: action.command,
+        policy: action.policy
+      });
+      return newState;
+    }
+    case Actions.REMOVE_TOP_PROMPT: {
+      let newState = Array.from(state);
+      newState.shift();
+      return newState;
+    }
+    default:
+      return state;
+  }
+}
+
 const defaultState = {
   activityNotifications: Flags.ActivityNotifications.OFF,
   nearbyNotifications: Flags.NearbyNotifications.OFF,
@@ -107,7 +130,8 @@ const store = createStore(combineReducers({
     rooms: DeviceReducers.rooms
   }),
   flags: flags,
-  users: users
+  users: users,
+  permissionPrompts: permissionPrompts,
 }));
 
 export { store };

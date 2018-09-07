@@ -1,10 +1,11 @@
-import { store } from '../../redux/reducers';
+import HomeState from '../home-state';
+import myHistory from '../../lib/history';
 import Notifications from './notifications';
+import { store } from '../../redux/reducers';
 import * as Actions from '../../redux/actions';
 import * as DeviceType from '../capabilities/DeviceType';
 import * as Flags from '../../../flags';
-import myHistory from '../../lib/history';
-import HomeState from '../home-state';
+import * as Proximity from '../proximity';
 
 const PROXIMITY_ID = 0;
 const DIARY_REMINDER_ID = 1;
@@ -31,6 +32,9 @@ class CordovaNotifications extends Notifications {
     });
   }
 
+  // Handles FCM data notifications.
+  // Current data notifications:
+  //   - Activity notification (something happened)
   static onBackgroundMessage(payload) {
     console.log('Background message');
     console.log(payload);
@@ -42,10 +46,7 @@ class CordovaNotifications extends Notifications {
     const message = JSON.parse(payload.activity);
     const title = `${message.device} | ${message.capability} → ${message.value}`;
 
-    // Proximity-based filtering: only show a notification if the beacons
-    // associated with the device's room are also sensed by the phone.
-    if (message.beacons.filter((msgBcn) => Object.keys(nearby).includes(msgBcn))
-          .length > 0) {
+    if (Proximity.userIsNearDevice(message.deviceId)) {
       console.log('Beacons nearby, showing notification');
       cordova.plugins.notification.local.schedule({
         id: PROXIMITY_ID,

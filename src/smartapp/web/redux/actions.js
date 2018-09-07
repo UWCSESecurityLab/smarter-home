@@ -148,3 +148,19 @@ export function updatePermission({ deviceId, ...permissions }) {
     permissions: permissions,
   }
 }
+
+export const ADD_LOCATION_PROMPT = 'ADD_LOCATION_PROMPT';
+export function addLocationPrompt(deviceId, capability, command, policy) {
+  return {
+    type: ADD_LOCATION_PROMPT,
+    deviceId: deviceId,
+    capability: capability,
+    command: command,
+    policy: policy
+  }
+}
+
+export const REMOVE_TOP_PROMPT = 'REMOVE_TOP_PROMPT';
+export function removeTopPrompt() {
+  return { type: REMOVE_TOP_PROMPT };
+}
