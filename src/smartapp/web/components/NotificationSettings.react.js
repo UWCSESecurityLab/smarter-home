@@ -29,22 +29,20 @@ class NotificationSettings extends React.Component {
   }
 
   changeFlag(key, value) {
-    this.state.notifications.updateToken().then(() => {
-      this.props.dispatch(Actions.setFlag({ [key]: value }));
-
-      // If turning background scanning off, disable anything that depends on it.
-      if (value === Flags.BackgroundScanning.OFF) {
-        this.props.dispatch(Actions.setFlag({
-          nearbyNotifications: Flags.NearbyNotifications.OFF
-        }));
-        if (this.props.flags.activityNotifications ===
-          Flags.ActivityNotifications.PROXIMITY) {
-            this.props.dispatch(Actions.setFlag({
-              activityNotifications: Flags.ActivityNotifications.ON
-            }));
-        }
+    this.props.dispatch(Actions.setFlag({ [key]: value }));
+    // If turning background scanning off, disable anything that depends on it.
+    if (value === Flags.BackgroundScanning.OFF) {
+      this.props.dispatch(Actions.setFlag({
+        nearbyNotifications: Flags.NearbyNotifications.OFF
+      }));
+      if (this.props.flags.activityNotifications ===
+        Flags.ActivityNotifications.PROXIMITY) {
+          this.props.dispatch(Actions.setFlag({
+            activityNotifications: Flags.ActivityNotifications.ON
+          }));
       }
-    }).catch(toastError);
+    }
+    this.state.notifications.updateToken().catch(toastError);
   }
 
   async enableNotifications() {
