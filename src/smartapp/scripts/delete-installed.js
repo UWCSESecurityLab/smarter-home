@@ -2,7 +2,7 @@
 // server.
 
 const bearer = require('../config/personal_tokens.json').full_token;
-const config = require('../config/smartapp-config.js').app;
+const config = require('../config/smartapp-config.js').devApp;
 const InstallData = require('../server/db/installData');
 const Room = require('../server/db/room');
 const log = require('../server/log');
@@ -15,7 +15,7 @@ const APP_ID = config.app.appId;
 const SECLAB_LOC = '1f7b9dce-985b-47a7-9814-ed10f3b71f2f';
 const SHRI_LOC = 'b709e26c-a379-4bc4-8000-53b014a7e7fe';
 
-mongoose.connect('mongodb://localhost:27017,localhost:27018,localhost:27019/test?replicaSet=rs');
+mongoose.connect('mongodb://localhost:27017,localhost:27018,localhost:27019/test?replicaSet=my-mongo-set');
 let db = mongoose.connection;
 db.on('error', console.log.bind(console, 'connection error:'));
 db.once('open', () => {
