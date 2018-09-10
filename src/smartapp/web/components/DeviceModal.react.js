@@ -26,15 +26,63 @@ class DeviceModal extends React.Component {
       this.props.history.location.pathname.split('/device/')[0]);
   }
 
-  changeRadio(permission, value) {
-    const params = {
-      deviceId: this.props.match.params.deviceId,
-      [permission]: value
-    };
+  renderStatus(name, value) {
+    return (
+      <div className="device-modal-item">
+        <span>{name}</span>
+        <span>{value}</span>
+      </div>
+    )
+  }
 
-    smartAppClient.modifyPermission(params).then(() => {
-      this.props.dispatch(Actions.updatePermission(params));
-    }).catch(toastError);
+  renderBatteryStatus() {
+    const batteryStatus = this.props.status.components.main.battery;
+    if (batteryStatus) {
+      return this.renderStatus('Battery Level', `${batteryStatus.battery.value}%`);
+    }
+  }
+
+  renderSwitchStatus() {
+    const switchStatus = this.props.status.components.main.switch;
+    if (switchStatus) {
+      return this.renderStatus('Switch', switchStatus.switch.value);
+    }
+  }
+  renderLockStatus() {
+    const lockStatus = this.props.status.components.main.lock;
+    if (lockStatus) {
+      return this.renderStatus('Lock', lockStatus.lock.value);
+    }
+  }
+
+  renderContactStatus() {
+    const contactStatus = this.props.status.components.main.contactSensor;
+    if (contactStatus) {
+      return this.renderStatus('Contact Sensor', contactStatus.contact.value);
+    }
+  }
+
+  renderBeaconStatus() {
+    if (this.props.desc.deviceTypeName !== 'beacon') {
+      return null;
+    }
+    if (!window.cordova) {
+      return this.renderStatus('Beacon', 'Only available in the mobile app')
+    }
+    return this.renderStatus(
+      'Beacon',
+      this.props.nearbyBeacons[this.props.match.params.deviceId] ? 'Nearby' : 'Not Nearby'
+    );
+  }
+
+  renderTemperature() {
+    const temperature = this.props.status.components.main.temperatureMeasurement;
+    if (temperature) {
+      return this.renderStatus(
+        'Temperature',
+        temperature.temperature.value + temperature.temperature.unit
+      );
+    }
   }
 
   renderRadio({id, checked, label, name}) {
@@ -57,19 +105,15 @@ class DeviceModal extends React.Component {
     );
   }
 
-  renderBatteryStatus() {
-    const batteryStatus = this.props.status.components.main.battery;
-    if (batteryStatus) {
-      const val = batteryStatus.battery.value + '%';
-      return (
-        <div className="device-modal-item">
-          <span>Battery Level</span>
-          <span>{val}</span>
-        </div>
-      );
-    } else {
-      return null
-    }
+  changeRadio(permission, value) {
+    const params = {
+      deviceId: this.props.match.params.deviceId,
+      [permission]: value
+    };
+
+    smartAppClient.modifyPermission(params).then(() => {
+      this.props.dispatch(Actions.updatePermission(params));
+    }).catch(toastError);
   }
 
   renderPermissions() {
@@ -113,22 +157,6 @@ class DeviceModal extends React.Component {
     }
   }
 
-  renderTemperature() {
-    const temperature = this.props.status.components.main.temperatureMeasurement;
-    if (temperature) {
-      return (
-        <div className="device-modal-item">
-          <span>Temperature</span>
-          <span>
-            {temperature.temperature.value + temperature.temperature.unit}
-          </span>
-        </div>
-      )
-    } else {
-      return null;
-    }
-  }
-
   render() {
     return (
       <div>
@@ -140,6 +168,10 @@ class DeviceModal extends React.Component {
           </div>
           <div>
             <h4 className="device-modal-heading">Status</h4>
+            {this.renderBeaconStatus()}
+            {this.renderContactStatus()}
+            {this.renderLockStatus()}
+            {this.renderSwitchStatus()}
             {this.renderTemperature()}
             {this.renderBatteryStatus()}
             {this.renderPermissions()}
@@ -156,6 +188,7 @@ DeviceModal.propTypes = {
   history: PropTypes.object,
   label: PropTypes.string,
   match: PropTypes.object,
+  nearbyBeacons: PropTypes.object,
   permissions: PropTypes.object,
   status: PropTypes.object
 }
@@ -167,6 +200,7 @@ const mapStateToProps = (state, ownProps) => {
     label: Capability.getLabel(state, deviceId),
     permissions: Capability.getPermissions(state, deviceId),
     status: Capability.getStatus(state, deviceId),
+    nearbyBeacons: state.beacons.nearbyBeacons
   };
 };
 
