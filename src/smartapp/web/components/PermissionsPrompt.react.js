@@ -4,10 +4,10 @@ import Button from '@material/react-button';
 import Capability from '../lib/capabilities/Capability';
 import MaterialIcon from '@material/react-material-icon';
 import PropTypes from 'prop-types';
-import toastError from '../lib/error-toaster';
 import * as Actions from '../redux/actions';
 import { LocationRestrictions } from '../../permissions';
 import { connect } from 'react-redux';
+import { CSSTransition, TransitionGroup } from 'react-transition-group';
 
 class PermissionsPrompt extends React.Component {
   constructor(props) {
@@ -41,38 +41,46 @@ class PermissionsPrompt extends React.Component {
 
     return (
       <div>
-        <div className="modal-bg" onClick={this.deny}/>
-        <div className="modal-window">
-          <div style={{display: 'flex', justifyContent: 'space-between'}}>
-            <h3 className="modal-heading">Are you sure you want to do this?</h3>
-            <MaterialIcon icon="close" onClick={this.deny}/>
-          </div>
-          <div className="prompt-command">{deviceLabel} → <b>{prompt.command}</b></div>
-          <p>{infoText}</p>
-          <div style={{display: 'flex', justifyContent: 'flex-end'}}>
-            <Button className="prompt-button" onClick={() => {this.allow(prompt)}}>
-              Yes
-            </Button>
-            <Button className="prompt-button mdc-button-blue" raised onClick={this.deny}>
-              No
-            </Button>
-          </div>
+        <div style={{display: 'flex', justifyContent: 'space-between'}}>
+          <h3 className="modal-heading">Are you sure you want to do this?</h3>
+          <MaterialIcon icon="close" onClick={this.deny}/>
+        </div>
+        <div className="prompt-command">{deviceLabel} → <b>{prompt.command}</b></div>
+        <p>{infoText}</p>
+        <div style={{display: 'flex', justifyContent: 'flex-end'}}>
+          <Button className="prompt-button" onClick={() => {this.allow(prompt)}}>
+            Yes
+          </Button>
+          <Button className="prompt-button mdc-button-blue" raised onClick={this.deny}>
+            No
+          </Button>
         </div>
       </div>
     );
   }
 
   render() {
-    if (this.props.permissionPrompts.length === 0) {
-      return null;
+    const show = this.props.permissionPrompts.length !== 0;
+    let content;
+    if (show) {
+      const prompt = this.props.permissionPrompts[0];
+      if (prompt.promptType === 'location') {
+        content = this.renderLocationPrompt(prompt);
+      } else if (prompt.promptType === 'parental') {
+        // TODO
+      }
     }
 
-    const prompt = this.props.permissionPrompts[0];
-    if (prompt.promptType === 'location') {
-      return this.renderLocationPrompt(prompt);
-    } else if (prompt.promptType === 'parental') {
-      return null;
-    }
+    return (
+      <CSSTransition in={show} timeout={75} classNames={'fade'} mountOnEnter unmountOnExit>
+        <div>
+          <div className="modal-bg fade" onClick={this.deny}/>
+          <div className="modal-window fade">
+            {content}
+          </div>
+        </div>
+      </CSSTransition>
+    );
   }
 }
 

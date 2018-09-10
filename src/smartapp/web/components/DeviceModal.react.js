@@ -160,8 +160,8 @@ class DeviceModal extends React.Component {
   render() {
     return (
       <div>
-        <div className="modal-bg" onClick={this.close}/>
-        <div className="modal-window">
+        <div className="modal-bg fade" onClick={this.close}/>
+        <div className="modal-window fade">
           <div style={{display: 'flex', justifyContent: 'space-between'}}>
             <h3 className="modal-heading">{this.props.label}</h3>
             <MaterialIcon icon="close" onClick={this.close}/>

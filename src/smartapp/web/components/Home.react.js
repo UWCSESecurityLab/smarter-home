@@ -4,7 +4,8 @@ import MaterialIcon from '@material/react-material-icon';
 import TopAppBar from '@material/react-top-app-bar';
 import Toast from 'react-notify-toast';
 import { connect } from 'react-redux';
-import { Route, Switch } from 'react-router-dom';
+import { Route, Switch, withRouter } from 'react-router-dom';
+import { TransitionGroup, CSSTransition } from 'react-transition-group'
 
 import AddUserModal from './AddUserModal.react';
 import BeaconModal from './BeaconModal.react';
@@ -114,14 +115,26 @@ class Home extends React.Component {
         <div className="container mdc-top-app-bar--fixed-adjust"
              style={this.state.visible ? null : hidden}>
           <Toast options={{ zIndex: 3 }}/>
-          <Route path={`${this.props.match.url}/addBeacon`}
-                 component={BeaconModal}/>
-          <Route path={`${this.props.match.url}/addUser`}
-                 render={() =>
-                  <AddUserModal setVisibility={this.setVisibility}/>} />
-          <Route path={`${this.props.match.url}/device/:deviceId`}
-                 component={DeviceModal}/>
           {this.renderNotificationsPrompt()}
+
+          <TransitionGroup>
+            <CSSTransition
+              key={this.props.location.key}
+              timeout={75}
+              classNames={'fade'}>
+              <Switch location={this.props.location}>
+                <Route path={`${this.props.match.url}/addBeacon`}
+                      component={BeaconModal}/>
+                <Route path={`${this.props.match.url}/addUser`}
+                      render={() =>
+                        <AddUserModal setVisibility={this.setVisibility}/>} />
+                <Route path={`${this.props.match.url}/device/:deviceId`}
+                      component={DeviceModal}/>
+                <Route render={() => null}/>
+              </Switch>
+            </CSSTransition>
+          </TransitionGroup>
+
           <PermissionsPrompt/>
           <Switch>
             <Route path="/home" render={() => (
@@ -142,6 +155,7 @@ class Home extends React.Component {
 Home.propTypes = {
   dispatch: PropTypes.func,
   match: PropTypes.object,
+  location: PropTypes.object,
   notificationsEnabled: PropTypes.bool,
   silenceNotificationPrompt: PropTypes.bool
 }
@@ -153,4 +167,4 @@ const mapStateToProps = (state) => {
   }
 }
 
-export default connect(mapStateToProps)(Home);
+export default withRouter(connect(mapStateToProps)(Home));

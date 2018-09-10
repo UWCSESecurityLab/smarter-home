@@ -133,6 +133,26 @@ input:focus, textarea:focus {
   margin: 0.25em 0;
 }
 
+.fade-enter {
+  opacity: 0;
+  z-index: 4;
+}
+.fade-enter.fade-enter-active {
+  opacity: 1;
+  z-index: 4;
+  transition: opacity 75ms ease-in;
+}
+.fade-exit {
+  opacity: 1;
+  z-index: 4;
+}
+
+.fade-exit.fade-exit-active {
+  opacity: 0;
+  z-index: 4;
+  transition: opacity 75ms ease-out;
+}
+
 .error {
   background-color: #fdd7d7;
   border: 1px solid #ff7272;

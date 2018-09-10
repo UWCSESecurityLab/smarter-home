@@ -85,10 +85,10 @@ class AddUserModal extends React.Component {
     return (
       <div>
         { !window.cordova
-          ? <div className="modal-bg" onClick={this.close}/>
+          ? <div className="modal-bg fade" onClick={this.close}/>
           : null
         }
-        <div className="modal-window" style={{visibility: 'visible'}}>
+        <div className="modal-window fade" style={{visibility: 'visible'}}>
           <div style={{display: 'flex', justifyContent: 'space-between'}}>
             <h3>Add user</h3>
             <MaterialIcon icon="close" onClick={this.close}/>
@@ -116,8 +116,8 @@ class AddUserModal extends React.Component {
 
     return (
       <div>
-        <div className="modal-bg" onClick={this.close}/>
-        <div className="modal-window">
+        <div className="modal-bg fade" onClick={this.close}/>
+        <div className="modal-window fade">
           <div style={{display: 'flex', justifyContent: 'space-between'}}>
             <h3 className="modal-heading">Add User</h3>
             <MaterialIcon icon="close" onClick={this.close}/>
