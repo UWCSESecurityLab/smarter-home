@@ -26,6 +26,10 @@ class HomeState {
     smartAppClient.listUsers().then((users) => {
       store.dispatch(Actions.setUsers(users));
     }).catch(toastError);
+
+    smartAppClient.getUser('me').then((user) => {
+      store.dispatch(Actions.setMe(user.id));
+    });
   }
 
   // Fetches the descriptions of all of the devices in the given rooms,

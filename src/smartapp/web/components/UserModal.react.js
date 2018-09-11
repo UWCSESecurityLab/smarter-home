@@ -31,6 +31,7 @@ class UserModal extends React.Component {
   }
 
   render() {
+    const isMe = this.props.me === this.props.user.id;
     let content;
     if (this.state.view == 'overview') {
       content = this.renderOverview();
@@ -42,13 +43,14 @@ class UserModal extends React.Component {
         </div>
       );
     }
-
     return (
       <div>
         <div className="modal-bg fade" onClick={this.close}/>
         <div className="modal-window fade">
           <div style={{display: 'flex', justifyContent: 'space-between'}}>
-            <h3 className="modal-heading">{this.props.user.displayName}</h3>
+            <h3 className="modal-heading">
+              { `${this.props.user.displayName}${isMe ? ' (You)' : ''}` }
+            </h3>
             <MaterialIcon icon="close" onClick={this.close}/>
           </div>
           {content}
@@ -61,11 +63,13 @@ class UserModal extends React.Component {
 UserModal.propTypes = {
   history: PropTypes.object,
   match: PropTypes.object,
+  me: PropTypes.string,
   user: PropTypes.object
 }
 
 const mapStateToProps = (state, ownProps) => {
   return {
+    me: state.me,
     user: state.users[ownProps.match.params.userId]
   }
 };

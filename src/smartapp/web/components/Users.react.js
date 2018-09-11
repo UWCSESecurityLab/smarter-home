@@ -40,6 +40,10 @@ class Users extends React.Component {
               <span className="user-li-label">
                 {user.displayName}
               </span>
+              { user.id === this.props.me
+                ? <span className="user-you-label">You</span>
+                : null
+              }
             </div>
           )}
         <Button onClick={this.addUser}>
@@ -54,12 +58,14 @@ Users.propTypes = {
   dispatch: PropTypes.func,
   history: PropTypes.object,
   setVisibility: PropTypes.func,
-  users: PropTypes.object
+  users: PropTypes.object,
+  me: PropTypes.string,
 }
 
 const mapStateToProps = (state) => {
   return {
-    users: state.users
+    users: state.users,
+    me: state.me
   }
 }
 

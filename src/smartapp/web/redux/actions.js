@@ -169,3 +169,8 @@ export const UPDATE_USER_ROLE = 'UPDATE_USER_ROLE';
 export function updateUserRole(userId, role) {
   return { type: UPDATE_USER_ROLE, userId: userId, role: role };
 }
+
+export const SET_ME = 'SET_ME';
+export function setMe(userId) {
+  return { type: SET_ME, userId: userId };
+}

@@ -65,6 +65,14 @@ function users(state = {}, action) {
       return state;
   }
 }
+function me(state = '', action) {
+  switch (action.type) {
+    case Actions.SET_ME:
+      return action.userId;
+    default:
+      return state;
+  }
+}
 
 function permissionPrompts(state = [], action) {
   switch (action.type) {
@@ -135,6 +143,7 @@ const store = createStore(combineReducers({
   flags: flags,
   users: users,
   permissionPrompts: permissionPrompts,
+  me: me
 }));
 
 export { store };
