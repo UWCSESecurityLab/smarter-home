@@ -7,7 +7,7 @@ import PropTypes from 'prop-types';
 import * as Actions from '../redux/actions';
 import { LocationRestrictions } from '../../permissions';
 import { connect } from 'react-redux';
-import { CSSTransition, TransitionGroup } from 'react-transition-group';
+import { CSSTransition } from 'react-transition-group';
 
 class PermissionsPrompt extends React.Component {
   constructor(props) {

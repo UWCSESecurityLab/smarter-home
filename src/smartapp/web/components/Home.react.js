@@ -22,6 +22,7 @@ import * as Actions from '../redux/actions';
 
 import '@material/react-material-icon/index.scss';
 import '../css/home.scss';
+import '../css/modal.scss';
 
 class Home extends React.Component {
   constructor(props, context) {
