@@ -14,6 +14,7 @@ import DeviceListItem from './DeviceList/DeviceListItem.react';
 import toastError from '../lib/error-toaster';
 import HomeState from '../lib/home-state';
 import LockStatus from './DeviceList/LockStatus.react';
+import Roles from '../../roles';
 import SmartAppClient from '../lib/SmartAppClient';
 import SwitchStatus from './DeviceList/SwitchStatus.react';
 
@@ -242,11 +243,14 @@ class Devices extends React.Component {
       return (
         <div className="devices-header">
           <h3 className="devices-heading">My Home</h3>
-          <Button className="mdc-button-green devices-header-button"
-                  id="edit-rooms"
-                  onClick={() => { this.setState({ edit: true }) }}>
-            Configure
-          </Button>
+          { this.props.me && this.props.me.role !== Roles.CHILD && this.props.me.role !== Roles.GUEST
+              ? <Button className="mdc-button-green devices-header-button"
+                        id="edit-rooms"
+                        onClick={() => { this.setState({ edit: true }) }}>
+                  Configure
+                </Button>
+              : null
+          }
         </div>
       );
     }
@@ -285,6 +289,7 @@ Devices.propTypes = {
   dispatch: PropTypes.func,
   history: PropTypes.object,
   homeConfig: PropTypes.object,
+  me: PropTypes.object,
   nearbyBeacons: PropTypes.object,
   rooms: PropTypes.object
 }
@@ -295,7 +300,8 @@ function mapStateToProps(state) {
     deviceStatus: state.devices.deviceStatus,
     homeConfig: state.devices.homeConfig,
     nearbyBeacons: state.beacons.nearbyBeacons,
-    rooms: state.devices.rooms
+    rooms: state.devices.rooms,
+    me: state.users[state.me]
   };
 }
 export default withRouter(connect(mapStateToProps)(Devices));
