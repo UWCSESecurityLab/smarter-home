@@ -243,13 +243,13 @@ class Devices extends React.Component {
       return (
         <div className="devices-header">
           <h3 className="devices-heading">My Home</h3>
-          { this.props.me && this.props.me.role !== Roles.CHILD && this.props.me.role !== Roles.GUEST
-              ? <Button className="mdc-button-green devices-header-button"
-                        id="edit-rooms"
-                        onClick={() => { this.setState({ edit: true }) }}>
-                  Configure
-                </Button>
-              : null
+          { this.props.me.role === Roles.USER
+            ? <Button className="mdc-button-green devices-header-button"
+                      id="edit-rooms"
+                      onClick={() => { this.setState({ edit: true }) }}>
+                Configure
+              </Button>
+            : null
           }
         </div>
       );
@@ -301,7 +301,7 @@ function mapStateToProps(state) {
     homeConfig: state.devices.homeConfig,
     nearbyBeacons: state.beacons.nearbyBeacons,
     rooms: state.devices.rooms,
-    me: state.users[state.me]
+    me: state.users[state.me] ? state.users[state.me] : {}
   };
 }
 export default withRouter(connect(mapStateToProps)(Devices));
