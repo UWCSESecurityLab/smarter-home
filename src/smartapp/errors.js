@@ -35,6 +35,9 @@ module.exports = {
   BEACON_NOT_FOUND: 'BEACON_NOT_FOUND',
   // Couldn't find user in database
   USER_NOT_FOUND: 'USER_NOT_FOUND',
+  // Couldn't find device in database
+  DEVICE_NOT_FOUND: 'DEVICE_NOT_FOUND',
+  // User does not have permission to make the request
+  MISSING_PERMISSIONS: 'MISSING_PERMISSIONS',
   UNKNOWN: 'UNKNOWN',
-  DEVICE_NOT_FOUND: 'DEVICE_NOT_FOUND'
 }

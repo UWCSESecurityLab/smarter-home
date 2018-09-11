@@ -31,6 +31,9 @@ export default function(error) {
       case Errors.SMARTTHINGS_ERROR:
         toast.show('There was a problem with SmartThings. Please try again later.', 'error');
         break;
+      case Errors.MISSING_PERMISSIONS:
+        toast.show('You do not have permission to change this.', 'error');
+        break;
       default:
         toast.show(error.error, 'error');
     }

@@ -88,6 +88,10 @@ input:focus, textarea:focus {
   background: #3b5b6d;
 }
 
+.mdc-top-app-bar {
+  z-index: 10;
+}
+
 .mdc-button {
   text-transform: none;
   letter-spacing: initial;
@@ -108,21 +112,17 @@ input:focus, textarea:focus {
 
 .fade-enter {
   opacity: 0;
-  z-index: 4;
 }
 .fade-enter.fade-enter-active {
   opacity: 1;
-  z-index: 4;
   transition: opacity 75ms ease-in;
 }
 .fade-exit {
   opacity: 1;
-  z-index: 4;
 }
 
 .fade-exit.fade-exit-active {
   opacity: 0;
-  z-index: 4;
   transition: opacity 75ms ease-out;
 }
 

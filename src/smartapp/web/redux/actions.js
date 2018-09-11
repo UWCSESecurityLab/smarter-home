@@ -164,3 +164,8 @@ export const REMOVE_TOP_PROMPT = 'REMOVE_TOP_PROMPT';
 export function removeTopPrompt() {
   return { type: REMOVE_TOP_PROMPT };
 }
+
+export const UPDATE_USER_ROLE = 'UPDATE_USER_ROLE';
+export function updateUserRole(userId, role) {
+  return { type: UPDATE_USER_ROLE, userId: userId, role: role };
+}

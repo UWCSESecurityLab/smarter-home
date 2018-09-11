@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const Roles = require('../../roles');
 
 // This schema uniquely identifies a user of the SmarterHome app.
 let userSchema = mongoose.Schema({
@@ -10,6 +11,7 @@ let userSchema = mongoose.Schema({
   installedAppId: String,        // The SmartApp instance that the user can access
   // FCM notification tokens and keys for home activity notifications.
   activityFcmTokens: [String],
+  role: { type: String, default: Roles.USER }
 });
 
 let User = mongoose.model('User', userSchema);

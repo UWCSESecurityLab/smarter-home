@@ -11,6 +11,7 @@ class Users extends React.Component {
   constructor(props) {
     super(props);
     this.addUser = this.addUser.bind(this);
+    this.showUserModal = this.showUserModal.bind(this);
   }
 
   componentDidMount() {
@@ -21,12 +22,20 @@ class Users extends React.Component {
     this.props.history.push(this.props.history.location.pathname + '/addUser');
   }
 
+  showUserModal(userId) {
+    this.props.history.push(
+      `${this.props.history.location.pathname}/user/${userId}`
+    );
+  }
+
   render() {
     return (
       <section className="home-item">
         <h3>Users</h3>
         { Object.values(this.props.users).map((user) =>
-            <div className="user-li" key={user.id}>
+            <div className="user-li"
+                 key={user.id}
+                 onClick={() => { this.showUserModal(user.id) }}>
               <MaterialIcon icon="mood" style={{ color: strToColor(user.id)}}/>
               <span className="user-li-label">
                 {user.displayName}

@@ -17,6 +17,7 @@ import HomeState from '../lib/home-state';
 import NotificationSettings from './NotificationSettings.react';
 import PermissionsPrompt from './PermissionsPrompt.react';
 import toastError from '../lib/error-toaster';
+import UserModal from './UserModal.react';
 import Users from './Users.react';
 import * as Actions from '../redux/actions';
 
@@ -115,7 +116,7 @@ class Home extends React.Component {
         />
         <div className="container mdc-top-app-bar--fixed-adjust"
              style={this.state.visible ? null : hidden}>
-          <Toast options={{ zIndex: 3 }}/>
+          <Toast options={{ zIndex: 6 }}/>
           {this.renderNotificationsPrompt()}
 
           <TransitionGroup>
@@ -131,6 +132,8 @@ class Home extends React.Component {
                         <AddUserModal setVisibility={this.setVisibility}/>} />
                 <Route path={`${this.props.match.url}/device/:deviceId`}
                       component={DeviceModal}/>
+                <Route path={`${this.props.match.url}/user/:userId`}
+                      component={UserModal}/>
                 <Route render={() => null}/>
               </Switch>
             </CSSTransition>

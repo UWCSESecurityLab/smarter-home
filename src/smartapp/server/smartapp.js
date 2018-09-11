@@ -47,6 +47,7 @@ const log = require('./log');
 const Beacon = require('./db/beacon');
 const Command = require('./db/command');
 const Permission = require('./db/permissions');
+const Roles = require('../roles');
 const Room = require('./db/room');
 const RoomTransaction = require('./db/room-transaction');
 const SmartThingsClient = require('./SmartThingsClient');
@@ -1017,6 +1018,29 @@ app.get('/users/:userId', checkAuth, (req, res) => {
   });
 });
 
+app.post('/users/:userId/updateRole', checkAuth, (req, res) => {
+  if (req.user.role !== Roles.ADMIN && req.user.role !== Roles.USER) {
+    logger.error({ message: Errors.MISSING_PERMISSIONS, meta: req.logMeta });
+    res.status(403).json({ error: Errors.MISSING_PERMISSIONS });
+    return;
+  }
+  if (!Object.values(Roles).includes(req.body.role)) {
+    logger.error({ message: Errors.UNKNOWN, meta: req.logMeta });
+    res.status(400).json({ error: Errors.UNKNOWN });
+    return;
+  }
+  User.findOneAndUpdate(
+    { id: req.params.userId }, { $set: { role: req.body.role }}
+  ).then(() => {
+    res.status(200).json({});
+  }).catch((err) => {
+    logger.error({
+      message: Errors.DB_ERROR,
+      meta: { error: err, ...req.logMeta }
+    });
+    res.status(500).json({ error: Errors.DB_ERROR });
+  });
+});
 
 app.get('/refresh', checkAuth, (req, res) => {
   SmartThingsClient.renewTokens(req.session.installedAppId, APP_CONFIG)

@@ -58,6 +58,9 @@ function users(state = {}, action) {
   switch (action.type) {
     case Actions.SET_USERS:
       return Object.assign({}, ...action.users.map((user) => { return { [user.id]: user }}));
+    case Actions.UPDATE_USER_ROLE:
+      return Object.assign({}, state, {
+        [action.userId]: Object.assign({}, state[action.userId], { role: action.role })});
     default:
       return state;
   }

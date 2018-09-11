@@ -259,6 +259,18 @@ class SmartAppClient {
     }).then(handleJsonResponse);
   }
 
+  updateUserRole(userId, role) {
+    return fetch(`${this.host}/users/${userId}/updateRole`, {
+      method: 'POST',
+      credentials: 'same-origin',
+      headers: {
+        'Client-Session': this.sessionId,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ role: role })
+    }).then(handleJsonResponse);
+  }
+
   addNewUser(publicKey, displayName) {
     return fetch(`${this.host}/users/new`, {
       method: 'POST',
