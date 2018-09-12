@@ -34,6 +34,9 @@ export default function(error) {
       case Errors.MISSING_PERMISSIONS:
         toast.show('You do not have permission to change this.', 'error');
         break;
+      case Errors.MISSING_FIELDS:
+        toast.show('Please fill out all of the fields.', 'error');
+        break;
       default:
         toast.show(error.error, 'error');
     }

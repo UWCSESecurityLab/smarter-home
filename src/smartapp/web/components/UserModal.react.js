@@ -2,9 +2,14 @@ import React from 'react';
 import Button from '@material/react-button';
 import MaterialIcon from '@material/react-material-icon';
 import PropTypes from 'prop-types';
+import SmartAppClient from '../lib/SmartAppClient';
+import toastError from '../lib/error-toaster';
 import UserRolePicker from './UserRolePicker.react';
+import * as Actions from '../redux/actions';
 import { connect } from 'react-redux';
 import { withRouter } from 'react-router-dom';
+
+const smartAppClient = new SmartAppClient();
 
 class UserModal extends React.Component {
   constructor(props) {
@@ -12,11 +17,18 @@ class UserModal extends React.Component {
     this.state = { view: 'overview' };
 
     this.close = this.close.bind(this);
+    this.onChange = this.onChange.bind(this);
     this.renderOverview = this.renderOverview.bind(this);
   }
 
   close() {
     this.props.history.push(this.props.history.location.pathname.split('/user')[0]);
+  }
+
+  onChange(_, role) {
+    smartAppClient.updateUserRole(this.props.user.id, role).then(() => {
+      this.props.dispatch(Actions.updateUserRole(this.props.user.id, role))
+    }).catch(toastError);
   }
 
   renderOverview() {
@@ -39,7 +51,7 @@ class UserModal extends React.Component {
       content = (
         <div>
           <h4>Change {this.props.user.displayName}'s Role</h4>
-          <UserRolePicker user={this.props.user}/>
+          <UserRolePicker user={this.props.user} onChange={this.onChange}/>
         </div>
       );
     }
@@ -61,6 +73,7 @@ class UserModal extends React.Component {
 }
 
 UserModal.propTypes = {
+  dispatch: PropTypes.func,
   history: PropTypes.object,
   match: PropTypes.object,
   me: PropTypes.string,

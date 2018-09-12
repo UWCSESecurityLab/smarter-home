@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 
 class Radio extends React.Component {
   render() {
-    let { id, checked, label, name, disable, onRadioChange} = this.props;
+    let { id, checked, label, name, disable, onRadioChange, required} = this.props;
     let disableClassName = '';
     if (disable) {
       disableClassName = ' mdc-radio--disabled'
@@ -14,6 +14,7 @@ class Radio extends React.Component {
           <input className="mdc-radio__native-control"
                 type="radio" id={id} name={name}
                 checked={checked}
+                required={required}
                 onChange={() => {
                   onRadioChange(name, id)
                 }}/>
@@ -31,9 +32,10 @@ class Radio extends React.Component {
 Radio.propTypes = {
   id: PropTypes.string,
   checked: PropTypes.bool,
-  label: PropTypes.string,
+  label: PropTypes.node,
   name: PropTypes.string,
   disable: PropTypes.bool,
+  required: PropTypes.required,
   onRadioChange: PropTypes.func,
 }
 

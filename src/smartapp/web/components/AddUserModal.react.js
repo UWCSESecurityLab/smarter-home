@@ -4,12 +4,16 @@ import HomeState from '../lib/home-state';
 import MaterialIcon from '@material/react-material-icon';
 import PropTypes from 'prop-types';
 import strToColor from '../lib/strToColor';
-import * as Errors from '../../errors';
+import Radio from './Radio.react';
 import SmartAppClient from '../lib/SmartAppClient';
+import UserRolePicker from './UserRolePicker.react';
+import * as Errors from '../../errors';
 import { connect } from 'react-redux';
+import { notify as toast } from 'react-notify-toast';
 import { withRouter } from 'react-router-dom';
 
-let smartAppClient = new SmartAppClient();
+const smartAppClient = new SmartAppClient();
+const NEW_USER = '_NEW_USER';
 
 class AddUserModal extends React.Component {
   constructor() {
@@ -18,13 +22,18 @@ class AddUserModal extends React.Component {
       error: '',
       key: {},
       newName: '',
-      scanning: true
+      newUserRole: '',
+      scanning: true,
+      picked: null,
     }
     this.addKeyToUser = this.addKeyToUser.bind(this);
     this.addNewUser = this.addNewUser.bind(this);
+    this.changePicked = this.changePicked.bind(this);
     this.close = this.close.bind(this);
     this.onNameChange = this.onNameChange.bind(this);
+    this.onRoleChange = this.onRoleChange.bind(this);
     this.stopScan = this.stopScan.bind(this);
+    this.submit = this.submit.bind(this);
   }
 
   componentDidMount() {
@@ -59,9 +68,20 @@ class AddUserModal extends React.Component {
     this.props.history.push(this.props.history.location.pathname.split('/addUser')[0]);
   }
 
+  submit(e) {
+    e.preventDefault();
+    if (this.state.picked === NEW_USER) {
+      this.addNewUser();
+    } else if (this.state.picked === '') {
+      toast.show('Please pick a user.', 'error');
+    } else {
+      this.addKeyToUser(this.state.picked);
+    }
+  }
+
   async addNewUser() {
     try {
-      await smartAppClient.addNewUser(this.state.key, this.state.newName);
+      await smartAppClient.addNewUser(this.state.key, this.state.newName, this.state.newUserRole);
       await HomeState.fetchUsers();
       this.close();
     } catch(err) {
@@ -79,6 +99,14 @@ class AddUserModal extends React.Component {
 
   onNameChange(e) {
     this.setState({ newName: e.target.value });
+  }
+
+  changePicked(_, userId) {
+    this.setState({ picked: userId });
+  }
+
+  onRoleChange(_, role) {
+    this.setState({ newUserRole: role });
   }
 
   renderScanner() {
@@ -110,6 +138,8 @@ class AddUserModal extends React.Component {
       errorMessage = 'Someone has already scanned this QR code before. If the new user can\'t log in, try having them reinstall their app.';
     } else if (this.state.error.name === 'TypeError') {
       errorMessage = 'Couldn\'t connect to SmarterHome. Please try again later';
+    } else if (this.state.error.error === Errors.MISSING_FIELDS) {
+      errorMessage = 'Please fill out all of the fields.'
     } else if (this.state.error) {
       errorMessage = 'Unknown error: ' + JSON.stringify(this.state.error);
     }
@@ -126,24 +156,42 @@ class AddUserModal extends React.Component {
             Add this device to an existing user
           </p>
           { Object.values(this.props.users).map((user) =>
-            <div className="user-li" key={user.id} onClick={() => {
-              this.addKeyToUser(user.id)
-            }}>
-              <MaterialIcon icon="mood" style={{ color: strToColor(user.id)}}/>
-              <span className="user-li-label">
-                {user.displayName}
-              </span>
-            </div>
+            <Radio name="users"
+                  id={user.id}
+                  key={user.id}
+                  checked={this.state.picked === user.id}
+                  label={
+                    <span className="user-radio-label">
+                      <MaterialIcon icon="mood" style={{ color: strToColor(user.id)}}/>
+                      <span className="user-li-label">{user.displayName}</span>
+                    </span>
+                  }
+                  onRadioChange={this.changePicked}/>
           )}
           <p>
             Or, create a new user
           </p>
-          <input type="text"
-                value={this.state.newName}
-                placeholder="Name"
-                onChange={this.onNameChange}/>
-          <Button className="mdc-button-blue" onClick={this.addNewUser}>
-            Add
+          <Radio name="users"
+                id={NEW_USER}
+                checked={this.state.picked === NEW_USER}
+                label={
+                  <input type="text"
+                    value={this.state.newName}
+                    placeholder="Name"
+                    onChange={this.onNameChange}/>
+                }
+                onRadioChange={this.changePicked}/>
+          <br/>
+          { this.state.picked === NEW_USER
+            ? <div>
+                <p>Choose {this.state.newName}'s role</p>
+                <UserRolePicker onChange={this.onRoleChange}
+                                user={{role: this.state.newUserRole}} />
+              </div>
+            : null
+          }
+          <Button className="mdc-button-blue" raised onClick={this.submit} type="submit">
+            Add User
           </Button>
           { this.state.error
             ? <div className="error">{errorMessage}</div>

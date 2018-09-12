@@ -8,8 +8,14 @@
   justify-content: space-between;
 }
 
-.user-li-label{
+.user-li-label {
   margin-left: 5px;
+}
+
+.user-radio-label {
+  display: flex;
+  align-items: center;
+  min-width: 50vw;
 }
 
 .user-you-label {

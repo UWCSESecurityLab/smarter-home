@@ -39,5 +39,6 @@ module.exports = {
   DEVICE_NOT_FOUND: 'DEVICE_NOT_FOUND',
   // User does not have permission to make the request
   MISSING_PERMISSIONS: 'MISSING_PERMISSIONS',
+  MISSING_FIELDS: 'MISSING_FIELDS',
   UNKNOWN: 'UNKNOWN',
 }

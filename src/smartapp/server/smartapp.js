@@ -935,6 +935,12 @@ app.get('/users', checkAuth, (req, res) => {
 
 // Create a new user, via public key (scanned with QR code).
 app.post('/users/new', checkAuth, (req, res) => {
+  if (!req.body.publicKey || !req.body.displayName || !Object.values(Roles).includes(req.body.role)) {
+    logger.error({ message: Errors.MISSING_FIELDS, meta: req.logMeta });
+    res.status(400).json({ error: Errors.MISSING_FIELDS });
+    return;
+  }
+
   let key = req.body.publicKey;
   User.findOne({ publicKeys: { $elemMatch: { x: key.x, y: key.y }}}).then((keyExists) => {
     if (keyExists) {
@@ -946,7 +952,8 @@ app.post('/users/new', checkAuth, (req, res) => {
       id: uuid(),
       installedAppId: req.session.installedAppId,
       displayName: req.body.displayName,
-      publicKeys: [req.body.publicKey]
+      publicKeys: [req.body.publicKey],
+      role: req.body.role
     });
     newUser.save().then(() => {
       res.status(200).json({});
@@ -967,6 +974,11 @@ app.post('/users/new', checkAuth, (req, res) => {
 });
 
 app.post('/users/addKey', checkAuth, (req, res) => {
+  if (Object.keys(req.body.publicKey).length === 0 || !req.body.userId) {
+    logger.error({ message: Errors.MISSING_FIELDS, meta: req.logMeta });
+    res.status(400).json({ error: Errors.MISSING_FIELDS });
+    return;
+  }
   let key = req.body.publicKey;
   User.findOne({ publicKeys: { $elemMatch: { x: key.x, y: key.y }}})
     .then((keyExists) => {
