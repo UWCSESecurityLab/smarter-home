@@ -11,6 +11,7 @@ function rejectErrors(err, resp, body, reject) {
     return true;
   } else if (resp.statusCode !== 200) {
     log.red('SmartThings Request Error', resp.statusCode);
+    console.log(body);
     if (resp.statusCode === 401) {
       reject({ error: Errors.SMARTTHINGS_AUTH_ERROR });
     } else {

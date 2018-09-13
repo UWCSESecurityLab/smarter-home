@@ -60,14 +60,57 @@ module.exports = {
         'installedApp.installedAppId': updateData.installedApp.installedAppId
       }).exec();
       if (!installData) {
-        log.error(`Couldn\'t process update event - installdata ${updateData.installedApp.installedAppId} doesn\'t exist`);
+        log.error(`Couldn't process update event - installdata ${updateData.installedApp.installedAppId} doesn't exist`);
         return;
       }
 
+      let rooms = await Room.find({
+        installedAppId: updateData.installedApp.installedAppId
+      }).exec();
+
+      // Get ids of devices in this update
+      const updateDeviceIds = Object.values(installData.installedApp.config)
+        .reduce((accumulator, current) => accumulator.concat(current), [])
+        .map((entry) => entry.deviceConfig.deviceId);
+      // Get ids of devices currently in rooms
+      const roomDeviceIds = rooms.reduce((accumulator, current) => {
+        return accumulator.concat(current.devices)
+      }, []);
+
+      // Calculate which devices were added and removed
+      const newDeviceIds = updateDeviceIds.filter((updateDeviceId) => {
+        return !roomDeviceIds.includes(updateDeviceId);
+      });
+      const removedDeviceIds = roomDeviceIds.filter((roomDeviceId) => {
+        return !updateDeviceIds.includes(roomDeviceId);
+      });
+
+      console.log('Removed devices:');
+      console.log(removedDeviceIds);
+      console.log('Added devices:');
+      console.log(newDeviceIds);
+
+      // Update installdata object
       installData.authToken = updateData.authToken;
       installData.refreshToken = updateData.refreshToken;
       installData.installedApp = updateData.installedApp;
-      await installData.save();
+      installData.save();
+
+      // Update rooms
+      for (let room of rooms) {
+        // Remove devices if necessary
+        for (let removedDeviceId of removedDeviceIds) {
+          const idx = room.devices.indexOf(removedDeviceId);
+          if (idx > -1) {
+            room.devices.splice(idx, 1);
+          }
+        }
+        // Add devices to default room if necessary
+        if (room.default && newDeviceIds.length > 0) {
+          room.devices = room.devices.concat(newDeviceIds);
+        }
+        await room.save();
+      }
     } catch(e) {
       log.error(e);
     }
@@ -257,29 +300,22 @@ function subscribeToAuthorizedDevices(installData) {
   return Promise.all(requests);
 }
 
-// Generates an eddystone-compatible namespace from uuid-v4.
-function generateEddystoneNamespace(uuidv4) {
-  return uuidv4.slice(0, 8) + uuidv4.slice(24);
-}
-
-function createFirstRoom(installData) {
+async function createFirstRoom(installData) {
   const roomId = uuid();
-  const beaconNamespace = generateEddystoneNamespace(roomId);
 
   const devices = Object.values(installData.installedApp.config)
-  .reduce((accumulator, current) => {
-    return accumulator.concat(current)
-  })
-  .map((entry) => entry.deviceConfig.deviceId);
+    .reduce((accumulator, current) => {
+      return accumulator.concat(current)
+    }, [])
+    .map((entry) => entry.deviceConfig.deviceId);
 
   const room = new Room({
     installedAppId: installData.installedApp.installedAppId,
     roomId: roomId,
     name: 'Home',
-    beaconNamespace: beaconNamespace,
     devices: devices,
     default: true
   });
 
-  room.save();
+  return room.save();
 }
