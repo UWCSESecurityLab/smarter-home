@@ -68,13 +68,16 @@ module.exports = {
         installedAppId: updateData.installedApp.installedAppId
       }).exec();
 
+      let beacons = await Beacon.find({}).exec();
+      let beaconNames = beacons.map((beacon) => beacon.name);
+
       // Get ids of devices in this update
       const updateDeviceIds = Object.values(installData.installedApp.config)
         .reduce((accumulator, current) => accumulator.concat(current), [])
         .map((entry) => entry.deviceConfig.deviceId);
       // Get ids of devices currently in rooms
       const roomDeviceIds = rooms.reduce((accumulator, current) => {
-        return accumulator.concat(current.devices)
+        return accumulator.concat(current.devices);
       }, []);
 
       // Calculate which devices were added and removed
@@ -82,7 +85,8 @@ module.exports = {
         return !roomDeviceIds.includes(updateDeviceId);
       });
       const removedDeviceIds = roomDeviceIds.filter((roomDeviceId) => {
-        return !updateDeviceIds.includes(roomDeviceId);
+        return !updateDeviceIds.includes(roomDeviceId) &&
+               !beaconNames.includes(roomDeviceId);
       });
 
       console.log('Removed devices:');
