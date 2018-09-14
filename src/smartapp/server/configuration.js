@@ -1,8 +1,16 @@
+let oauthUrl;
+if (process.env.SERVER_MODE === 'prod') {
+  oauthUrl = 'https://kadara.cs.washington.edu/oauth';
+} else if (process.env.SERVER_MODE === 'dev') {
+  oauthUrl = 'https://dev.kadara.cs.washington.edu/oauth'
+}
+
+
 module.exports = {
   init: {
     configurationData: {
       initialize: {
-        name: 'Smart Notifications',
+        name: 'SmarterHome',
         description: 'Location-aware notifications',
         id: 'app',
         permissions: [],
@@ -27,7 +35,7 @@ module.exports = {
                 name: 'Log in with your Smart Notifications account',
                 description: 'Tap here to log in',
                 type: 'OAUTH',
-                urlTemplate: 'https://kadara.cs.washington.edu/oauth'
+                urlTemplate: oauthUrl
               }
             ]
           }]
