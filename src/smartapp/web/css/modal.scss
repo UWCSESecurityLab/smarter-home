@@ -22,8 +22,16 @@
   opacity: 0.4;
   left: 0;
 }
+
+.modal-heading-container {
+  display: flex;
+  justify-content: space-between;
+}
+
 .modal-heading {
   margin: 0.25em 0;
+  display: inline-flex;
+  align-items: center;
 }
 
 .device-modal-item {
@@ -39,4 +47,12 @@
   padding-bottom: 0.5em;
   font-size: 1.1em;
   font-weight: 400;
+}
+
+.device-modal-nav-item {
+  border-bottom: 1px solid #eeeeee;
+  padding: 0.5em 0.25em;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }

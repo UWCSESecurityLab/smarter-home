@@ -7,7 +7,7 @@ import SmartAppClient from '../lib/SmartAppClient';
 import toastError from '../lib/error-toaster';
 import * as Actions from '../redux/actions';
 import { connect } from 'react-redux';
-import { withRouter } from 'react-router-dom';
+import { Link, Route, Switch, withRouter } from 'react-router-dom';
 
 const smartAppClient = new SmartAppClient();
 
@@ -117,65 +117,87 @@ class DeviceModal extends React.Component {
   }
 
   renderPermissions() {
+    return (
+      <div>
+        <p>Restrict where this device can be controlled from.</p>
+        { this.renderRadio({
+            name: 'locationRestrictions',
+            id: Permissions.LocationRestrictions.NEARBY,
+            checked: this.props.permissions.locationRestrictions === Permissions.LocationRestrictions.NEARBY,
+            label: 'Only control if nearby'
+        })}
+        { this.renderRadio({
+            name: 'locationRestrictions',
+            id: Permissions.LocationRestrictions.AT_HOME,
+            checked: this.props.permissions.locationRestrictions === Permissions.LocationRestrictions.AT_HOME,
+            label: 'Only control if at home'
+        })}
+        { this.renderRadio({
+            name: 'locationRestrictions',
+            id: Permissions.LocationRestrictions.ANYWHERE,
+            checked: this.props.permissions.locationRestrictions === Permissions.LocationRestrictions.ANYWHERE,
+            label: 'Control from anywhere'
+        })}
+      </div>
+    );
+  }
+
+  render() {
     let isActuator = this.props.desc.components &&
       !!this.props.desc.components.find((component) => {
         return component.capabilities.find((capability) => {
           return capability.id === 'actuator';
         });
       });
-    if (isActuator) {
-      return (
-        <div>
-          <h4 className="device-modal-heading">Access Controls</h4>
-          <p>
-            <span className="access-control-subheading">Remote Control</span>
-            <br/>
-            Restrict where this device can be controlled from.
-          </p>
-          { this.renderRadio({
-              name: 'locationRestrictions',
-              id: Permissions.LocationRestrictions.NEARBY,
-              checked: this.props.permissions.locationRestrictions === Permissions.LocationRestrictions.NEARBY,
-              label: 'Only control if nearby'
-          })}
-          { this.renderRadio({
-              name: 'locationRestrictions',
-              id: Permissions.LocationRestrictions.AT_HOME,
-              checked: this.props.permissions.locationRestrictions === Permissions.LocationRestrictions.AT_HOME,
-              label: 'Only control if at home'
-          })}
-          { this.renderRadio({
-              name: 'locationRestrictions',
-              id: Permissions.LocationRestrictions.ANYWHERE,
-              checked: this.props.permissions.locationRestrictions === Permissions.LocationRestrictions.ANYWHERE,
-              label: 'Control from anywhere'
-          })}
-        </div>
-      );
-    } else {
-      return null;
-    }
-  }
-
-  render() {
     return (
       <div>
         <div className="modal-bg fade" onClick={this.close}/>
         <div className="modal-window fade">
-          <div style={{display: 'flex', justifyContent: 'space-between'}}>
-            <h3 className="modal-heading">{this.props.label}</h3>
-            <MaterialIcon icon="close" onClick={this.close}/>
-          </div>
-          <div>
-            <h4 className="device-modal-heading">Status</h4>
-            {this.renderBeaconStatus()}
-            {this.renderContactStatus()}
-            {this.renderLockStatus()}
-            {this.renderSwitchStatus()}
-            {this.renderTemperature()}
-            {this.renderBatteryStatus()}
-            {this.renderPermissions()}
-          </div>
+          <Switch>
+            <Route path={`${this.props.match.path}/location`} render={() => (
+              <div>
+                <div className="modal-heading-container">
+                  <Link to={this.props.match.url.split('/location')[0]} className="link-plain">
+                    <h3 className="modal-heading">
+                      <MaterialIcon icon="arrow_back"/>
+                      {this.props.label}
+                    </h3>
+                  </Link>
+                  <MaterialIcon icon="close" onClick={this.close}/>
+                </div>
+                <h4 className="device-modal-heading">Remote Control</h4>
+                {this.renderPermissions()}
+              </div>
+            )}/>
+            <Route path={this.props.match.path} render={() => (
+              <div>
+                <div className="modal-heading-container">
+                  <h3 className="modal-heading">{this.props.label}</h3>
+                  <MaterialIcon icon="close" onClick={this.close}/>
+                </div>
+                <div>
+                  <h4 className="device-modal-heading">Status</h4>
+                  {this.renderBeaconStatus()}
+                  {this.renderContactStatus()}
+                  {this.renderLockStatus()}
+                  {this.renderSwitchStatus()}
+                  {this.renderTemperature()}
+                  {this.renderBatteryStatus()}
+                  { isActuator ?
+                     <div>
+                      <h4 className="device-modal-heading">Access Controls</h4>
+                      <Link to={`${this.props.match.url}/location`} className="link-plain">
+                        <div className="device-modal-nav-item">
+                          <span>Remote Control</span>
+                          <MaterialIcon icon="chevron_right" style={{ color: '#8c8c8c' }}/>
+                        </div>
+                      </Link>
+                    </div>
+                    : null }
+              </div>
+             </div>
+            )}/>
+          </Switch>
         </div>
       </div>
     );

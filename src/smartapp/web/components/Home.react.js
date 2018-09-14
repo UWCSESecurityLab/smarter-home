@@ -121,7 +121,7 @@ class Home extends React.Component {
 
           <TransitionGroup>
             <CSSTransition
-              key={this.props.location.key}
+              key={this.props.location.pathname.split('/home')[1].split('/')[1]}
               timeout={75}
               classNames={'fade'}>
               <Switch location={this.props.location}>
