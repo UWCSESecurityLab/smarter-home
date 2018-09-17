@@ -7,7 +7,7 @@ const {google} = require('googleapis');
 const FIREBASE_CONFIG = require('../config/firebase.json');
 
 const ActivityGroup = 'activityFcmTokens';
-const ParentalControlsGroup = 'parentalControlsFcmTokens';
+const PermissionsGroup = 'permissionsFcmTokens';
 
 function getAccessToken() {
   return new Promise(function(resolve, reject) {
@@ -46,6 +46,29 @@ function handleFcmResponse(resolve, reject, err, res, body) {
   resolve(json);
 }
 
+function sendFcmNotification(message) {
+  return new Promise((resolve, reject) => {
+    getAccessToken().then((accessToken) => {
+      request.post({
+        url: `https://fcm.googleapis.com/v1/projects/${FIREBASE_CONFIG.project_id}/messages:send`,
+        headers: {
+          'Authorization': `Bearer ${accessToken}`
+        },
+        json: true,
+        body: message
+      }, (err, res, body) => handleFcmResponse(resolve, reject, err, res, body));
+    });
+  });
+}
+
+/**
+ * Sends a notification to a single client about a device changing in the home.
+ * @param {String} data.device The name/label of the device.
+ * @param {String} data.capability The capability that had a state change.
+ * @param {String} data.value The new value of the capability
+ * @param {String} data.trigger The display name of the user who changed it
+ * @param {String} token The target client's FCM token.
+ */
 function sendActivityNotification(data, token) {
   let message = {
     message: {
@@ -75,65 +98,97 @@ function sendActivityNotification(data, token) {
     }
   }
   console.log(message);
-
-  return new Promise((resolve, reject) => {
-    getAccessToken().then((accessToken) => {
-      request.post({
-        url: `https://fcm.googleapis.com/v1/projects/${FIREBASE_CONFIG.project_id}/messages:send`,
-        headers: {
-          'Authorization': `Bearer ${accessToken}`
-        },
-        json: true,
-        body: message
-      }, (err, res, body) => handleFcmResponse(resolve, reject, err, res, body));
-    });
-  });
+  return sendFcmNotification(message);
 }
+
+/**
+ * Sends a permissions request notification to a single client.
+ * @param {String} data.requester The name of the user making the request
+ * @param {String} data.capability The capability to change
+ * @param {String} data.command The command requested
+ * @param {String} data.commandId The id identifying the request
+ * @param {String} data.device The device to execute on
+ * @param {String} token The target client's FCM token.
+ */
+function sendAskNotification(data, token) {
+  let actionText;
+  if (data.capability === 'switch') {
+    actionText = `turn ${data.command}`
+  } else if (data.capability === 'lock') {
+    actionText = data.command;
+  }
+  let message = {
+    message: {
+      token: token,
+      android: {
+        data: {
+          ask: JSON.stringify(data)
+        }
+      },
+      webpush: {
+        data: {
+          ask: JSON.stringify(data)
+        }
+      },
+      apns: {
+        payload: {
+          aps: {
+            alert: {
+              title: `${data.requester} wants to ${actionText} ${data.device}`,
+              body: 'Tap here to allow or deny'
+            }
+          }
+        }
+      }
+    }
+  };
+  console.log(message);
+  return sendFcmNotification(message);
+}
+
 
 function ensureTokenIsInGroup({ user, newToken, tokenGroup }) {
   if (user[tokenGroup].length == 0) {
       user[tokenGroup].push(newToken);
-      return user.save();
   } else if (!user[tokenGroup].includes(newToken)){
     user[tokenGroup].push(newToken);
-    return user.save();
-  } else {
-    return Promise.resolve();
   }
 }
 
 function ensureTokenIsNotInGroup({ user, newToken, tokenGroup }) {
   if (user[tokenGroup].includes(newToken)) {
     user[tokenGroup].splice(user[tokenGroup].indexOf(newToken), 1);
-    return user.save();
-  } else {
-    return Promise.resolve();
   }
 }
 
 function updateActivityNotifications({ flags, user, token }) {
   console.log(flags);
+  ensureTokenIsInGroup({
+    user: user,
+    newToken: token,
+    tokenGroup: PermissionsGroup
+  });
   const { ON, PROXIMITY, OFF} = Flags.ActivityNotifications;
   if (flags.activityNotifications == ON ||
       flags.activityNotifications == PROXIMITY ) {
-    return ensureTokenIsInGroup({
+    ensureTokenIsInGroup({
       user: user,
       newToken: token,
       tokenGroup: ActivityGroup
     });
   } else if (flags.activityNotifications == OFF) {
-    return ensureTokenIsNotInGroup({
+    ensureTokenIsNotInGroup({
       user: user,
       newToken: token,
       tokenGroup: ActivityGroup
     });
-  } else {
-    return Promise.reject({ error: Errors.MISSING_FLAGS });
   }
+  return user.save();
 }
 
 module.exports = {
   sendActivityNotification: sendActivityNotification,
+  sendAskNotification: sendAskNotification,
   ensureTokenIsInGroup: ensureTokenIsInGroup,
   ensureTokenIsNotInGroup: ensureTokenIsNotInGroup,
   updateActivityNotifications: updateActivityNotifications

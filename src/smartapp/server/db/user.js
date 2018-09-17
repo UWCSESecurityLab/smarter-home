@@ -11,6 +11,7 @@ let userSchema = mongoose.Schema({
   installedAppId: String,        // The SmartApp instance that the user can access
   // FCM notification tokens and keys for home activity notifications.
   activityFcmTokens: [String],
+  permissionsFcmTokens: [String],
   role: { type: String, default: Roles.USER }
 });
 

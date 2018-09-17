@@ -38,14 +38,16 @@ const winston = require('winston');
 require('winston-mongodb');
 const MongoStore = require('connect-mongo')(session);
 
+const ask = require('./ask');
+const { ApprovalState } = require('../permissions');
 const auth = require('./auth');
+const Beacon = require('./db/beacon');
+const Command = require('./db/command');
 const Errors = require('../errors');
 const fcmClient = require('./fcmClient');
 const InstallData = require('./db/installData');
 const lifecycle = require('./lifecycle');
 const log = require('./log');
-const Beacon = require('./db/beacon');
-const Command = require('./db/command');
 const Permission = require('./db/permissions');
 const Roles = require('../roles');
 const Room = require('./db/room');
@@ -630,8 +632,7 @@ app.get('/devices/:deviceId/description', checkAuth, getInstallData,
   });
 });
 
-app.post('/devices/:deviceId/commands', checkAuth, getInstallData,
-    (req, res) => {
+function executeDevice(req, res) {
   let command = new Command({
     // Round milliseconds to zero because SmartThings doesn't store milliseconds
     // in eventDate, so commands happening in the same second as the event
@@ -663,6 +664,54 @@ app.post('/devices/:deviceId/commands', checkAuth, getInstallData,
     logger.error({ message: msg, meta: { ...req.logMeta, error: err } });
     res.status(500).json({ error: err });
   });
+}
+
+app.post('/devices/:deviceId/commands', checkAuth, (req, res) => {
+  // Backwards compatibility
+  if (!req.body.ask) {
+    executeDevice(req, res);
+    return;
+  }
+
+  ask.request({
+    requester: req.user,
+    deviceId: req.params.deviceId,
+    command: req.body.command,
+    capability: req.body.capability,
+    isNearby: req.body.isNearby,
+    callback: ({ decision, owner, nearby }) => {
+      if (decision === ApprovalState.ALLOW) {
+        InstallData.findOne({ installedAppId: req.session.installedAppId })
+          .then((installData) => {
+            req.installData = installData;
+            executeDevice(req, res);
+          });
+        executeDevice(req, res);
+      } else if (decision === ApprovalState.PROMPT) {
+        res.status(300).json({ status: decision, owner: owner, nearby: nearby });
+      } else if (decision === ApprovalState.DENY) {
+        res.status(400).json({ status: decision, owner: owner, nearby: nearby });
+      }
+    }
+  });
+});
+
+app.get('/pendingRequests', checkAuth, (req, res) => {
+  const pending = ask.getPendingRequests(req.user);
+  res.status(200).json(pending);
+});
+
+app.post('/device/:deviceId/askResponse', checkAuth, (req, res) => {
+  ask.response({
+    commandId: req.body.commandId,
+    approvalType: req.body.approvalType,
+    approvalState: req.body.approvalState
+  });
+  res.status(200).json({});
+});
+
+app.post('/devices/:deviceId/execute', checkAuth, getInstallData, (req, res) => {
+  executeDevice(req, res);
 });
 
 app.get('/devices/:deviceId/permissions', checkAuth, (req, res) => {

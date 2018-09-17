@@ -206,12 +206,12 @@ module.exports = {
         return;
       }
 
-      const newTokens = await SmartThingsClient.renewTokens(installedAppId, APP_CONFIG);
+      // const newTokens = await SmartThingsClient.renewTokens(installedAppId, APP_CONFIG);
 
       // Get details about the device
       let description = await SmartThingsClient.getDeviceDescription({
         deviceId: deviceId,
-        authToken: newTokens.access_token
+        authToken: installData.authToken
       });
 
       // Find the beacon ids for the room that the device is in
