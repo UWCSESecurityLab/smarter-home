@@ -705,15 +705,6 @@ app.post('/permissionRequests/:requestId', checkAuth, (req, res) => {
   res.status(200).json({});
 });
 
-app.post('/device/:deviceId/askResponse', checkAuth, (req, res) => {
-  ask.response({
-    commandId: req.body.commandId,
-    approvalType: req.body.approvalType,
-    approvalState: req.body.approvalState
-  });
-  res.status(200).json({});
-});
-
 app.post('/devices/:deviceId/commands', checkAuth, getInstallData, (req, res) => {
   executeDevice(req, res);
 });
