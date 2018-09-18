@@ -633,25 +633,14 @@ app.get('/devices/:deviceId/description', checkAuth, getInstallData,
 });
 
 function executeDevice(req, res) {
-  let command = new Command({
-    // Round milliseconds to zero because SmartThings doesn't store milliseconds
-    // in eventDate, so commands happening in the same second as the event
-    // would appear to happen after the event.
-    date: new Date().setMilliseconds(0),
+  ask.execute({
     installedAppId: req.installData.installedApp.installedAppId,
+    authToken: req.installData.authToken,
     userId: req.user.id,
     deviceId: req.params.deviceId,
     component: req.body.component,
     capability: req.body.capability,
     command: req.body.command
-  });
-
-  command.save().then(() => {
-    return SmartThingsClient.executeDeviceCommand({
-      deviceId: req.params.deviceId,
-      command: req.body,
-      authToken: req.installData.authToken
-    });
   }).then(() => {
     res.status(200).json({});
   }).catch((err) => {
@@ -666,6 +655,10 @@ function executeDevice(req, res) {
   });
 }
 
+app.post('/devices/:deviceId/commands', checkAuth, getInstallData, (req, res) => {
+  executeDevice(req, res);
+});
+
 app.post('/devices/:deviceId/requestCommand', checkAuth, (req, res) => {
   ask.request({
     requester: req.user,
@@ -674,39 +667,45 @@ app.post('/devices/:deviceId/requestCommand', checkAuth, (req, res) => {
     capability: req.body.capability,
     isNearby: req.body.isNearby,
     isHome: req.body.isHome,
-    callback: ({ decision, owner, nearby }) => {
-      if (decision === ApprovalState.ALLOW) {
-        InstallData.findOne({ installedAppId: req.session.installedAppId })
-          .then((installData) => {
-            req.installData = installData;
-            executeDevice(req, res);
-          });
-        executeDevice(req, res);
-      } else if (decision === ApprovalState.PROMPT) {
-        res.status(300).json({ status: decision, owner: owner, nearby: nearby });
-      } else if (decision === ApprovalState.DENY) {
-        res.status(400).json({ status: decision, owner: owner, nearby: nearby });
-      }
+  }).then((status) => {
+    if (status.decision === ApprovalState.ALLOW) {
+      InstallData.findOne({ installedAppId: req.session.installedAppId })
+        .then((installData) => {
+          req.installData = installData;
+          executeDevice(req, res);
+        });
+    } else if (status.decision === ApprovalState.DENY) {
+      res.status(400).json(status);
+    } else if (status.decision === ApprovalState.PENDING) {
+      res.status(200).json(status);
     }
   });
 });
 
-app.get('/permissionRequests', checkAuth, (req, res) => {
-  const pending = ask.getPendingRequests(req.user);
-  res.status(200).json(pending);
+app.get('/pendingCommands', checkAuth, (req, res) => {
+  ask.getPendingCommands(req.user).then((pending) => {
+    res.status(200).json(pending);
+  }).catch((err) => {
+    logger.error({
+      message: Errors.DB_ERROR,
+      meta: { ...req.logMeta, error: err }
+    });
+    res.status(500).json({ error: err });
+  });
 });
 
-app.post('/permissionRequests/:requestId', checkAuth, (req, res) => {
+app.post('/pendingCommands/:commandId', checkAuth, (req, res) => {
   ask.response({
-    requestId: req.params.requestId,
+    commandId: req.params.commandId,
     approvalType: req.body.approvalType,
     approvalState: req.body.approvalState
+  }).catch((err) => {
+    logger.error({
+      message: 'Ask-Response error',
+      meta: { ...req.logMeta, error: err }
+    });
   });
   res.status(200).json({});
-});
-
-app.post('/devices/:deviceId/commands', checkAuth, getInstallData, (req, res) => {
-  executeDevice(req, res);
 });
 
 app.get('/devices/:deviceId/permissions', checkAuth, (req, res) => {

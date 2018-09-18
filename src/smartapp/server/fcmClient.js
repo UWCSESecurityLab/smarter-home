@@ -108,6 +108,7 @@ function sendActivityNotification(data, token) {
  * @param {String} data.command The command requested
  * @param {String} data.commandId The id identifying the request
  * @param {String} data.device The device to execute on
+ * @param {String} data.approvalType The requested approval type
  * @param {String} token The target client's FCM token.
  */
 function sendAskNotification(data, token) {
@@ -143,6 +144,18 @@ function sendAskNotification(data, token) {
     }
   };
   console.log(message);
+  return sendFcmNotification(message);
+}
+
+function sendAskDecisionNotificiation(data, token) {
+  let message = {
+    message: {
+      token: token,
+      data: {
+        askDecision: JSON.stringify(data)
+      }
+    }
+  }
   return sendFcmNotification(message);
 }
 
@@ -189,6 +202,7 @@ function updateActivityNotifications({ flags, user, token }) {
 module.exports = {
   sendActivityNotification: sendActivityNotification,
   sendAskNotification: sendAskNotification,
+  sendAskDecisionNotification: sendAskDecisionNotificiation,
   ensureTokenIsInGroup: ensureTokenIsInGroup,
   ensureTokenIsNotInGroup: ensureTokenIsNotInGroup,
   updateActivityNotifications: updateActivityNotifications

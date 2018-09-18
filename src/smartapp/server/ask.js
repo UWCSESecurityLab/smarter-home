@@ -1,6 +1,8 @@
+const Command = require('./db/command');
 const fcmClient = require('./fcmClient');
 const InstallData = require('./db/installData');
 const SmartThingsClient = require('./SmartThingsClient');
+const PendingCommand = require('./db/pending-command');
 const Permission = require('./db/permissions');
 const uuid = require('uuid/v4');
 const User = require('./db/user');
@@ -11,26 +13,20 @@ const { ApprovalType,
 
 // "Ask" protocol implmentation.
 class Ask {
-  constructor() {
-    this.requests = {};
-  }
-
-  async request({ requester, deviceId, command, capability, isNearby, isHome, callback }) {
+  static async request({ requester, deviceId, command, capability, isNearby, isHome }) {
     const permission = await Permission.findOne({ deviceId: command.deviceId });
     if (!permission) {
-      callback({ decision: ApprovalState.ALLOW });
-      return;
+      return { decision: ApprovalState.ALLOW };
     }
 
     let ownerApproval = ApprovalState.PENDING;
     if (permission.owners.includes(requester.id)) {
       ownerApproval = ApprovalState.ALLOW;
     } else if (permission.parentalRestrictions === ParentalRestrictions.DENY) {
-      callback({
+      return {
         decision: ApprovalState.DENY,
         owner: ApprovalState.DENY
-      });
-      return;
+      };
     }
 
     let nearbyApproval = ApprovalState.PENDING;
@@ -49,125 +45,198 @@ class Ask {
 
     if (nearbyApproval === ApprovalState.ALLOW &&
         ownerApproval == ApprovalState.ALLOW) {
-      callback({
+      return {
         decision: ApprovalState.ALLOW,
         owner: ApprovalState.ALLOW,
         nearby: ApprovalState.ALLOW
-      });
-      return;
+      };
     }
 
-    const requestId = uuid();
+    const commandId = uuid();
 
-    this.requests[requestId] = {
-      capability: capability,
-      command: command,
-      deviceId: deviceId,
-      requester: requester.id,
-      installedAppId: requester.installedAppId,
-      owners: permission.owners,
+    let pendingCommand = new PendingCommand({
+      id: commandId,
+      date: new Date(),
       nearbyApproval: nearbyApproval,
       ownerApproval: ownerApproval,
       decided: false,
-      callback: callback
-    };
+      deviceId: deviceId,
+      capability: capability,
+      command: command,
+      installedAppId: requester.installedAppId,
+      requesterId: requester.id,
+      owners: permission.owners,
+    });
 
-    if (ownerApproval === ApprovalState.PENDING) {
-      this.sendNotifications({
-        capability: capability,
-        command: command,
-        deviceId: deviceId,
-        requester: requester,
-        recipients: permission.owners
-      });
-    }
-    if (nearbyApproval === ApprovalState.PENDING) {
-      this.sendNotifications({
-        capability: capability,
-        command: command,
-        deviceId: deviceId,
-        requester: requester
-      });
-    }
+    await pendingCommand.save();
 
-    setTimeout(() => {
-      let request = this.requests[requestId];
-      if (!request) {
+    this.sendAskNotifications({
+      capability: capability,
+      command: command,
+      deviceId: deviceId,
+      requester: requester,
+      owners: ownerApproval == ApprovalState.ALLOW ? [] : permission.owners
+    });
+
+    setTimeout(async () => {
+      let command = await PendingCommand.findOne({ id: commandId });
+      if (!command || command.decided) {
         return;
       }
       if (ownerApproval === ApprovalState.PENDING) {
-        request.ownerApproval = ApprovalState.DENY;
+        command.ownerApproval = ApprovalState.DENY;
       }
       if (nearbyApproval === ApprovalState.PENDING) {
-        request.nearbyApproval = ApprovalState.TIMEOUT;
+        command.nearbyApproval = ApprovalState.TIMEOUT;
       }
-      this.decide(requestId);
+      this.decide(command);
     }, 60000);
+
+    return {
+      decision: ApprovalState.PENDING,
+      nearby: nearbyApproval,
+      owner: ownerApproval
+    };
   }
 
-  response({ requestId, approvalType, approvalState }) {
-    let request = this.requests[requestId];
-    if (!request) {
+  /**
+   * Handles the response to a device permissions request.
+   * @param {String} params.commandId
+   * @param {ApprovalType} params.approvalType
+   * @param {ApprovalState} params.approvalState
+   */
+  static async response({ commandId, approvalType, approvalState }) {
+    let command = await PendingCommand.findOne({id: commandId});
+    // Exit early if the command has already been decided, or doesn't exist
+    if (!command || command.decided) {
       return;
     }
+    // Validate input
     if (!Object.values(ApprovalState).includes(approvalState)) {
       return;
     }
     if (!Object.values(ApprovalType).includes(approvalType)) {
       return;
     }
-    request[approvalType] = approvalState;
 
-    if (request.ownerApproval !== ApprovalState.PENDING &&
-        request.nearbyApproval !== ApprovalState.PENDING) {
-      this.decide(requestId);
+    // Exit early if someone has already responded for this approval type.
+    if (command[approvalType] === ApprovalState.PENDING) {
+      return;
+    }
+
+    command[approvalType] = approvalState;
+
+    // Decide if both permissions have been set
+    if (command.ownerApproval !== ApprovalState.PENDING &&
+        command.nearbyApproval !== ApprovalState.PENDING) {
+      return this.decide(command);
+    } else {
+      // Otherwise save response
+      return command.save();
     }
   }
 
-  decide(requestId) {
-    let request = this.requests[requestId];
-    delete this.requests[requestId];
-    if (request.ownerApproval === ApprovalState.DENY ||
-        request.nearbyApproval === ApprovalState.DENY) {
-      request.callback({
-        decision: ApprovalState.DENY,
-        owner: request.ownerApproval,
-        nearby: request.nearbyApproval
-      });
-      return;
+  /**
+   * Decides the outcome of a pending command, and notifies the requester.
+   * Called when input has been provided by both an owner and nearby person.
+   * @param {mongoose.Document} pendingCommand
+   *        The pending command to decide on. Warning! This PendingCommand has
+   *        has not yet been saved!
+   */
+  static decide(pendingCommand) {
+    let decision;
+    // Determine the final decision on the request.
+    if (pendingCommand.ownerApproval === ApprovalState.DENY ||
+        pendingCommand.nearbyApproval === ApprovalState.DENY) {
+      decision = ApprovalState.DENY;
+    } else if (pendingCommand.nearbyApproval === ApprovalState.TIMEOUT) {
+      decision =  ApprovalState.PROMPT;
+    } else {
+      decision = ApprovalState.ALLOW;
     }
-    if (request.nearbyApproval === ApprovalState.TIMEOUT) {
-      request.callback({
-        decision: ApprovalState.PROMPT,
-        owner: request.ownerApproval,
-        nearby: request.nearbyApproval
+    pendingCommand.decided = true;
+    // Save the decided command to prevent further changes
+    return pendingCommand.save().then((decided) => {
+      // Notify requester that the request was fulfilled
+      User.findOne({ id: decided.requesterId }).then((requester) => {
+        requester.permissionsFcmTokens.forEach((token) => {
+          fcmClient.sendAskDecisionNotification({
+            decision: decision,
+            ownerApproval: decided.ownerApproval,
+            nearbyApproval: decided.nearbyApproval
+          }, token);
+        });
       });
-      return;
-    }
-    request.callback({
-      decision: ApprovalState.ALLOW,
-      owner: request.ownerApproval,
-      nearby: request.nearbyApproval
+
+      if (decision == ApprovalState.ALLOW) {
+        // Execute the command
+        InstallData.findOne({
+          'installedApp.installedAppId': decided.installedAppId
+        }).then(({ authToken }) => {
+          return this.execute({
+            installedAppId: decided.installedAppId,
+            authToken: authToken,
+            userId: decided.requesterId,
+            deviceId: decided.deviceId,
+            component: 'main',
+            capability: decided.capability,
+            command: decided.command
+          });
+        });
+      }
     });
   }
 
-  getPendingRequests(user) {
-    return Object.values(this.requests).filter((request) => {
-      request.installedAppId = user.installedAppId
+  /**
+   * Executes a command on a device.
+   */
+  static async execute({installedAppId, authToken, userId, deviceId, component, capability, command}) {
+    let cmd = new Command({
+      // Round milliseconds to zero because SmartThings doesn't store milliseconds
+      // in eventDate, so commands happening in the same second as the event
+      // would appear to happen after the event.
+      date: new Date().setMilliseconds(0),
+      installedAppId: installedAppId,
+      userId: userId,
+      deviceId: deviceId,
+      component: component,
+      capability: capability,
+      command: command
+    });
+
+    return cmd.save().then(() => {
+      return SmartThingsClient.executeDeviceCommand({
+        deviceId: deviceId,
+        command: {
+          component: component,
+          capability: capability,
+          command: command
+        },
+        authToken: authToken
+      });
+    })
+  }
+
+  static getPendingCommands(user) {
+    return PendingCommand.find({
+      installedAppId: user.installedAppId,
+      $ne: { requesterId: user.id }
     });
   }
 
-  async sendNotifications({ capability, command, deviceId, requester, recipients }) {
-    let userQuery = recipients ? { $in: recipients } : { $ne: requester.id };
-
+  /**
+   * Broadcasts a notification asking for permission to everyone in the home
+   * via FCM.,
+   * @param {*} param0
+   */
+  static async sendAskNotifications({ capability, command, deviceId, requester, owners }) {
     let [users, installData] = await Promise.all([
       User.find({
         installedAppId: requester.installedAppId,
-        id: userQuery
+        id: { $ne: requester.id }
       }),
       InstallData.find({ installedAppId: requester.installedAppId })
     ]);
-
 
     let deviceDesc = await SmartThingsClient.getDeviceDescription({
       deviceId: deviceId,
@@ -182,9 +251,14 @@ class Ask {
     };
 
     await users.map((user) => {
-      fcmClient.sendAskNotification(data, user.permissionsFcmTokens);
+      let approvalType = {
+        approvalType: owners.includes(user.id)
+          ? ApprovalType.OWNERS
+          : ApprovalType.NEARBY }
+      let payload = Object.assign({}, data, approvalType)
+      fcmClient.sendAskNotification(payload, user.permissionsFcmTokens);
     });
   }
 }
 
-export default new Ask();
+module.exports = Ask;
