@@ -691,9 +691,18 @@ app.post('/devices/:deviceId/requestCommand', checkAuth, (req, res) => {
   });
 });
 
-app.get('/pendingRequests', checkAuth, (req, res) => {
+app.get('/permissionRequests', checkAuth, (req, res) => {
   const pending = ask.getPendingRequests(req.user);
   res.status(200).json(pending);
+});
+
+app.post('/permissionRequests/:requestId', checkAuth, (req, res) => {
+  ask.response({
+    requestId: req.params.requestId,
+    approvalType: req.body.approvalType,
+    approvalState: req.body.approvalState
+  });
+  res.status(200).json({});
 });
 
 app.post('/device/:deviceId/askResponse', checkAuth, (req, res) => {
