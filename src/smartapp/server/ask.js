@@ -15,7 +15,7 @@ class Ask {
     this.requests = {};
   }
 
-  async request({ requester, deviceId, command, capability, isNearby, callback }) {
+  async request({ requester, deviceId, command, capability, isNearby, isHome, callback }) {
     const permission = await Permission.findOne({ deviceId: command.deviceId });
     if (!permission) {
       callback({ decision: ApprovalState.ALLOW });
@@ -36,7 +36,14 @@ class Ask {
     let nearbyApproval = ApprovalState.PENDING;
     if (permission.locationRestrictions === LocationRestrictions.ANYWHERE) {
       nearbyApproval = ApprovalState.ALLOW;
-    } else if (isNearby) {
+    } else if (
+      permission.locationRestrictions === LocationRestrictions.NEARBY &&
+        isNearby) {
+      nearbyApproval = ApprovalState.ALLOW;
+    } else if (
+      permission.locationRestrictions === LocationRestrictions.AT_HOME &&
+        isHome
+    ) {
       nearbyApproval = ApprovalState.ALLOW;
     }
 

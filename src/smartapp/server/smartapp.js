@@ -666,19 +666,14 @@ function executeDevice(req, res) {
   });
 }
 
-app.post('/devices/:deviceId/commands', checkAuth, (req, res) => {
-  // Backwards compatibility
-  if (!req.body.ask) {
-    executeDevice(req, res);
-    return;
-  }
-
+app.post('/devices/:deviceId/requestCommand', checkAuth, (req, res) => {
   ask.request({
     requester: req.user,
     deviceId: req.params.deviceId,
     command: req.body.command,
     capability: req.body.capability,
     isNearby: req.body.isNearby,
+    isHome: req.body.isHome,
     callback: ({ decision, owner, nearby }) => {
       if (decision === ApprovalState.ALLOW) {
         InstallData.findOne({ installedAppId: req.session.installedAppId })
@@ -710,7 +705,7 @@ app.post('/device/:deviceId/askResponse', checkAuth, (req, res) => {
   res.status(200).json({});
 });
 
-app.post('/devices/:deviceId/execute', checkAuth, getInstallData, (req, res) => {
+app.post('/devices/:deviceId/commands', checkAuth, getInstallData, (req, res) => {
   executeDevice(req, res);
 });
 
