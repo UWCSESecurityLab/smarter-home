@@ -14,7 +14,7 @@ const { ApprovalType,
 // "Ask" protocol implmentation.
 class Ask {
   static async request({ requester, deviceId, command, capability, isNearby, isHome }) {
-    const permission = await Permission.findOne({ deviceId: command.deviceId });
+    const permission = await Permission.findOne({ deviceId: deviceId });
     if (!permission) {
       return { decision: ApprovalState.ALLOW };
     }
