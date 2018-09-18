@@ -5,6 +5,7 @@ chai.use(chaiAsPromised);
 const sinon = require('sinon');
 
 const ask = require('../server/ask');
+const PendingCommand = require('../server/db/pending-command');
 const Permission = require('../server/db/permissions');
 const {
   ApprovalState,
@@ -80,6 +81,40 @@ describe('Ask', () => {
         isHome: true
       });
       await request.should.eventually.have.property('decision', ApprovalState.ALLOW);
+    });
+
+    it('should decide the pending command after it times out', async () => {
+      let clock = sinon.useFakeTimers();
+      sinon.stub(PendingCommand.prototype, 'save')
+      sinon.stub(ask, 'sendAskNotifications');
+      let decideFake = sinon.fake();
+      sinon.replace(ask, 'decide', decideFake);
+
+      sinon.stub(Permission, 'findOne').resolves({
+        deviceId: 'my-device',
+        installedAppId: 'my-installedApp',
+        locationRestrictions: LocationRestrictions.NEARBY,
+        parentalRestrictions: ParentalRestrictions.ALWAYS_ASK,
+        owners: ['requester']
+      });
+
+      sinon.stub(PendingCommand, 'findOne').resolves({
+        decided: false,
+        ownerApproval: ApprovalState.PENDING,
+        nearbyApproval: ApprovalState.PENDING
+      });
+
+      let request = ask.request({
+        requester: { id: 'requester' },
+        deviceId: 'my-device',
+      });
+      await request.should.eventually.have.property('decision', ApprovalState.PENDING);
+      clock.runAll();
+      clock.restore();
+      setTimeout(() => {
+        decideFake.callCount.should.equal(1);
+        done();
+      }, 5);
     });
   });
 });
