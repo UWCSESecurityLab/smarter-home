@@ -100,6 +100,14 @@ class Home extends React.Component {
   render() {
     let devFlag = process.env.NODE_ENV === 'development' ? ' (Dev)' : '';
     const hidden = { visibility: 'hidden' };
+
+    let transitionKey;
+    if (this.props.location.pathname.startsWith('/home')) {
+      transitionKey = this.props.location.pathname.split('/home')[1].split('/')[1];
+    } else {
+      transitionKey = this.props.location.key;
+    }
+
     return (
       <div>
         <Drawer open={this.state.drawerOpen} closeFn={() => this.setState({drawerOpen: false})}/>
@@ -121,7 +129,7 @@ class Home extends React.Component {
 
           <TransitionGroup>
             <CSSTransition
-              key={this.props.location.pathname.split('/home')[1].split('/')[1]}
+              key={transitionKey}
               timeout={75}
               classNames={'fade'}>
               <Switch location={this.props.location}>
