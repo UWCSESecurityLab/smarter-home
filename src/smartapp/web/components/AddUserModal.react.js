@@ -117,14 +117,16 @@ class AddUserModal extends React.Component {
           : null
         }
         <div className="modal-window fade" style={{visibility: 'visible'}}>
-          <div style={{display: 'flex', justifyContent: 'space-between'}}>
-            <h3>Add user</h3>
+          <div className="modal-heading-container">
+            <h3 className="modal-heading">Add user</h3>
             <MaterialIcon icon="close" onClick={this.close}/>
           </div>
-          { window.cordova
-            ? <p>Scan the QR code shown on the new user's phone.</p>
-            : <p>Sorry, you can only add users with the mobile app.</p>
-          }
+          <div className="modal-content">
+            { window.cordova
+              ? <p>Scan the QR code shown on the new user's phone.</p>
+              : <p>Sorry, you can only add users with the mobile app.</p>
+            }
+          </div>
         </div>
       </div>
     );
@@ -148,55 +150,57 @@ class AddUserModal extends React.Component {
       <div>
         <div className="modal-bg fade" onClick={this.close}/>
         <div className="modal-window fade">
-          <div style={{display: 'flex', justifyContent: 'space-between'}}>
+          <div className="modal-heading-container">
             <h3 className="modal-heading">Add User</h3>
             <MaterialIcon icon="close" onClick={this.close}/>
           </div>
-          <p>
-            Add this device to an existing user
-          </p>
-          { Object.values(this.props.users).map((user) =>
+          <div className="modal-content">
+            <p>
+              Add this device to an existing user
+            </p>
+            { Object.values(this.props.users).map((user) =>
+              <Radio name="users"
+                    id={user.id}
+                    key={user.id}
+                    checked={this.state.picked === user.id}
+                    label={
+                      <span className="user-radio-label">
+                        <MaterialIcon icon="mood" style={{ color: strToColor(user.id)}}/>
+                        <span className="user-li-label">{user.displayName}</span>
+                      </span>
+                    }
+                    onRadioChange={this.changePicked}/>
+            )}
+            <p>
+              Or, create a new user
+            </p>
             <Radio name="users"
-                  id={user.id}
-                  key={user.id}
-                  checked={this.state.picked === user.id}
+                  id={NEW_USER}
+                  checked={this.state.picked === NEW_USER}
                   label={
-                    <span className="user-radio-label">
-                      <MaterialIcon icon="mood" style={{ color: strToColor(user.id)}}/>
-                      <span className="user-li-label">{user.displayName}</span>
-                    </span>
+                    <input type="text"
+                      value={this.state.newName}
+                      placeholder="Name"
+                      onChange={this.onNameChange}/>
                   }
                   onRadioChange={this.changePicked}/>
-          )}
-          <p>
-            Or, create a new user
-          </p>
-          <Radio name="users"
-                id={NEW_USER}
-                checked={this.state.picked === NEW_USER}
-                label={
-                  <input type="text"
-                    value={this.state.newName}
-                    placeholder="Name"
-                    onChange={this.onNameChange}/>
-                }
-                onRadioChange={this.changePicked}/>
-          <br/>
-          { this.state.picked === NEW_USER
-            ? <div>
-                <p>Choose {this.state.newName}'s role</p>
-                <UserRolePicker onChange={this.onRoleChange}
-                                user={{role: this.state.newUserRole}} />
-              </div>
-            : null
-          }
-          <Button className="mdc-button-blue" raised onClick={this.submit} type="submit">
-            Add User
-          </Button>
-          { this.state.error
-            ? <div className="error">{errorMessage}</div>
-            : null
-          }
+            <br/>
+            { this.state.picked === NEW_USER
+              ? <div>
+                  <p>Choose {this.state.newName}'s role</p>
+                  <UserRolePicker onChange={this.onRoleChange}
+                                  user={{role: this.state.newUserRole}} />
+                </div>
+              : null
+            }
+            <Button className="mdc-button-blue" raised onClick={this.submit} type="submit">
+              Add User
+            </Button>
+            { this.state.error
+              ? <div className="error">{errorMessage}</div>
+              : null
+            }
+          </div>
         </div>
       </div>
     );

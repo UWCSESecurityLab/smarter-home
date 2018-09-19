@@ -58,25 +58,27 @@ class BeaconModal extends React.Component {
       <div>
         <div className="modal-bg fade" onClick={this.close}/>
         <div className="modal-window fade">
-          <div style={{display: 'flex', justifyContent: 'space-between'}}>
+          <div className="modal-heading-container">
             <h3 className="modal-heading">Add beacon</h3>
             <MaterialIcon icon="close" onClick={this.close}/>
           </div>
-          <p>
-            Enter the name of the beacon. It should be a four letter code
-            printed on the side of the beacon.
-          </p>
-          <input type="text"
-                 value={this.state.beaconName}
-                 placeholder="Beacon Name"
-                 onChange={this.onNameChange}/>
-          <Button className="mdc-button-blue" raised onClick={this.addBeacon}>
-            Submit
-          </Button>
-          { this.state.error
-            ? <div className="error">{errorMessage}</div>
-            : null
-          }
+          <div className="modal-content">
+            <p>
+              Enter the name of the beacon. It should be a four letter code
+              printed on the side of the beacon.
+            </p>
+            <input type="text"
+                  value={this.state.beaconName}
+                  placeholder="Beacon Name"
+                  onChange={this.onNameChange}/>
+            <Button className="mdc-button-blue" raised onClick={this.addBeacon}>
+              Submit
+            </Button>
+            { this.state.error
+              ? <div className="error">{errorMessage}</div>
+              : null
+            }
+          </div>
         </div>
       </div>
     )

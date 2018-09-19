@@ -49,7 +49,7 @@ class UserModal extends React.Component {
       content = this.renderOverview();
     } else if (this.state.view == 'editRole') {
       content = (
-        <div>
+        <div className="modal-content">
           <h4>Change {this.props.user.displayName}'s Role</h4>
           <UserRolePicker user={this.props.user} onChange={this.onChange}/>
         </div>
@@ -59,7 +59,7 @@ class UserModal extends React.Component {
       <div>
         <div className="modal-bg fade" onClick={this.close}/>
         <div className="modal-window fade">
-          <div style={{display: 'flex', justifyContent: 'space-between'}}>
+          <div className="modal-heading-container">
             <h3 className="modal-heading">
               { `${this.props.user.displayName}${isMe ? ' (You)' : ''}` }
             </h3>
