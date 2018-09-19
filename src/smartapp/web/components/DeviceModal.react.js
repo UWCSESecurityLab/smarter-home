@@ -20,9 +20,15 @@ const LocationRestrictionsStrings = {
 }
 
 const UserRestrictionsStrings = {
-  [ParentalRestrictions.ALLOW_IF_NEARBY]: 'Allow, if an owner is nearby',
+  [ParentalRestrictions.ALLOW_IF_NEARBY]: 'Allow, if an owner is nearby, otherwise ask an owner',
   [ParentalRestrictions.ALWAYS_ASK]: 'Ask an owner (via a notification)',
   [ParentalRestrictions.DENY]: 'Block'
+}
+
+const UserRestrictionsSubtitleStrings = {
+  [ParentalRestrictions.ALLOW_IF_NEARBY]: 'Everyone else can control this device if an owner is nearby',
+  [ParentalRestrictions.ALWAYS_ASK]: 'Everyone else must ask an owner to control this device',
+  [ParentalRestrictions.DENY]: 'Nobody else can control this device'
 }
 
 class DeviceModal extends React.Component {
@@ -222,6 +228,18 @@ class DeviceModal extends React.Component {
           return capability.id === 'actuator';
         });
       });
+
+    let userSubtitle;
+    let userPolicySubtitle;
+    if (this.props.permissions.owners.length === Object.keys(this.props.users).length) {
+      userSubtitle = 'Everyone'
+    } else {
+      userSubtitle = this.props.permissions.owners.map((userId) => {
+        this.props.users[userId].displayName
+      }).join(', ');
+      userPolicySubtitle = UserRestrictionsSubtitleStrings[this.props.permissions.parentalRestrictions];
+    }
+
     return (
       <div>
         <div className="modal-bg fade" onClick={this.close}/>
@@ -271,6 +289,12 @@ class DeviceModal extends React.Component {
                         <div className="device-modal-nav-item">
                           <div>
                             <div>Allowed Users</div>
+                            <div className="device-modal-nav-item-subtitle">
+                              {userSubtitle}
+                            </div>
+                            <div className="device-modal-nav-item-subtitle">
+                              {userPolicySubtitle}
+                            </div>
                           </div>
                           <MaterialIcon icon="chevron_right" style={{ color: '#8c8c8c' }}/>
                         </div>
