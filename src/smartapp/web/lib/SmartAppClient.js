@@ -27,6 +27,27 @@ class SmartAppClient {
     console.log('Client session id: ' + this.sessionId);
   }
 
+  getJson(url) {
+    return fetch(url, {
+      credentials: 'same-origin',
+      headers: {
+        'Client-Session': this.sessionId
+      },
+    }).then(handleJsonResponse);
+  }
+
+  postJson(url, body) {
+    return fetch(url, {
+      method: 'POST',
+      credentials: 'same-origin',
+      headers: {
+        'Content-Type': 'application/json',
+        'Client-Session': this.sessionId
+      },
+      body: JSON.stringify(body)
+    }).then(handleJsonResponse);
+  }
+
   login(username, password, oauth, oauthState) {
     let args = {
       username: username,
@@ -61,296 +82,143 @@ class SmartAppClient {
   }
 
   register(username, displayName, password, confirmPassword) {
-    return fetch(`${this.host}/register`, {
-      method: 'POST',
-      credentials: 'same-origin',
-      headers: {
-        'Content-Type': 'application/json',
-        'Client-Session': this.sessionId
-      },
-      body: JSON.stringify({
-        username: username,
-        displayName: displayName,
-        password: password,
-        confirm: confirmPassword
-      })
-    }).then(handleJsonResponse);
+    return this.postJson(`${this.host}/register`, {
+      username: username,
+      displayName: displayName,
+      password: password,
+      confirm: confirmPassword
+    });
   }
 
   executeDeviceCommand(params) {
-    return fetch(`${this.host}/devices/${params.deviceId}/commands`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Client-Session': this.sessionId
-      },
-      credentials: 'same-origin',
-      body: JSON.stringify(params.command)
-    }).then(handleJsonResponse);
+    return this.postJson(`${this.host}/devices/${params.deviceId}/commands`, params.command);
   }
 
   getDeviceStatus(deviceId) {
-    return fetch(`${this.host}/devices/${deviceId}/status`, {
-      credentials: 'same-origin',
-      headers: {
-        'Client-Session': this.sessionId
-      },
-    }).then(handleJsonResponse);
+    return this.getJson(`${this.host}/devices/${deviceId}/status`);
   }
 
   getHomeConfig() {
-    return fetch(`${this.host}/homeConfig`, {
-      credentials: 'same-origin',
-      headers: {
-        'Client-Session': this.sessionId
-      },
-    }).then(handleJsonResponse);
+    return this.getJson(`${this.host}/homeConfig`);
   }
 
   getDeviceDescription(deviceId) {
-    return fetch(`${this.host}/devices/${deviceId}/description`, {
-      credentials: 'same-origin',
-      headers: {
-        'Client-Session': this.sessionId
-      },
-    }).then(handleJsonResponse);
+    return this.getJson(`${this.host}/devices/${deviceId}/description`);
   }
 
   updateNotificationToken(token, flags) {
-    return fetch(`${this.host}/notificationToken`, {
-      method: 'POST',
-      credentials: 'same-origin',
-      headers: {
-        'Client-Session': this.sessionId,
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        token: token,
-        flags: flags
-      })
-    }).then(handleJsonResponse);
+    return this.postJson(`${this.host}/notificationToken`, {
+      token: token,
+      flags: flags
+    });
   }
 
   refreshAccessToken() {
-    return fetch(`${this.host}/refresh`, {
-      credentials: 'same-origin',
-      headers: {
-        'Client-Session': this.sessionId
-      }
-    }).then(handleJsonResponse);
+    return this.getJson(`${this.host}/refresh`);
   }
 
   getRooms() {
-    return fetch(`${this.host}/rooms`, {
-      credentials: 'same-origin',
-      headers: {
-        'Client-Session': this.sessionId
-      }
-    }).then(handleJsonResponse);
+    return this.getJson(`${this.host}/rooms`);
   }
 
   createRoom(name, roomId) {
-    return fetch(`${this.host}/rooms/create`, {
-      method: 'POST',
-      credentials: 'same-origin',
-      headers: {
-        'Content-Type': 'application/json',
-        'Client-Session': this.sessionId
-      },
-      body: JSON.stringify({ name: name, roomId: roomId })
-    }).then(handleJsonResponse);
+    return this.postJson(`${this.host}/rooms/create`, {
+      name: name,
+      roomId: roomId
+    });
   }
 
   deleteRoom(roomId) {
-    return fetch(`${this.host}/rooms/${roomId}/delete`, {
-      method: 'POST',
-      credentials: 'same-origin',
-      headers: {
-        'Client-Session': this.sessionId
-      }
-    }).then(handleJsonResponse);
+    return this.postJson(`${this.host}/rooms/${roomId}/delete`, {});
   }
 
   updateRoomName(roomId, name) {
-    return fetch(`${this.host}/rooms/${roomId}/updateName`, {
-      method: 'POST',
-      credentials: 'same-origin',
-      headers: {
-        'Content-Type': 'application/json',
-        'Client-Session': this.sessionId
-      },
-      body: JSON.stringify({ name: name })
-    }).then(handleJsonResponse);
+    return this.postJson(`${this.host}/rooms/${roomId}/updateName`, {
+      name: name
+    });
   }
 
   reorderDeviceInRoom(roomId, srcIdx, destIdx) {
-    return fetch(`${this.host}/rooms/${roomId}/reorderDeviceInRoom`, {
-      method: 'POST',
-      credentials: 'same-origin',
-      headers: {
-        'Content-Type': 'application/json',
-        'Client-Session': this.sessionId
-      },
-      body: JSON.stringify({ srcIdx: srcIdx, destIdx: destIdx })
-    }).then(handleJsonResponse);
+    return this.postJson(`${this.host}/rooms/${roomId}/reorderDeviceInRoom`, {
+      srcIdx: srcIdx,
+      destIdx: destIdx
+    });
   }
 
   moveDeviceBetweenRooms(srcRoom, destRoom, srcIdx, destIdx) {
-    return fetch(`${this.host}/rooms/moveDeviceBetweenRooms`, {
-      method: 'POST',
-      credentials: 'same-origin',
-      headers: {
-        'Content-Type': 'application/json',
-        'Client-Session': this.sessionId
-      },
-      body: JSON.stringify({
-        srcRoom: srcRoom,
-        destRoom: destRoom,
-        srcIdx: srcIdx,
-        destIdx: destIdx })
-    }).then(handleJsonResponse);
+    return this.postJson(`${this.host}/rooms/moveDeviceBetweenRooms`, {
+      srcRoom: srcRoom,
+      destRoom: destRoom,
+      srcIdx: srcIdx,
+      destIdx: destIdx
+    });
   }
 
   addBeacon(beaconName) {
-    return fetch(`${this.host}/beacon/add`, {
-      method: 'POST',
-      credentials: 'same-origin',
-      headers: {
-        "Content-Type": "application/json",
-        'Client-Session': this.sessionId
-      },
-      body: JSON.stringify({
-        name: beaconName
-      })
-    }).then(handleJsonResponse);
+    return this.postJson(`${this.host}/beacon/add`, {
+      name: beaconName
+    });
   }
 
   removeBeacon(beaconName) {
-    return fetch(`${this.host}/beacon/remove`, {
-      method: 'POST',
-      credentials: 'same-origin',
-      headers: {
-        "Content-Type": "application/json",
-        'Client-Session': this.sessionId
-      },
-      body: JSON.stringify({
-        name: beaconName
-      })
-    }).then(handleJsonResponse);
+    return this.postJson(`${this.host}/beacon/remove`, {
+      name: beaconName
+    });
   }
 
   listUsers() {
-    return fetch(`${this.host}/users`, {
-      method: 'GET',
-      credentials: 'same-origin',
-      headers: {
-        'Client-Session': this.sessionId
-      }
-    }).then(handleJsonResponse);
+    return this.getJson(`${this.host}/users`);
   }
 
   getUser(userId) {
-    return fetch(`${this.host}/users/${userId}`, {
-      method: 'GET',
-      credentials: 'same-origin',
-      headers: {
-        'Client-Session': this.sessionId
-      }
-    }).then(handleJsonResponse);
+    return this.getJson(`${this.host}/users/${userId}`);
   }
 
   updateUserRole(userId, role) {
-    return fetch(`${this.host}/users/${userId}/updateRole`, {
-      method: 'POST',
-      credentials: 'same-origin',
-      headers: {
-        'Client-Session': this.sessionId,
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({ role: role })
-    }).then(handleJsonResponse);
+    return this.postJson(`${this.host}/users/${userId}/updateRole`, {
+      role: role
+    });
   }
 
   addNewUser(publicKey, displayName, role) {
-    return fetch(`${this.host}/users/new`, {
-      method: 'POST',
-      credentials: 'same-origin',
-      headers: {
-        'Client-Session': this.sessionId,
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({ publicKey: publicKey, displayName: displayName, role: role })
-    }).then(handleJsonResponse);
+    return this.postJson(`${this.host}/users/new`, {
+      publicKey: publicKey,
+      displayName: displayName,
+      role: role
+    });
   }
 
   addKeyToUser(publicKey, userId) {
-    return fetch(`${this.host}/users/addKey`, {
-      method: 'POST',
-      credentials: 'same-origin',
-      headers: {
-        'Client-Session': this.sessionId,
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({ publicKey: publicKey, userId: userId })
-    }).then(handleJsonResponse);
+    return this.postJson(`${this.host}/users/addKey`, {
+      publicKey: publicKey,
+      userId: userId
+    });
   }
 
   authChallenge(publicKey) {
-    return fetch(`${this.host}/authChallenge`, {
-      method: 'POST',
-      credentials: 'same-origin',
-      headers: {
-        'Client-Session': this.sessionId,
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({ publicKey: publicKey })
-    }).then(handleJsonResponse);
+    return this.postJson(`${this.host}/authChallenge`, {
+      publicKey: publicKey
+    });
   }
 
   authResponse(signature) {
-    return fetch(`${this.host}/authResponse`, {
-      method: 'POST',
-      credentials: 'same-origin',
-      headers: {
-        'Client-Session': this.sessionId,
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({ signature: signature })
-    }).then(handleJsonResponse);
+    return this.postJson(`${this.host}/authResponse`, {
+      signature: signature
+    });
   }
 
   postUserReport(report, type) {
-    return fetch(`${this.host}/userReport/${type}`, {
-      method: 'POST',
-      credentials: 'same-origin',
-      headers: {
-        'Client-Session': this.sessionId,
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({ report: report })
-    }).then(handleJsonResponse);
+    return this.postJson(`${this.host}/userReport/${type}`, {
+      report: report
+    });
   }
 
   getPermissions(deviceId) {
-    return fetch(`${this.host}/devices/${deviceId}/permissions`, {
-      method: 'GET',
-      credentials: 'same-origin',
-      headers: {
-        'Client-Session': this.sessionId
-      }
-    }).then(handleJsonResponse);
+    return this.getJson(`${this.host}/devices/${deviceId}/permissions`);
   }
 
   modifyPermission({ deviceId, ...permissions }) {
-    return fetch(`${this.host}/devices/${deviceId}/permissions`, {
-      method: 'POST',
-      credentials: 'same-origin',
-      headers: {
-        'Client-Session': this.sessionId,
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(permissions)
-    }).then(handleJsonResponse);
+    return this.postJson(`${this.host}/devices/${deviceId}/permissions`, permissions);
   }
 }
 
