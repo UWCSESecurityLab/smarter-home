@@ -203,18 +203,21 @@ class DeviceModal extends React.Component {
             id={LocationRestrictions.NEARBY}
             checked={this.props.permissions.locationRestrictions === LocationRestrictions.NEARBY}
             label={LocationRestrictionsStrings[LocationRestrictions.NEARBY]}
+            onRadioChange={this.changeRadio}
           />
           <Radio
             name="locationRestrictions"
             id={LocationRestrictions.AT_HOME}
             checked={this.props.permissions.locationRestrictions === LocationRestrictions.AT_HOME}
             label={LocationRestrictionsStrings[LocationRestrictions.AT_HOME]}
+            onRadioChange={this.changeRadio}
           />
           <Radio
             name="locationRestrictions"
             id={LocationRestrictions.ANYWHERE}
             checked={this.props.permissions.locationRestrictions === LocationRestrictions.ANYWHERE}
             label={LocationRestrictionsStrings[LocationRestrictions.ANYWHERE]}
+            onRadioChange={this.changeRadio}
           />
         </div>
       </div>
@@ -235,7 +238,7 @@ class DeviceModal extends React.Component {
       userSubtitle = 'Everyone'
     } else {
       userSubtitle = this.props.permissions.owners.map((userId) => {
-        this.props.users[userId].displayName
+        return this.props.users[userId].displayName;
       }).join(', ');
       userPolicySubtitle = UserRestrictionsSubtitleStrings[this.props.permissions.parentalRestrictions];
     }
