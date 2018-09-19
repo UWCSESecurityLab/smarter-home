@@ -89,7 +89,7 @@ class NotificationSettings extends React.Component {
     const backgroundFlag = this.props.flags.backgroundScanning;
 
     return (
-      <section className="home-item">
+      <section className="home-item home-item-padded">
         <h3>Notification Settings</h3>
         { this.props.notificationsEnabled
           ? null

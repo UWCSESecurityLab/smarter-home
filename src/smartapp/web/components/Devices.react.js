@@ -260,7 +260,7 @@ class Devices extends React.Component {
     return (
       <div>
         <DragDropContext onDragEnd={this.onDragEnd}>
-          <section className="home-item">
+          <section id="devices-section" className="home-item">
             {this.renderHeader()}
             { this.state.error !== ''
               ? <div>

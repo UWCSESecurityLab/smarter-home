@@ -9,10 +9,14 @@
 
 .home-item {
   background: #fff;
-  padding: 10px 20px;
+  padding: 10px 0;
   margin-bottom: 15px;
   border-radius: 2px;
   box-shadow: 0px 0px 3px 1px #62a5c7;
+}
+
+.home-item-padded {
+  padding: 10px 20px;
 }
 
 .code-container {

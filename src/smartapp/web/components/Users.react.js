@@ -34,7 +34,7 @@ class Users extends React.Component {
   render() {
     return (
       <section className="home-item">
-        <h3>Users</h3>
+        <h3 className="user-header">Users</h3>
         { Object.values(this.props.users).map((user) =>
             <div className="user-li"
                  key={user.id}
@@ -56,7 +56,7 @@ class Users extends React.Component {
             </div>
           )}
         { this.props.me.role === Roles.USER
-          ? <Button onClick={this.addUser}>
+          ? <Button onClick={this.addUser} className="add-user-button">
               + Add User
             </Button>
           : null

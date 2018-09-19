@@ -1,5 +1,9 @@
+.user-header {
+  padding: 0 20px;
+}
+
 .user-li {
-  padding: 10px 0 10px 5px;
+  padding: 10px 20px;
   border-top: 1px solid #EEEEEE;
   border-bottom: 1px solid #EEEEEE;
   margin-bottom: -1px;
@@ -23,4 +27,8 @@
   border-radius: 5px;
   padding: 4px 12px;
   margin-left: 12px;
+}
+
+.add-user-button {
+  margin-left: 20px;
 }

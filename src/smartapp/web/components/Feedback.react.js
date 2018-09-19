@@ -91,7 +91,7 @@ class Feedback extends React.Component {
 
   render() {
     return (
-      <section className="home-item">
+      <section className="home-item home-item-padded">
         <h3>Feedback</h3>
         <p>
           What kind of feedback do you have?
