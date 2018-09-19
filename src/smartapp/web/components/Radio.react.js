@@ -1,6 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
+import '@material/radio/mdc-radio.scss';
+
 class Radio extends React.Component {
   render() {
     let { id, checked, label, name, disable, onRadioChange, required} = this.props;
@@ -35,7 +37,7 @@ Radio.propTypes = {
   label: PropTypes.node,
   name: PropTypes.string,
   disable: PropTypes.bool,
-  required: PropTypes.required,
+  required: PropTypes.bool,
   onRadioChange: PropTypes.func,
 }
 

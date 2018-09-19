@@ -43,6 +43,24 @@ export function permissions(state = {}, action) {
       return Object.assign({}, state, {
         [action.deviceId]: Object.assign({}, state[action.deviceId], action.permissions)
       });
+    case Actions.ADD_DEVICE_OWNER: {
+      let newOwners = Array.from(state[action.deviceId].owners);
+      if (!newOwners.includes(action.userId)) {
+        newOwners.push(action.userId);
+      }
+      return Object.assign({}, state, {
+        [action.deviceId]: Object.assign({}, state[action.deviceId], { owners: newOwners })
+      });
+    }
+    case Actions.REMOVE_DEVICE_OWNER: {
+      let newOwners = Array.from(state[action.deviceId].owners);
+      if (newOwners.includes(action.userId)) {
+        newOwners.splice(newOwners.indexOf(action.userId), 1);
+      }
+      return Object.assign({}, state, {
+        [action.deviceId]: Object.assign({}, state[action.deviceId], { owners: newOwners })
+      });
+    }
     default:
       return state;
   }

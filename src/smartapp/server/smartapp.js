@@ -756,6 +756,12 @@ app.post('/devices/:deviceId/permissions', checkAuth, (req, res) => {
   if (req.body.hasOwnProperty('parentalRestrictions')) {
     update.parentalRestrictions = req.body.parentalRestrictions;
   }
+  if (req.body.hasOwnProperty('removeOwner')) {
+    update.$pull = { owners: req.body.removeOwner };
+  }
+  if (req.body.hasOwnProperty('addOwner')) {
+    update.$push = { owners: req.body.addOwner };
+  }
 
   Permission.findOneAndUpdate({
     deviceId: req.params.deviceId,

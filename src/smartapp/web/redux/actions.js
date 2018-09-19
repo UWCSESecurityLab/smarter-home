@@ -149,6 +149,24 @@ export function updatePermission({ deviceId, ...permissions }) {
   }
 }
 
+export const ADD_DEVICE_OWNER = 'ADD_DEVICE_OWNER';
+export function addDeviceOwner(deviceId, userId) {
+  return {
+    type: ADD_DEVICE_OWNER,
+    deviceId: deviceId,
+    userId: userId
+  }
+}
+
+export const REMOVE_DEVICE_OWNER = 'REMOVE_DEVICE_OWNER';
+export function removeDeviceOwner(deviceId, userId) {
+  return {
+    type: REMOVE_DEVICE_OWNER,
+    deviceId: deviceId,
+    userId: userId
+  }
+}
+
 export const ADD_LOCATION_PROMPT = 'ADD_LOCATION_PROMPT';
 export function addLocationPrompt(deviceId, capability, command, policy) {
   return {
