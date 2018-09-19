@@ -5,8 +5,11 @@ chai.use(chaiAsPromised);
 const sinon = require('sinon');
 
 const ask = require('../server/ask');
+const fcmClient = require('../server/fcmClient');
+const InstallData = require('../server/db/installData');
 const PendingCommand = require('../server/db/pending-command');
 const Permission = require('../server/db/permissions');
+const User = require('../server/db/user');
 const {
   ApprovalState,
   ApprovalType,
@@ -256,6 +259,115 @@ describe('Ask', () => {
       pending.ownerApproval.should.equal(ApprovalState.ALLOW);
       decideFake.callCount.should.equal(1);
       saveFake.callCount.should.equal(0);
+    });
+  });
+  describe('decide()', () => {
+    it('should send notifications and deny if one of the approvals is deny', async () => {
+      sinon.stub(User, 'findOne').resolves({
+        permissionsFcmTokens: ['token1', 'token2']
+      });
+      sinon.stub(InstallData, 'findOne').resolves({
+        authToken: 'authToken'
+      });
+
+      let fakeSendAskDecisionNotification = sinon.fake();
+      sinon.replace(fcmClient, 'sendAskDecisionNotification', fakeSendAskDecisionNotification);
+
+      let fakeExecute = sinon.fake();
+      sinon.replace(ask, 'execute', fakeExecute);
+
+      let pending = {
+        ownerApproval: ApprovalState.DENY,
+        nearbyApproval: ApprovalState.ALLOW,
+        requesterId: 'requester',
+      };
+      pending.save = sinon.stub().resolves(pending);
+
+      await ask.decide(pending);
+
+      fakeSendAskDecisionNotification.calledWith(sinon.match({
+        decision: ApprovalState.DENY,
+        ownerApproval: ApprovalState.DENY,
+        nearbyApproval: ApprovalState.ALLOW
+      }));
+      fakeExecute.notCalled.should.be.true;
+
+      let pending2 = {
+        ownerApproval: ApprovalState.ALLOW,
+        nearbyApproval: ApprovalState.DENY,
+        requesterId: 'requester',
+      };
+      pending2.save = sinon.stub().resolves(pending)
+
+      await ask.decide(pending2);
+
+      fakeSendAskDecisionNotification.calledWith(sinon.match({
+        decision: ApprovalState.DENY,
+        ownerApproval: ApprovalState.ALLOW,
+        nearbyApproval: ApprovalState.DENY
+      }));
+      fakeExecute.notCalled.should.be.true;
+    });
+    it('should send notifications and execute if both approvals are allow', async () => {
+      sinon.stub(User, 'findOne').resolves({
+        permissionsFcmTokens: ['token1', 'token2']
+      });
+      sinon.stub(InstallData, 'findOne').resolves({
+        authToken: 'authToken'
+      });
+
+      let fakeSendAskDecisionNotification = sinon.fake();
+      sinon.replace(fcmClient, 'sendAskDecisionNotification', fakeSendAskDecisionNotification);
+
+      let fakeExecute = sinon.fake();
+      sinon.replace(ask, 'execute', fakeExecute);
+
+      let pending = {
+        ownerApproval: ApprovalState.ALLOW,
+        nearbyApproval: ApprovalState.ALLOW,
+        requesterId: 'requester',
+      };
+      pending.save = sinon.stub().resolves(pending);
+
+      await ask.decide(pending);
+
+      fakeSendAskDecisionNotification.calledWith(sinon.match({
+        decision: ApprovalState.ALLOW,
+        ownerApproval: ApprovalState.ALLOW,
+        nearbyApproval: ApprovalState.ALLOW
+      }));
+      fakeExecute.calledOnce.should.be.true;
+    });
+
+    it('should send a prompt notification and not execute if nearby timed out', async () => {
+      sinon.stub(User, 'findOne').resolves({
+        permissionsFcmTokens: ['token1', 'token2']
+      });
+      sinon.stub(InstallData, 'findOne').resolves({
+        authToken: 'authToken'
+      });
+
+      let fakeSendAskDecisionNotification = sinon.fake();
+      sinon.replace(fcmClient, 'sendAskDecisionNotification', fakeSendAskDecisionNotification);
+
+      let fakeExecute = sinon.fake();
+      sinon.replace(ask, 'execute', fakeExecute);
+
+      let pending = {
+        ownerApproval: ApprovalState.ALLOW,
+        nearbyApproval: ApprovalState.TIMEOUT,
+        requesterId: 'requester',
+      };
+      pending.save = sinon.stub().resolves(pending);
+
+      await ask.decide(pending);
+
+      fakeSendAskDecisionNotification.calledWith(sinon.match({
+        decision: ApprovalState.PROMPT,
+        ownerApproval: ApprovalState.ALLOW,
+        nearbyApproval: ApprovalState.TIMEOUT
+      }));
+      fakeExecute.notCalled.should.be.true;
     });
   });
 });
