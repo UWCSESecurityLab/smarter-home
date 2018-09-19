@@ -146,40 +146,42 @@ class DeviceModal extends React.Component {
     return (
       <div>
         <h4 className="device-modal-heading">Allowed Users</h4>
-        <p>Device Owners</p>
-        { Object.values(this.props.users).map((user) => (
-            <Checkbox
-              name="owners"
-              id={user.id}
-              key={user.id}
-              checked={this.props.permissions.owners.includes(user.id)}
-              label={user.displayName}
-              onCheckboxChange={this.changeCheckbox}
-            />
-          ))
-        }
-        <p>What happens when non-owners want to use this device?</p>
-        <Radio
-          name="parentalRestrictions"
-          id={ParentalRestrictions.ALLOW_IF_NEARBY}
-          checked={restrictions === ParentalRestrictions.ALLOW_IF_NEARBY}
-          label={UserRestrictionsStrings[ParentalRestrictions.ALLOW_IF_NEARBY]}
-          onRadioChange={this.changeRadio}
-        />
-        <Radio
-          name="parentalRestrictions"
-          id={ParentalRestrictions.ALWAYS_ASK}
-          checked={restrictions === ParentalRestrictions.ALWAYS_ASK}
-          label={UserRestrictionsStrings[ParentalRestrictions.ALWAYS_ASK]}
-          onRadioChange={this.changeRadio}
-        />
-        <Radio
-          name="parentalRestrictions"
-          id={ParentalRestrictions.DENY}
-          checked={restrictions === ParentalRestrictions.DENY}
-          label={UserRestrictionsStrings[ParentalRestrictions.DENY]}
-          onRadioChange={this.changeRadio}
-        />
+        <div className="modal-content">
+          <p>Device Owners</p>
+          { Object.values(this.props.users).map((user) => (
+              <Checkbox
+                name="owners"
+                id={user.id}
+                key={user.id}
+                checked={this.props.permissions.owners.includes(user.id)}
+                label={user.displayName}
+                onCheckboxChange={this.changeCheckbox}
+              />
+            ))
+          }
+          <p>What happens when non-owners want to use this device?</p>
+          <Radio
+            name="parentalRestrictions"
+            id={ParentalRestrictions.ALLOW_IF_NEARBY}
+            checked={restrictions === ParentalRestrictions.ALLOW_IF_NEARBY}
+            label={UserRestrictionsStrings[ParentalRestrictions.ALLOW_IF_NEARBY]}
+            onRadioChange={this.changeRadio}
+          />
+          <Radio
+            name="parentalRestrictions"
+            id={ParentalRestrictions.ALWAYS_ASK}
+            checked={restrictions === ParentalRestrictions.ALWAYS_ASK}
+            label={UserRestrictionsStrings[ParentalRestrictions.ALWAYS_ASK]}
+            onRadioChange={this.changeRadio}
+          />
+          <Radio
+            name="parentalRestrictions"
+            id={ParentalRestrictions.DENY}
+            checked={restrictions === ParentalRestrictions.DENY}
+            label={UserRestrictionsStrings[ParentalRestrictions.DENY]}
+            onRadioChange={this.changeRadio}
+          />
+        </div>
       </div>
     );
   }
@@ -188,25 +190,27 @@ class DeviceModal extends React.Component {
     return (
       <div>
         <h4 className="device-modal-heading">Remote Control</h4>
-        <p>Restrict where this device can be controlled from.</p>
-        <Radio
-          name="locationRestrictions"
-          id={LocationRestrictions.NEARBY}
-          checked={this.props.permissions.locationRestrictions === LocationRestrictions.NEARBY}
-          label={LocationRestrictionsStrings[LocationRestrictions.NEARBY]}
-        />
-        <Radio
-          name="locationRestrictions"
-          id={LocationRestrictions.AT_HOME}
-          checked={this.props.permissions.locationRestrictions === LocationRestrictions.AT_HOME}
-          label={LocationRestrictionsStrings[LocationRestrictions.AT_HOME]}
-        />
-        <Radio
-          name="locationRestrictions"
-          id={LocationRestrictions.ANYWHERE}
-          checked={this.props.permissions.locationRestrictions === LocationRestrictions.ANYWHERE}
-          label={LocationRestrictionsStrings[LocationRestrictions.ANYWHERE]}
-        />
+        <div className="modal-content">
+          <p>Restrict where this device can be controlled from.</p>
+          <Radio
+            name="locationRestrictions"
+            id={LocationRestrictions.NEARBY}
+            checked={this.props.permissions.locationRestrictions === LocationRestrictions.NEARBY}
+            label={LocationRestrictionsStrings[LocationRestrictions.NEARBY]}
+          />
+          <Radio
+            name="locationRestrictions"
+            id={LocationRestrictions.AT_HOME}
+            checked={this.props.permissions.locationRestrictions === LocationRestrictions.AT_HOME}
+            label={LocationRestrictionsStrings[LocationRestrictions.AT_HOME]}
+          />
+          <Radio
+            name="locationRestrictions"
+            id={LocationRestrictions.ANYWHERE}
+            checked={this.props.permissions.locationRestrictions === LocationRestrictions.ANYWHERE}
+            label={LocationRestrictionsStrings[LocationRestrictions.ANYWHERE]}
+          />
+        </div>
       </div>
     );
   }
