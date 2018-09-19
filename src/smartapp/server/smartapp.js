@@ -714,14 +714,17 @@ app.get('/devices/:deviceId/permissions', checkAuth, (req, res) => {
     installedAppId: req.session.installedAppId
   }).then((permission) => {
     if (!permission) {
-      Room.find({
+      Promise.all([User.find({
+        installedAppId: req.session.installedAppId,
+      }), Room.find({
         installedAppId: req.session.installedAppId,
         devices: req.params.deviceId
-      }).then((room) => {
-        if (room) {
+      })]).then(([users, room]) => {
+        if (room && users.length > 0) {
           let newPermission = new Permission({
             deviceId: req.params.deviceId,
             installedAppId: req.session.installedAppId,
+            owners: users.map((u) => u.id)
           });
           newPermission.save().then(() => {
             res.status(200).json(newPermission);
@@ -1005,6 +1008,10 @@ app.post('/users/new', checkAuth, (req, res) => {
       role: req.body.role
     });
     newUser.save().then(() => {
+      return Permission.updateMany({
+        installedAppId: req.session.installedAppId
+      }, { $push: { owners: newUser.id }});
+    }).then(() => {
       res.status(200).json({});
     }).catch((err) => {
       logger.error({
