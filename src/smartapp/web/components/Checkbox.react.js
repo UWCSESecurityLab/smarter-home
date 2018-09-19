@@ -25,7 +25,7 @@ class Checkbox extends React.Component {
             <div className="mdc-checkbox__mixedmark"></div>
           </div>
         </div>
-        <label htmlFor={id}>{label}</label>
+        <label htmlFor={id}><span className="radio-label">{label}</span></label>
       </div>
     );
   }

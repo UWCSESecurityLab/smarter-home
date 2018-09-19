@@ -163,12 +163,10 @@ class AddUserModal extends React.Component {
                     id={user.id}
                     key={user.id}
                     checked={this.state.picked === user.id}
-                    label={
-                      <span className="user-radio-label">
-                        <MaterialIcon icon="mood" style={{ color: strToColor(user.id)}}/>
-                        <span className="user-li-label">{user.displayName}</span>
-                      </span>
-                    }
+                    label={[
+                      <MaterialIcon key={`${user.id}-icon`} icon="mood" style={{ color: strToColor(user.id)}}/>,
+                      <span key={`${user.id}-label`} className="user-li-label">{user.displayName}</span>
+                    ]}
                     onRadioChange={this.changePicked}/>
             )}
             <p>
@@ -193,7 +191,7 @@ class AddUserModal extends React.Component {
                 </div>
               : null
             }
-            <Button className="mdc-button-blue" raised onClick={this.submit} type="submit">
+            <Button id="new-user-btn" className="mdc-button-blue" raised onClick={this.submit} type="submit">
               Add User
             </Button>
             { this.state.error

@@ -25,7 +25,7 @@ class Radio extends React.Component {
             <div className="mdc-radio__inner-circle"></div>
           </div>
         </div>
-        <label htmlFor={id}>{label}</label>
+        <label htmlFor={id}><span className="radio-label">{label}</span></label>
       </div>
     );
   }

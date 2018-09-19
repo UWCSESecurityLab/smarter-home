@@ -139,3 +139,10 @@ input:focus, textarea:focus {
   text-decoration: none;
   color: initial;
 }
+
+.radio-label {
+  display: flex;
+  align-items: center;
+  width: 85vh;
+  max-width: 320px;
+}

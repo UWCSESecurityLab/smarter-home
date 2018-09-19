@@ -5,6 +5,7 @@ import MaterialIcon from '@material/react-material-icon';
 import PropTypes from 'prop-types';
 import Radio from './Radio.react';
 import SmartAppClient from '../lib/SmartAppClient';
+import strToColor from '../lib/strToColor';
 import toastError from '../lib/error-toaster';
 import * as Actions from '../redux/actions';
 import { connect } from 'react-redux';
@@ -14,8 +15,8 @@ import { LocationRestrictions, ParentalRestrictions } from '../../permissions';
 const smartAppClient = new SmartAppClient();
 
 const LocationRestrictionsStrings = {
-  [LocationRestrictions.NEARBY]: 'Only control if nearby',
-  [LocationRestrictions.AT_HOME]: 'Only control if at home',
+  [LocationRestrictions.NEARBY]: 'Control if nearby, otherwise ask someone nearby',
+  [LocationRestrictions.AT_HOME]: 'Control if at home, otherwise ask someone at home',
   [LocationRestrictions.ANYWHERE]: 'Control from anywhere'
 }
 
@@ -160,7 +161,10 @@ class DeviceModal extends React.Component {
                 id={user.id}
                 key={user.id}
                 checked={this.props.permissions.owners.includes(user.id)}
-                label={user.displayName}
+                label={[
+                  <MaterialIcon key={`${user.id}-icon`} icon="mood" style={{ color: strToColor(user.id)}}/>,
+                  <span key={`${user.id}-label`} className="user-li-label">{user.displayName}</span>
+                ]}
                 onCheckboxChange={this.changeCheckbox}
               />
             ))
