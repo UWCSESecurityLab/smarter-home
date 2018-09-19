@@ -120,7 +120,7 @@ class Ask {
     }
 
     // Exit early if someone has already responded for this approval type.
-    if (command[approvalType] === ApprovalState.PENDING) {
+    if (command[approvalType] !== ApprovalState.PENDING) {
       return;
     }
 

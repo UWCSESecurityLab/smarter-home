@@ -17,7 +17,7 @@ module.exports = {
     PROMPT: 'ApprovalState_PROMPT',
   },
   ApprovalType: {
-    NEARBY: 'ApprovalType_NEARBY',
-    OWNERS: 'ApprovalType_OWNERS'
+    NEARBY: 'nearbyApproval',
+    OWNERS: 'ownerApproval'
   }
 }

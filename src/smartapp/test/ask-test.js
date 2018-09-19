@@ -9,6 +9,7 @@ const PendingCommand = require('../server/db/pending-command');
 const Permission = require('../server/db/permissions');
 const {
   ApprovalState,
+  ApprovalType,
   LocationRestrictions,
   ParentalRestrictions
 } = require('../permissions');
@@ -108,13 +109,153 @@ describe('Ask', () => {
         requester: { id: 'requester' },
         deviceId: 'my-device',
       });
-      await request.should.eventually.have.property('decision', ApprovalState.PENDING);
+      request.should.eventually.have.property('decision', ApprovalState.PENDING);
       clock.runAll();
-      clock.restore();
       setTimeout(() => {
         decideFake.callCount.should.equal(1);
         done();
-      }, 5);
+      }, 10);
+      clock.restore();
+    });
+
+    it('should not decide pending commands on timeout if it was already decided', async() => {
+      let clock = sinon.useFakeTimers();
+      sinon.stub(PendingCommand.prototype, 'save')
+      sinon.stub(ask, 'sendAskNotifications');
+
+      let decideFake = sinon.fake();
+      sinon.replace(ask, 'decide', decideFake);
+
+      sinon.stub(Permission, 'findOne').resolves({
+        deviceId: 'my-device',
+        installedAppId: 'my-installedApp',
+        locationRestrictions: LocationRestrictions.NEARBY,
+        parentalRestrictions: ParentalRestrictions.ALWAYS_ASK,
+        owners: ['requester']
+      });
+
+      sinon.stub(PendingCommand, 'findOne').resolves({
+        decided: true,
+        ownerApproval: ApprovalState.ALLOW,
+        nearbyApproval: ApprovalState.ALLOW
+      });
+
+      let request = ask.request({
+        requester: { id: 'requester' },
+        deviceId: 'my-device',
+      });
+      request.should.eventually.have.property('decision', ApprovalState.PENDING);
+      clock.runAll();
+      clock.restore();
+      setTimeout(() => {
+        decideFake.callCount.should.equal(0);
+        done();
+      }, 10);
+    });
+  });
+
+  describe('response()', () => {
+    it('should early exit if the command has been decided', async () => {
+      let saveFake = sinon.fake();
+      let decideFake = sinon.fake();
+      sinon.replace(ask, 'decide', decideFake);
+
+      let pending = {
+        decided: true,
+        id: 'my-command',
+        ownerApproval: ApprovalState.ALLOW,
+        nearbyApproval: ApprovalState.DENY,
+        save: saveFake
+      };
+      sinon.stub(PendingCommand, 'findOne').resolves();
+
+      await ask.response({
+        commandId: 'my-command',
+        approvalType: ApprovalType.NEARBY,
+        approvalState: ApprovalState.ALLOW,
+      });
+
+      pending.nearbyApproval.should.equal(ApprovalState.DENY);
+      decideFake.callCount.should.equal(0);
+      saveFake.callCount.should.equal(0);
+    });
+
+    it('should early exit if another person has already handled the same approval', async () => {
+      let saveFake = sinon.fake();
+      let decideFake = sinon.fake();
+      sinon.replace(ask, 'decide', decideFake);
+
+      let pending = {
+        decided: false,
+        id: 'my-command',
+        ownerApproval: ApprovalState.PENDING,
+        nearbyApproval: ApprovalState.DENY,
+        save: saveFake
+      }
+
+      sinon.stub(PendingCommand, 'findOne').resolves(pending);
+
+      await ask.response({
+        commandId: 'my-command',
+        approvalType: ApprovalType.NEARBY,
+        approvalState: ApprovalState.ALLOW,
+      });
+
+      pending.nearbyApproval.should.equal(ApprovalState.DENY);
+      decideFake.callCount.should.equal(0);
+      saveFake.callCount.should.equal(0);
+    });
+
+    it('should change a pending approval and save the object, if both approvals are pending', async () => {
+      let saveFake = sinon.fake();
+      let decideFake = sinon.fake();
+      sinon.replace(ask, 'decide', decideFake);
+
+      let pending = {
+        decided: false,
+        id: 'my-command',
+        ownerApproval: ApprovalState.PENDING,
+        nearbyApproval: ApprovalState.PENDING,
+        save: saveFake
+      };
+      sinon.stub(PendingCommand, 'findOne').resolves(pending);
+
+      await ask.response({
+        commandId: 'my-command',
+        approvalType: ApprovalType.NEARBY,
+        approvalState: ApprovalState.ALLOW,
+      });
+
+      pending.decided.should.be.false;
+      pending.ownerApproval.should.equal(ApprovalState.PENDING);
+      pending.nearbyApproval.should.equal(ApprovalState.ALLOW);
+      decideFake.callCount.should.equal(0);
+      saveFake.callCount.should.equal(1);
+    });
+
+    it('should call decide() if it changes a pending approval to allow/deny, and both are no longer pending', async () => {
+      let saveFake = sinon.fake();
+      let decideFake = sinon.fake();
+      sinon.replace(ask, 'decide', decideFake);
+
+      let pending = {
+        decided: false,
+        id: 'my-command',
+        ownerApproval: ApprovalState.PENDING,
+        nearbyApproval: ApprovalState.ALLOW,
+        save: saveFake
+      };
+      sinon.stub(PendingCommand, 'findOne').resolves(pending);
+
+      await ask.response({
+        commandId: 'my-command',
+        approvalType: ApprovalType.OWNERS,
+        approvalState: ApprovalState.ALLOW,
+      });
+
+      pending.ownerApproval.should.equal(ApprovalState.ALLOW);
+      decideFake.callCount.should.equal(1);
+      saveFake.callCount.should.equal(0);
     });
   });
 });
