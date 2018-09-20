@@ -4,6 +4,7 @@ import Checkbox from './Checkbox.react';
 import MaterialIcon from '@material/react-material-icon';
 import PropTypes from 'prop-types';
 import Radio from './Radio.react';
+import Roles from '../../roles';
 import SmartAppClient from '../lib/SmartAppClient';
 import strToColor from '../lib/strToColor';
 import toastError from '../lib/error-toaster';
@@ -281,31 +282,39 @@ class DeviceModal extends React.Component {
                   { isActuator ?
                      <div>
                       <h4 className="device-modal-heading">Settings</h4>
-                      <Link to={`${this.props.match.url}/location`} className="link-plain">
-                        <div className="device-modal-nav-item">
-                          <div>
-                            <div>Remote Control</div>
-                            <div className="device-modal-nav-item-subtitle">
-                              {LocationRestrictionsStrings[this.props.permissions.locationRestrictions]}
-                            </div>
+                      <div className="device-modal-nav-item"  onClick={() => {
+                        if (this.props.me && this.props.me.role === Roles.USER) {
+                          this.props.history.push(`${this.props.match.url}/location`);
+                        }
+                      }}>
+                        <div>
+                          <div>Remote Control</div>
+                          <div className="device-modal-nav-item-subtitle">
+                            {LocationRestrictionsStrings[this.props.permissions.locationRestrictions]}
                           </div>
-                          <MaterialIcon icon="chevron_right" style={{ color: '#8c8c8c' }}/>
                         </div>
-                      </Link>
-                      <Link to={`${this.props.match.url}/users`} className="link-plain">
-                        <div className="device-modal-nav-item">
-                          <div>
-                            <div>Allowed Users</div>
-                            <div className="device-modal-nav-item-subtitle">
-                              {userSubtitle}
-                            </div>
-                            <div className="device-modal-nav-item-subtitle">
-                              {userPolicySubtitle}
-                            </div>
+                        { this.props.me.role === Roles.USER ?
+                            <MaterialIcon icon="chevron_right" style={{ color: '#8c8c8c' }}/>
+                          : null }
+                      </div>
+                      <div className="device-modal-nav-item" onClick={() => {
+                        if (this.props.me && this.props.me.role === Roles.USER) {
+                          this.props.history.push(`${this.props.match.url}/users`);
+                        }
+                      }}>
+                        <div>
+                          <div>Allowed Users</div>
+                          <div className="device-modal-nav-item-subtitle">
+                            {userSubtitle}
                           </div>
-                          <MaterialIcon icon="chevron_right" style={{ color: '#8c8c8c' }}/>
+                          <div className="device-modal-nav-item-subtitle">
+                            {userPolicySubtitle}
+                          </div>
                         </div>
-                      </Link>
+                        { this.props.me.role === Roles.USER ?
+                            <MaterialIcon icon="chevron_right" style={{ color: '#8c8c8c' }}/>
+                          : null }
+                      </div>
                     </div>
                     : null }
               </div>
@@ -324,6 +333,7 @@ DeviceModal.propTypes = {
   history: PropTypes.object,
   label: PropTypes.string,
   match: PropTypes.object,
+  me: PropTypes.object,
   nearbyBeacons: PropTypes.object,
   permissions: PropTypes.object,
   status: PropTypes.object,
@@ -337,6 +347,7 @@ const mapStateToProps = (state, ownProps) => {
     label: Capability.getLabel(state, deviceId),
     permissions: Capability.getPermissions(state, deviceId),
     status: Capability.getStatus(state, deviceId),
+    me: state.users[state.me] ? state.users[state.me] : {},
     nearbyBeacons: state.beacons.nearbyBeacons,
     users: state.users,
   };
