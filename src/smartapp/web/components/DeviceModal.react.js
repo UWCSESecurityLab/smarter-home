@@ -10,6 +10,7 @@ import strToColor from '../lib/strToColor';
 import toastError from '../lib/error-toaster';
 import * as Actions from '../redux/actions';
 import { connect } from 'react-redux';
+import { notify as toast } from 'react-notify-toast';
 import { Link, Route, Switch, withRouter } from 'react-router-dom';
 import { LocationRestrictions, ParentalRestrictions } from '../../permissions';
 
@@ -122,6 +123,11 @@ class DeviceModal extends React.Component {
   changeCheckbox(_, userId) {
     const deviceId = this.props.match.params.deviceId;
     const addOwner = !this.props.permissions.owners.includes(userId);
+    if (!addOwner && this.props.permissions.owners.length === 1) {
+      toast.show('You can\'t remove the last owner!', 'error');
+      return;
+    }
+
     smartAppClient.modifyPermission({
       deviceId: deviceId,
       addOwner: addOwner ? userId : undefined,
@@ -283,7 +289,7 @@ class DeviceModal extends React.Component {
                      <div>
                       <h4 className="device-modal-heading">Settings</h4>
                       <div className="device-modal-nav-item"  onClick={() => {
-                        if (this.props.me && this.props.me.role === Roles.USER) {
+                        if (this.props.canModifySettings ) {
                           this.props.history.push(`${this.props.match.url}/location`);
                         }
                       }}>
@@ -293,12 +299,12 @@ class DeviceModal extends React.Component {
                             {LocationRestrictionsStrings[this.props.permissions.locationRestrictions]}
                           </div>
                         </div>
-                        { this.props.me.role === Roles.USER ?
+                        { this.props.canModifySettings ?
                             <MaterialIcon icon="chevron_right" style={{ color: '#8c8c8c' }}/>
                           : null }
                       </div>
                       <div className="device-modal-nav-item" onClick={() => {
-                        if (this.props.me && this.props.me.role === Roles.USER) {
+                        if (this.props.canModifySettings) {
                           this.props.history.push(`${this.props.match.url}/users`);
                         }
                       }}>
@@ -311,7 +317,7 @@ class DeviceModal extends React.Component {
                             {userPolicySubtitle}
                           </div>
                         </div>
-                        { this.props.me.role === Roles.USER ?
+                        { this.props.canModifySettings ?
                             <MaterialIcon icon="chevron_right" style={{ color: '#8c8c8c' }}/>
                           : null }
                       </div>
@@ -328,12 +334,12 @@ class DeviceModal extends React.Component {
 }
 
 DeviceModal.propTypes = {
+  canModifySettings: PropTypes.bool,
   desc: PropTypes.object,
   dispatch: PropTypes.func,
   history: PropTypes.object,
   label: PropTypes.string,
   match: PropTypes.object,
-  me: PropTypes.object,
   nearbyBeacons: PropTypes.object,
   permissions: PropTypes.object,
   status: PropTypes.object,
@@ -342,12 +348,17 @@ DeviceModal.propTypes = {
 
 const mapStateToProps = (state, ownProps) => {
   const deviceId = ownProps.match.params.deviceId;
+  const canModifySettings = state.users[state.me]
+    ? state.users[state.me].role === Roles.USER ||
+      Capability.getPermissions(state, deviceId).owners.includes(state.me)
+    : false;
+
   return {
+    canModifySettings: canModifySettings,
     desc: Capability.getDesc(state, deviceId),
     label: Capability.getLabel(state, deviceId),
     permissions: Capability.getPermissions(state, deviceId),
     status: Capability.getStatus(state, deviceId),
-    me: state.users[state.me] ? state.users[state.me] : {},
     nearbyBeacons: state.beacons.nearbyBeacons,
     users: state.users,
   };
