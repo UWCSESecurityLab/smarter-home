@@ -71,6 +71,7 @@ class Ask {
     await pendingCommand.save();
 
     this.sendAskNotifications({
+      commandId: commandId,
       capability: capability,
       command: command,
       deviceId: deviceId,
@@ -93,6 +94,7 @@ class Ask {
     }, 60000);
 
     return {
+      commandId: commandId,
       decision: ApprovalState.PENDING,
       nearby: nearbyApproval,
       owner: ownerApproval
@@ -220,7 +222,7 @@ class Ask {
   static getPendingCommands(user) {
     return PendingCommand.find({
       installedAppId: user.installedAppId,
-      $ne: { requesterId: user.id }
+      requesterId: { $ne: user.id }
     });
   }
 
@@ -235,7 +237,7 @@ class Ask {
         installedAppId: requester.installedAppId,
         id: { $ne: requester.id }
       }),
-      InstallData.find({ installedAppId: requester.installedAppId })
+      InstallData.findOne({ 'installedApp.installedAppId': requester.installedAppId })
     ]);
 
     let deviceDesc = await SmartThingsClient.getDeviceDescription({
@@ -255,8 +257,10 @@ class Ask {
         approvalType: owners.includes(user.id)
           ? ApprovalType.OWNERS
           : ApprovalType.NEARBY }
-      let payload = Object.assign({}, data, approvalType)
-      fcmClient.sendAskNotification(payload, user.permissionsFcmTokens);
+      let payload = Object.assign({}, data, approvalType);
+      user.permissionsFcmTokens.forEach((token) => {
+        fcmClient.sendAskNotification(payload, token);
+      });
     });
   }
 }

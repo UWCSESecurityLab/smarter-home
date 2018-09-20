@@ -21,3 +21,9 @@ export function userIsNearDevice(deviceId) {
     .filter((beacon) =>
       Object.keys(nearbyBeacons).includes(beacon)).length > 0;
 }
+
+export function userIsHome() {
+  const state = store.getState();
+  const nearbyBeacons = state.beacons.nearbyBeacons;
+  return Object.keys(nearbyBeacons).length > 0;
+}

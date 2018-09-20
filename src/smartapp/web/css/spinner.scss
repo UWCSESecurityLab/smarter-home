@@ -30,3 +30,15 @@
   border-right-color: transparent;
   border-radius: 50%;
 }
+
+.inline-spinner {
+  display: inline-block;
+  vertical-align: middle;
+  margin: 0em 0.5em;
+  height: 0.5em;
+  width: 0.5em;
+  animation: rotate 0.8s infinite linear;
+  border: 3px solid #3498db;
+  border-right-color: transparent;
+  border-radius: 50%;
+}

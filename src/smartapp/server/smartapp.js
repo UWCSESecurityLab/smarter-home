@@ -669,7 +669,7 @@ app.post('/devices/:deviceId/requestCommand', checkAuth, (req, res) => {
     isHome: req.body.isHome,
   }).then((status) => {
     if (status.decision === ApprovalState.ALLOW) {
-      InstallData.findOne({ installedAppId: req.session.installedAppId })
+      InstallData.findOne({ 'installedApp.installedAppId': req.session.installedAppId })
         .then((installData) => {
           req.installData = installData;
           executeDevice(req, res);

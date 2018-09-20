@@ -94,6 +94,21 @@ class SmartAppClient {
     return this.postJson(`${this.host}/devices/${params.deviceId}/commands`, params.command);
   }
 
+  requestDeviceCommand(params) {
+    return this.postJson(`${this.host}/devices/${params.deviceId}/requestCommand`, params.command);
+  }
+
+  getPendingCommands() {
+    return this.getJson(`${this.host}/pendingCommands`);
+  }
+
+  postPendingCommand(commandId, approvalType, approvalState) {
+    return this.postJson(`${this.host}/pendingCommands/${commandId}`, {
+      approvalType: approvalType,
+      approvalState: approvalState
+    });
+  }
+
   getDeviceStatus(deviceId) {
     return this.getJson(`${this.host}/devices/${deviceId}/status`);
   }

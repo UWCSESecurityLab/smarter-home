@@ -192,3 +192,34 @@ export const SET_ME = 'SET_ME';
 export function setMe(userId) {
   return { type: SET_ME, userId: userId };
 }
+
+export const SET_PENDING_COMMAND = 'SET_PENDING_COMMAND';
+export function setPendingCommand({ decided, deviceId, command, capability, commandId, nearbyApproval, ownerApproval }) {
+  return {
+    type: SET_PENDING_COMMAND,
+    pendingCommand: {
+      capability: capability,
+      command: command,
+      commandId: commandId,
+      decided: decided,
+      deviceId: deviceId,
+      nearbyApproval: nearbyApproval,
+      ownerApproval: ownerApproval
+    }
+  };
+}
+
+export const CHANGE_APPROVAL = 'CHANGE_APPROVAL';
+export function changeApproval(commandId, approvalType, approvalStatus) {
+  return {
+    type: CHANGE_APPROVAL,
+    approvalType: approvalType,
+    approvalStatus: approvalStatus,
+    commandId: commandId,
+  };
+}
+
+export const CLEAR_PENDING_COMMAND = 'CLEAR_PENDING_COMMAND';
+export function clearPendingCommand()  {
+  return { type: CLEAR_PENDING_COMMAND };
+}

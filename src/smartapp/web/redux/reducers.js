@@ -119,6 +119,23 @@ function flags(state = defaultState, action) {
   }
 }
 
+function pendingCommand(state = null, action) {
+  switch (action.type) {
+    case Actions.SET_PENDING_COMMAND:
+      return action.pendingCommand;
+    case Actions.CHANGE_APPROVAL:
+      if (action.commandId === state.commandId) {
+        return Object.assign({}, state, { [action.approvalType]: action.approvalState });
+      } else {
+        return state;
+      }
+    case Actions.CLEAR_PENDING_COMMAND:
+      return null;
+    default:
+      return state;
+  }
+}
+
 const fcmReducers = combineReducers({
   fcmToken: fcmToken,
   notificationsEnabled: notificationsEnabled,
@@ -143,7 +160,8 @@ const store = createStore(combineReducers({
   flags: flags,
   users: users,
   permissionPrompts: permissionPrompts,
-  me: me
+  me: me,
+  pendingCommand: pendingCommand,
 }));
 
 export { store };

@@ -15,6 +15,7 @@ import Drawer from './Drawer.react';
 import Feedback from './Feedback.react';
 import HomeState from '../lib/home-state';
 import NotificationSettings from './NotificationSettings.react';
+import PendingCommand from './PendingCommand.react';
 import PermissionsPrompt from './PermissionsPrompt.react';
 import toastError from '../lib/error-toaster';
 import UserModal from './UserModal.react';
@@ -148,6 +149,7 @@ class Home extends React.Component {
           </TransitionGroup>
 
           <PermissionsPrompt/>
+          <PendingCommand/>
           <Switch>
             <Route path="/home" render={() => (
               <div>

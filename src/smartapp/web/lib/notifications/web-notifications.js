@@ -58,7 +58,7 @@ messaging.onTokenRefresh(() => {
 });
 // Handle notifications
 messaging.onMessage((payload) => {
-  WebNotifications.onMessage(JSON.parse(payload.data.activity));
+  WebNotifications.onMessage(payload.data);
 });
 WebNotifications.updateToken().catch(console.error);
 

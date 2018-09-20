@@ -1,7 +1,8 @@
 import Capability from './Capability';
 import SmartAppClient from '../SmartAppClient';
-import Permissions from '../../../permissions';
 import toastError from '../../lib/error-toaster';
+import { notify as toast } from 'react-notify-toast';
+import { ApprovalState } from '../../../permissions';
 import { store } from '../../redux/reducers';
 import * as Actions from '../../redux/actions';
 import * as Proximity from '../proximity';
@@ -36,35 +37,47 @@ class Actuatable extends Capability {
   // Attempt to actuate a device, but set prompt UI instead if blocked by access
   // controls.
   static async actuate(deviceId, capability, command) {
-    const state = store.getState();
-    const permissions = state.devices.permissions[deviceId];
-    const nearbyBeacons = state.beacons.nearbyBeacons;
-
-    if (!permissions) {
-      return this.actuallyActuate(deviceId, capability, command);
+    const desc = store.getState().devices.deviceDesc[deviceId];
+    let name = '';
+    if (desc && desc.label) {
+      name = desc.label;
+    } else if (desc && desc.name) {
+      name = desc.name;
     }
+    // TODO: activate spinner
 
-    switch (permissions.locationRestrictions) {
-      case Permissions.LocationRestrictions.ANYWHERE:
-        return this.actuallyActuate(deviceId, capability, command);
-      case Permissions.LocationRestrictions.AT_HOME: {
-        if (Object.keys(nearbyBeacons).length > 0) {
-          // TODO: Use geofencing instead to determine if user is at home
-          return this.actuallyActuate(deviceId, capability, command);
-        } else {
-          locationPrompt(deviceId, capability, command, permissions.locationRestrictions);
-          break;
-        }
+    const isHome = Proximity.userIsHome();
+    const isNearby = Proximity.userIsNearDevice(deviceId);
+
+    smartAppClient.requestDeviceCommand({
+      deviceId: deviceId,
+      command: {
+        command: command,
+        capability: capability,
+        isHome: isHome,
+        isNearby: isNearby
       }
-      case Permissions.LocationRestrictions.NEARBY: {
-        if (Proximity.userIsNearDevice(deviceId)) {
-          return this.actuallyActuate(deviceId, capability, command);
-        } else {
-          locationPrompt(deviceId, capability, command, permissions.locationRestrictions);
-          break;
-        }
+    }).then(({ commandId, decision, nearby, owner }) => {
+      if (decision === ApprovalState.DENY) {
+        toast.show('You do not have permission to control ' + name);
+      } else if (decision === ApprovalState.ALLOW) {
+        // TODO: deactivate spinner
+        smartAppClient.getDeviceStatus(deviceId).then((newStatus) => {
+          store.dispatch(
+            Actions.updateDeviceStatus(newStatus.deviceId, newStatus.status));
+        });
+      } else if (decision === ApprovalState.PENDING) {
+        store.dispatch(Actions.setPendingCommand({
+          capability: capability,
+          command: command,
+          commandId: commandId,
+          deviceId: deviceId,
+          decided: false,
+          nearbyApproval: nearby,
+          ownerApproval: owner
+        }));
       }
-    }
+    });
   }
 }
 
