@@ -143,6 +143,8 @@ input:focus, textarea:focus {
 .radio-label {
   display: flex;
   align-items: center;
-  width: 85vh;
-  max-width: 320px;
+}
+
+.mdc-form-field {
+  display: flex;
 }
