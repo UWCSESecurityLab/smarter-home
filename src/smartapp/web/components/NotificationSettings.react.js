@@ -1,6 +1,7 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import Button from '@material/react-button';
+import PropTypes from 'prop-types';
+import Radio from './Radio.react';
 import toastError from '../lib/error-toaster';
 import { connect } from 'react-redux';
 import * as Actions from '../redux/actions';
@@ -11,7 +12,6 @@ class NotificationSettings extends React.Component {
     super(props);
     this.changeFlag = this.changeFlag.bind(this);
     this.enableNotifications = this.enableNotifications.bind(this);
-    this.renderRadio = this.renderRadio.bind(this);
   }
 
   componentDidMount() {
@@ -54,39 +54,13 @@ class NotificationSettings extends React.Component {
     }
   }
 
-  renderRadio({id, checked, label, name, isAndroidSpecific = false, isMobileSpecific = false}) {
-    let isAndroid = false;
-    if (window.cordova && device.platform == 'Android') {
-      isAndroid = true;
-    }
-
-    let disableClassName = '';
-    if (isAndroidSpecific && !isAndroid || isMobileSpecific && !window.cordova) {
-      disableClassName = ' mdc-radio--disabled'
-    }
-    return (
-      <div className="mdc-form-field">
-        <div className={'mdc-radio' + disableClassName}>
-          <input className="mdc-radio__native-control"
-                 type="radio" id={id} name={name}
-                 checked={checked}
-                 onChange={() => {
-                    this.changeFlag(name, id)
-                 }}/>
-          <div className="mdc-radio__background">
-            <div className="mdc-radio__outer-circle"></div>
-            <div className="mdc-radio__inner-circle"></div>
-          </div>
-        </div>
-        <label htmlFor={id}>{label}</label>
-      </div>
-    );
-  }
-
   render() {
     const activityFlag = this.props.flags.activityNotifications;
     const nearbyFlag = this.props.flags.nearbyNotifications;
     const backgroundFlag = this.props.flags.backgroundScanning;
+
+    let isMobile = !!window.cordova;
+    let isAndroid = !!window.cordova && device.platform === 'Android';
 
     return (
       <section className="home-item home-item-padded">
@@ -100,43 +74,43 @@ class NotificationSettings extends React.Component {
         <p>
           Get notified when things in your home happen automatically.
         </p>
-        { this.renderRadio({
-            name: 'activityNotifications',
-            id: Flags.ActivityNotifications.ON,
-            checked: activityFlag === Flags.ActivityNotifications.ON,
-            label: 'Enabled'
-          })}
-        { this.renderRadio({
-            name: 'activityNotifications',
-            id: Flags.ActivityNotifications.PROXIMITY,
-            checked: activityFlag === Flags.ActivityNotifications.PROXIMITY,
-            label: 'Enabled, but only for activity in the same room as me (Android only)',
-            isAndroidSpecific: true
-        })}
-        { this.renderRadio({
-            name: 'activityNotifications',
-            id: Flags.ActivityNotifications.OFF,
-            checked: activityFlag === Flags.ActivityNotifications.OFF,
-            label: 'Disabled'
-        })}
+        <Radio
+          name="activityNotifications"
+          id={Flags.ActivityNotifications.ON}
+          checked={activityFlag === Flags.ActivityNotifications.ON}
+          label="Enabled"
+          onRadioChange={this.changeFlag} />
+        <Radio
+            name="activityNotifications"
+            id={Flags.ActivityNotifications.PROXIMITY}
+            checked={activityFlag === Flags.ActivityNotifications.PROXIMITY}
+            label="Enabled, but only for activity in the same room as me (Android only)"
+            disabled={!isAndroid}
+            onRadioChange={this.changeFlag} />
+        <Radio
+            name="activityNotifications"
+            id={Flags.ActivityNotifications.OFF}
+            checked={activityFlag === Flags.ActivityNotifications.OFF}
+            label="Disabled"
+            onRadioChange={this.changeFlag} />
 
         <h4>Nearby Device Notifications</h4>
         <p>
           Show the devices around you in your notification center.
         </p>
-        { this.renderRadio({
-            name: 'nearbyNotifications',
-            id: Flags.NearbyNotifications.ON,
-            checked: nearbyFlag === Flags.NearbyNotifications.ON,
-            label: 'Enabled (Android only)',
-            isAndroidSpecific: true
-        })}
-        { this.renderRadio({
-            name: 'nearbyNotifications',
-            id: Flags.NearbyNotifications.OFF,
-            checked: nearbyFlag === Flags.NearbyNotifications.OFF,
-            label: 'Disabled'
-        })}
+        <Radio
+            name="nearbyNotifications"
+            id={Flags.NearbyNotifications.ON}
+            checked={nearbyFlag === Flags.NearbyNotifications.ON}
+            label="Enabled (Android only)"
+            disabled={!isMobile}
+            onRadioChange={this.changeFlag} />
+        <Radio
+            name="nearbyNotifications"
+            id={Flags.NearbyNotifications.OFF}
+            checked={nearbyFlag === Flags.NearbyNotifications.OFF}
+            label="Disabled"
+            onRadioChange={this.changeFlag} />
 
         <h4>Background Beacon Scanning</h4>
         <p>
@@ -145,19 +119,19 @@ class NotificationSettings extends React.Component {
           usage. However, it must be enabled to enable Nearby Notifications
           and proximity-based Activity Notifications.
         </p>
-        { this.renderRadio({
-          name: 'backgroundScanning',
-          id: Flags.BackgroundScanning.ON,
-          checked: backgroundFlag === Flags.BackgroundScanning.ON,
-          label: 'Enabled (mobile only)',
-          isMobileSpecific: true
-        })}
-        { this.renderRadio({
-          name: 'backgroundScanning',
-          id: Flags.BackgroundScanning.OFF,
-          checked: backgroundFlag === Flags.BackgroundScanning.OFF,
-          label: 'Disabled',
-        })}
+        <Radio
+          name="backgroundScanning"
+          id={Flags.BackgroundScanning.ON}
+          checked={backgroundFlag === Flags.BackgroundScanning.ON}
+          label="Enabled (mobile only)"
+          disabled={!isMobile}
+          onRadioChange={this.changeFlag} />
+        <Radio
+          name="backgroundScanning"
+          id={Flags.BackgroundScanning.OFF}
+          checked={backgroundFlag === Flags.BackgroundScanning.OFF}
+          label="Disabled"
+          onRadioChange={this.changeFlag} />
       </section>
     );
   }
