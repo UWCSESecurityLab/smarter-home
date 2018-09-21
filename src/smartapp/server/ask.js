@@ -131,7 +131,8 @@ class Ask {
     command[approvalType] = approvalState;
 
     // Decide if both permissions have been set
-    if (command.ownerApproval !== ApprovalState.PENDING &&
+    if (approvalState === ApprovalState.DENY ||
+        command.ownerApproval !== ApprovalState.PENDING &&
         command.nearbyApproval !== ApprovalState.PENDING) {
       return this.decide(command);
     } else {
