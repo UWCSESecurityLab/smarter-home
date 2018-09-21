@@ -11,7 +11,7 @@ import SmartAppClient from '../lib/SmartAppClient';
 
 let smartAppClient = new SmartAppClient();
 
-class PermissionsPrompt extends React.Component {
+class AskApprovalPrompt extends React.Component {
   constructor(props) {
     super(props);
     this.allow = this.allow.bind(this);
@@ -129,7 +129,7 @@ class PermissionsPrompt extends React.Component {
   }
 }
 
-PermissionsPrompt.propTypes = {
+AskApprovalPrompt.propTypes = {
   deviceDesc: PropTypes.object,
   dispatch: PropTypes.func,
   permissions: PropTypes.object,
@@ -148,4 +148,4 @@ const mapStateToProps = (state) => {
   };
 }
 
-export default connect(mapStateToProps)(PermissionsPrompt);
+export default connect(mapStateToProps)(AskApprovalPrompt);

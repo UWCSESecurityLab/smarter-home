@@ -8,6 +8,8 @@ import { Route, Switch, withRouter } from 'react-router-dom';
 import { TransitionGroup, CSSTransition } from 'react-transition-group'
 
 import AddUserModal from './AddUserModal.react';
+import AskApprovalPrompt from './AskApprovalPrompt.react';
+import AskRequest from './AskRequest.react';
 import BeaconModal from './BeaconModal.react';
 import Devices from './Devices.react';
 import DeviceModal from './DeviceModal.react';
@@ -15,8 +17,6 @@ import Drawer from './Drawer.react';
 import Feedback from './Feedback.react';
 import HomeState from '../lib/home-state';
 import NotificationSettings from './NotificationSettings.react';
-import PendingCommand from './PendingCommand.react';
-import PermissionsPrompt from './PermissionsPrompt.react';
 import toastError from '../lib/error-toaster';
 import UserModal from './UserModal.react';
 import Users from './Users.react';
@@ -148,8 +148,8 @@ class Home extends React.Component {
             </CSSTransition>
           </TransitionGroup>
 
-          <PermissionsPrompt/>
-          <PendingCommand/>
+          <AskApprovalPrompt/>
+          <AskRequest/>
           <Switch>
             <Route path="/home" render={() => (
               <div>

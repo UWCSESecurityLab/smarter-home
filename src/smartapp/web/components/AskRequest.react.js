@@ -6,7 +6,7 @@ import { ApprovalState, LocationRestrictions } from '../../permissions';
 import { connect } from 'react-redux';
 import { CSSTransition } from 'react-transition-group';
 
-class PendingCommand extends React.Component {
+class AskRequest extends React.Component {
   constructor(props) {
     super(props);
     this.close = this.close.bind(this);
@@ -140,8 +140,9 @@ class PendingCommand extends React.Component {
   }
 }
 
-PendingCommand.propTypes = {
+AskRequest.propTypes = {
   deviceDesc: PropTypes.object,
+  dispatch: PropTypes.func,
   permissions: PropTypes.object,
   pendingCommand: PropTypes.object,
   users: PropTypes.object,
@@ -168,4 +169,4 @@ const mapStateToProps = (state) => {
   }
 }
 
-export default connect(mapStateToProps)(PendingCommand);
+export default connect(mapStateToProps)(AskRequest);
