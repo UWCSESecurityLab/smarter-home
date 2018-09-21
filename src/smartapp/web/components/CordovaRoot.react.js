@@ -4,11 +4,12 @@ import { Provider } from 'react-redux'
 import { store } from '../redux/reducers';
 import App from './App.react';
 import myHistory from '../lib/history';
+import HomeState from '../lib/home-state';
 import * as Actions from '../redux/actions';
 import * as Flags from '../../flags';
 import '../lib/notifications/cordova-notifications';
 
-function onDeviceReady () {
+function onDeviceReady() {
   // Set initial flags
   let flags;
   let stored = localStorage.getItem('flags');
@@ -30,9 +31,14 @@ function onDeviceReady () {
     }
   }
   store.dispatch(Actions.setAllFlags(flags));
+  HomeState.fetchPendingCommands();
 }
 
 document.addEventListener('deviceready', onDeviceReady, false);
+
+document.addEventListener('resume', () => {
+  HomeState.fetchPendingCommands();
+});
 
 const CordovaRoot = () => (
   <Provider store={store}>
