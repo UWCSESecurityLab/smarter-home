@@ -223,3 +223,16 @@ export const CLEAR_PENDING_COMMAND = 'CLEAR_PENDING_COMMAND';
 export function clearPendingCommand()  {
   return { type: CLEAR_PENDING_COMMAND };
 }
+
+export const SET_COMMAND_REQUESTS = 'SET_COMMAND_REQUESTS';
+export function setCommandRequests(commands) {
+  return {
+    type: SET_COMMAND_REQUESTS,
+    commands: commands
+  };
+}
+
+export const REMOVE_COMMAND_REQUEST = 'REMOVE_COMMAND_REQUEST';
+export function removeCommandRequest(commandId) {
+  return { type: REMOVE_COMMAND_REQUEST, commandId: commandId };
+}

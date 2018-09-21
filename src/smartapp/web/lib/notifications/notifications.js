@@ -1,6 +1,9 @@
 import SmartAppClient from '../SmartAppClient';
+import { LocationRestrictions } from '../../../permissions';
 import { store } from '../../redux/reducers';
 import * as Actions from '../../redux/actions';
+import * as Proximity from '../proximity';
+import HomeState from '../home-state';
 
 let smartAppClient = new SmartAppClient();
 
@@ -41,11 +44,28 @@ class Notifications {
     });
   }
 
+  static shouldAskUser(ask) {
+    const state = store.getState();
+    if (ask.requesterId === state.me) {
+      return false;
+    }
+    // Only notify if the user qualifies to approve the request.
+    const permissions = state.devices.permissions[ask.deviceId];
+    const userNearby =
+      permissions.locationRestrictions === LocationRestrictions.NEARBY &&
+      Proximity.userIsNearDevice(ask.deviceId);
+    const userAtHome =
+      permissions.locationRestrictions === LocationRestrictions.AT_HOME &&
+      Proximity.userIsHome();
+    const userIsOwner = permissions.owners.includes(state.me);
+    return userIsOwner || userAtHome || userNearby;
+  }
+
   static onAsk(ask) {
-    smartAppClient.getPendingCommands().then((pending) => {
-      // Decide which pending commands are relevant
-      // Push to redux queue
-    });
+    if (!this.shouldAskUser(ask)) {
+      return;
+    }
+    HomeState.fetchPendingCommands();
   }
 
   static onAskDecision(askDecision) {

@@ -76,7 +76,8 @@ class Ask {
       command: command,
       deviceId: deviceId,
       requester: requester,
-      owners: ownerApproval == ApprovalState.ALLOW ? [] : permission.owners
+      nearby: nearbyApproval === ApprovalState.PENDING,
+      owner: ownerApproval === ApprovalState.PENDING
     });
 
     setTimeout(async () => {
@@ -222,7 +223,8 @@ class Ask {
   static getPendingCommands(user) {
     return PendingCommand.find({
       installedAppId: user.installedAppId,
-      requesterId: { $ne: user.id }
+      requesterId: { $ne: user.id },
+      decided: false,
     });
   }
 
@@ -231,7 +233,7 @@ class Ask {
    * via FCM.,
    * @param {*} param0
    */
-  static async sendAskNotifications({ capability, command, deviceId, requester, owners }) {
+  static async sendAskNotifications({ capability, command, deviceId, requester, nearby, owner }) {
     let [users, installData] = await Promise.all([
       User.find({
         installedAppId: requester.installedAppId,
@@ -247,19 +249,18 @@ class Ask {
 
     let data = {
       requester: requester.displayName,
+      requesterId: requester.id,
       capability: capability,
       command: command,
-      device: deviceDesc.label
+      device: deviceDesc.label,
+      deviceId: deviceId,
+      owner: owner,
+      nearby: nearby,
     };
 
     await users.map((user) => {
-      let approvalType = {
-        approvalType: owners.includes(user.id)
-          ? ApprovalType.OWNERS
-          : ApprovalType.NEARBY }
-      let payload = Object.assign({}, data, approvalType);
       user.permissionsFcmTokens.forEach((token) => {
-        fcmClient.sendAskNotification(payload, token);
+        fcmClient.sendAskNotification(data, token);
       });
     });
   }

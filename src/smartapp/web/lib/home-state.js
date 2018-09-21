@@ -2,6 +2,7 @@ import toastError from '../lib/error-toaster';
 import SmartAppClient from './SmartAppClient';
 import { store } from '../redux/reducers';
 import * as Actions from '../redux/actions';
+import Notifications from './notifications/notifications';
 
 const smartAppClient = new SmartAppClient();
 
@@ -111,6 +112,20 @@ class HomeState {
       .reduce((accumulator, current) => { return accumulator.concat(current) });
   }
 
+  static fetchPendingCommands() {
+    smartAppClient.getPendingCommands().then((commands) => {
+      let relevantCommands = commands.filter((command) => {
+        return Notifications.shouldAskUser(command);
+      });
+
+      let map = relevantCommands.reduce((accumulator, current) => {
+        accumulator[current.id] = current;
+        return accumulator;
+      }, {});
+
+      store.dispatch(Actions.setCommandRequests(map));
+    });
+  }
 }
 
 export default HomeState;

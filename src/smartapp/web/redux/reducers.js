@@ -136,6 +136,20 @@ function pendingCommand(state = null, action) {
   }
 }
 
+function commandRequests(state = {}, action) {
+  switch (action.type) {
+    case Actions.SET_COMMAND_REQUESTS:
+      return action.commands
+    case Actions.REMOVE_COMMAND_REQUEST: {
+      const newState = Object.assign({}, state);
+      delete newState[action.commandId];
+      return newState;
+    }
+    default:
+      return state;
+  }
+}
+
 const fcmReducers = combineReducers({
   fcmToken: fcmToken,
   notificationsEnabled: notificationsEnabled,
@@ -162,6 +176,7 @@ const store = createStore(combineReducers({
   permissionPrompts: permissionPrompts,
   me: me,
   pendingCommand: pendingCommand,
+  commandRequests: commandRequests
 }));
 
 export { store };

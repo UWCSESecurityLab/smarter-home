@@ -10,7 +10,8 @@ import * as Proximity from '../proximity';
 const PROXIMITY_ID = 0;
 const DIARY_REMINDER_ID = 1;
 const NEARBY_SUMMARY_ID = 2;
-const NEARBY_GROUP_ID_OFFSET = 3;
+const ASK_REQUEST_ID = 3;
+const NEARBY_GROUP_ID_OFFSET = 4;
 
 class CordovaNotifications extends Notifications {
   static async updateToken() {
@@ -33,29 +34,47 @@ class CordovaNotifications extends Notifications {
   }
 
   // Handles FCM data notifications.
-  // Current data notifications:
-  //   - Activity notification (something happened)
   static onBackgroundMessage(payload) {
     console.log('Background message');
     console.log(payload);
-
-    const nearby = store.getState().beacons.nearbyBeacons;
+    const state = store.getState();
+    const nearby = state.beacons.nearbyBeacons;
     console.log('Currently nearby beacons:');
     console.log(nearby);
 
-    const message = JSON.parse(payload.activity);
-    const title = `${message.device} | ${message.capability} → ${message.value}`;
+    if (payload.activity) {
+      const message = JSON.parse(payload.activity);
+      const title = `${message.device} | ${message.capability} → ${message.value}`;
 
-    if (Proximity.userIsNearDevice(message.deviceId)) {
-      console.log('Beacons nearby, showing notification');
+      if (Proximity.userIsNearDevice(message.deviceId)) {
+        console.log('Beacons nearby, showing notification');
+        cordova.plugins.notification.local.schedule({
+          id: PROXIMITY_ID,
+          title: title,
+          summary: 'Nearby activity',
+          text: 'Triggered by ' + message.trigger
+        });
+      } else {
+        console.log('Beacons not nearby, blocking notification.')
+      }
+    }
+    if (payload.ask) {
+      const message = JSON.parse(payload.ask);
+      if (!Notifications.shouldAskUser(message)) {
+        return;
+      }
+
+      let actionText;
+      if (message.capability === 'switch') {
+        actionText = `turn ${message.command}`
+      } else if (message.capability === 'lock') {
+        actionText = message.command;
+      }
       cordova.plugins.notification.local.schedule({
-        id: PROXIMITY_ID,
-        title: title,
-        summary: 'Nearby activity',
-        text: 'Triggered by ' + message.trigger
+        id: ASK_REQUEST_ID,
+        title: `${message.requester} wants to ${actionText} ${message.device}`,
+        text: 'Tap here to allow or deny'
       });
-    } else {
-      console.log('Beacons not nearby, blocking notification.')
     }
   }
 }
@@ -207,8 +226,7 @@ function initializeFirebaseMessaging() {
     CordovaNotifications.updateToken().catch(console.error);
   });
   cordova.plugins.firebase.messaging.onMessage((payload) => {
-    let message = JSON.parse(payload.smartapp);
-    Notifications.onMessage(message)
+    Notifications.onMessage(payload)
   });
   cordova.plugins.firebase.messaging.onBackgroundMessage(
       CordovaNotifications.onBackgroundMessage);
