@@ -59,19 +59,21 @@ class AskRequest extends React.Component {
   renderApprovalSymbol(approvalState) {
     switch (approvalState) {
       case ApprovalState.ALLOW:
-        return <span style={{color: '#57BC45'}}>✓</span>
+        return <MaterialIcon className="approval-icon approval-icon-allow" icon="done"/>
       case ApprovalState.DENY:
-        return <span style={{color: '#E34232'}}>✗</span>
+        return <MaterialIcon className="approval-icon approval-icon-deny" icon="error_outline"/>
       case ApprovalState.PENDING:
         return <span className="inline-spinner"></span>
+      case ApprovalState.TIMEOUT:
+        return <MaterialIcon className="approval-icon approval-icon-unknown" icon="help_outline"/>
       default:
-        return <span>{this.props.pendingCommand.ownerApproval}</span>
+        return <span>{approvalState}</span>
     }
   }
 
   renderOverallApproval() {
     const pendingCommand = this.props.pendingCommand;
-    if (!pendingCommand.decided) {
+    if (pendingCommand.decision === ApprovalState.PENDING) {
       return (
         <div className="approval overall-approval">
           <span className="inline-spinner"></span>
@@ -82,23 +84,23 @@ class AskRequest extends React.Component {
     if (pendingCommand.ownerApproval === ApprovalState.ALLOW &&
         pendingCommand.nearbyApproval === ApprovalState.ALLOW) {
       return (
-        <div>
-          <MaterialIcon icon="done" style={{color: '#57BC45'}}/>
+        <div className="approval overall-approval">
+          <MaterialIcon className="approval-icon approval-icon-allow" icon="done"/>
           <span>Success!</span>
         </div>
       );
     } else if (pendingCommand.ownerApproval === ApprovalState.DENY ||
                pendingCommand.nearbyApproval === ApprovalState.DENY) {
       return (
-        <div>
-          <MaterialIcon icon="error_outline" style={{color: '#E34232'}} />
+        <div className="approval overall-approval">
+          <MaterialIcon className="approval-icon approval-icon-deny" icon="error_outline" />
           <span>Permission denied</span>
         </div>
       );
     } else if (pendingCommand.nearbyApproval === ApprovalState.TIMEOUT) {
       return (
-        <div>
-          <MaterialIcon icon="error_outline" style={{color: '#E34232'}}/>
+        <div className="approval overall-approval">
+          <MaterialIcon className="approval-icon approval-icon-unknown" icon="help_outline"/>
           <span>Timed out</span>
         </div>
       );

@@ -59,7 +59,7 @@ class Ask {
       date: new Date(),
       nearbyApproval: nearbyApproval,
       ownerApproval: ownerApproval,
-      decided: false,
+      decision: ApprovalState.PENDING,
       deviceId: deviceId,
       capability: capability,
       command: command,
@@ -76,13 +76,14 @@ class Ask {
       command: command,
       deviceId: deviceId,
       requester: requester,
+      decision: ApprovalState.PENDING,
       nearby: nearbyApproval === ApprovalState.PENDING,
       owner: ownerApproval === ApprovalState.PENDING
     });
 
     setTimeout(async () => {
       let command = await PendingCommand.findOne({ id: commandId });
-      if (!command || command.decided) {
+      if (!command || command.decision !== ApprovalState.PENDING) {
         return;
       }
       if (ownerApproval === ApprovalState.PENDING) {
@@ -111,7 +112,7 @@ class Ask {
   static async response({ commandId, approvalType, approvalState }) {
     let command = await PendingCommand.findOne({id: commandId});
     // Exit early if the command has already been decided, or doesn't exist
-    if (!command || command.decided) {
+    if (!command || command.decision !== ApprovalState.PENDING) {
       return;
     }
     // Validate input
@@ -135,7 +136,18 @@ class Ask {
       return this.decide(command);
     } else {
       // Otherwise save response
-      return command.save();
+      return command.save().then((saved) => {
+        // Notify requester that an approval came in
+        User.findOne({ id: saved.requesterId }).then((requester) => {
+          requester.permissionsFcmTokens.forEach((token) => {
+            fcmClient.sendAskDecisionNotification({
+              id: saved.id,
+              ownerApproval: saved.ownerApproval,
+              nearbyApproval: saved.nearbyApproval
+            }, token);
+          });
+        });
+      });
     }
   }
 
@@ -157,14 +169,15 @@ class Ask {
     } else {
       decision = ApprovalState.ALLOW;
     }
-    pendingCommand.decided = true;
+    pendingCommand.decision = decision;
     // Save the decided command to prevent further changes
     return pendingCommand.save().then((decided) => {
       // Notify requester that the request was fulfilled
       User.findOne({ id: decided.requesterId }).then((requester) => {
         requester.permissionsFcmTokens.forEach((token) => {
           fcmClient.sendAskDecisionNotification({
-            decision: decision,
+            id: decided.id,
+            decision: decided.decision,
             ownerApproval: decided.ownerApproval,
             nearbyApproval: decided.nearbyApproval
           }, token);
@@ -224,7 +237,7 @@ class Ask {
     return PendingCommand.find({
       installedAppId: user.installedAppId,
       requesterId: { $ne: user.id },
-      decided: false,
+      decision: ApprovalState.PENDING,
     });
   }
 

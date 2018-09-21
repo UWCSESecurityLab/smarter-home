@@ -1,5 +1,5 @@
 import SmartAppClient from '../SmartAppClient';
-import { LocationRestrictions } from '../../../permissions';
+import { ApprovalType, LocationRestrictions } from '../../../permissions';
 import { store } from '../../redux/reducers';
 import * as Actions from '../../redux/actions';
 import * as Proximity from '../proximity';
@@ -17,6 +17,9 @@ class Notifications {
     }
     if (message.ask) {
       this.onAsk(JSON.parse(message.ask));
+    }
+    if (message.askDecision) {
+      this.onAskDecision(JSON.parse(message.askDecision));
     }
   }
   static updateToken(currentToken) {
@@ -69,8 +72,21 @@ class Notifications {
   }
 
   static onAskDecision(askDecision) {
-    // Update pending command modal
-    // Update device status
+    const pendingCommand = store.getState().pendingCommand;
+    if (!pendingCommand) {
+      return;
+    }
+    if (pendingCommand.commandId === askDecision.id) {
+      if (askDecision.nearbyApproval) {
+        store.dispatch(Actions.changeApproval(askDecision.id, ApprovalType.NEARBY, askDecision.nearbyApproval));
+      }
+      if (askDecision.ownerApproval) {
+        store.dispatch(Actions.changeApproval(askDecision.id, ApprovalType.OWNERS, askDecision.ownerApproval));
+      }
+      if (askDecision.decision) {
+        store.dispatch(Actions.changeDecision(askDecision.id, askDecision.decision));
+      }
+    }
   }
 }
 

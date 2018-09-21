@@ -4,9 +4,9 @@ let pendingCommandSchema = mongoose.Schema({
   id: String,
   date: Date,
 
+  decision: String,
   nearbyApproval: String,
   ownerApproval: String,
-  decided: Boolean,
 
   deviceId: String,
   capability: String,

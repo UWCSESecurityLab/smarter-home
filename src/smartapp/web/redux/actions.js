@@ -194,14 +194,14 @@ export function setMe(userId) {
 }
 
 export const SET_PENDING_COMMAND = 'SET_PENDING_COMMAND';
-export function setPendingCommand({ decided, deviceId, command, capability, commandId, nearbyApproval, ownerApproval }) {
+export function setPendingCommand({ decision, deviceId, command, capability, commandId, nearbyApproval, ownerApproval }) {
   return {
     type: SET_PENDING_COMMAND,
     pendingCommand: {
       capability: capability,
       command: command,
       commandId: commandId,
-      decided: decided,
+      decision: decision,
       deviceId: deviceId,
       nearbyApproval: nearbyApproval,
       ownerApproval: ownerApproval
@@ -210,13 +210,22 @@ export function setPendingCommand({ decided, deviceId, command, capability, comm
 }
 
 export const CHANGE_APPROVAL = 'CHANGE_APPROVAL';
-export function changeApproval(commandId, approvalType, approvalStatus) {
+export function changeApproval(commandId, approvalType, approvalState) {
   return {
     type: CHANGE_APPROVAL,
     approvalType: approvalType,
-    approvalStatus: approvalStatus,
+    approvalState: approvalState,
     commandId: commandId,
   };
+}
+
+export const CHANGE_DECISION = 'CHANGE_DECISION';
+export function changeDecision(commandId, decision) {
+  return {
+    type: CHANGE_DECISION,
+    commandId: commandId,
+    decision: decision
+  }
 }
 
 export const CLEAR_PENDING_COMMAND = 'CLEAR_PENDING_COMMAND';

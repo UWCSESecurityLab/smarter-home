@@ -72,7 +72,7 @@ class Actuatable extends Capability {
           command: command,
           commandId: commandId,
           deviceId: deviceId,
-          decided: false,
+          decision: decision,
           nearbyApproval: nearby,
           ownerApproval: owner
         }));

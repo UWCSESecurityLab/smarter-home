@@ -129,6 +129,12 @@ function pendingCommand(state = null, action) {
       } else {
         return state;
       }
+    case Actions.CHANGE_DECISION:
+      if (action.commandId === state.commandId) {
+        return Object.assign({}, state, { decision: action.decision });
+      } else {
+        return state;
+      }
     case Actions.CLEAR_PENDING_COMMAND:
       return null;
     default:

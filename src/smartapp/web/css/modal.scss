@@ -85,3 +85,17 @@
 .overall-approval {
   border-bottom: 1px solid #EEEEEE;
 }
+
+.approval-icon {
+  margin-right: 8px;
+}
+
+.approval-icon-allow {
+  color: #57BC45;
+}
+.approval-icon-deny {
+  color: #E34232;
+}
+.approval-icon-unknown {
+  color: #F4864C;
+}
