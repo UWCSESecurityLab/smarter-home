@@ -16,7 +16,7 @@
         "cordova-plugin-add-swift-support": "^1.7.2",
         "cordova-plugin-badge": "^0.8.7",
         "cordova-plugin-device": "^2.0.2",
-        "cordova-plugin-firebase-messaging": "^1.1.1",
+        "cordova-plugin-firebase-messaging": "^1.1.4",
         "cordova-plugin-ibeacon": "^3.7.0",
         "cordova-plugin-local-notification": "git+https://github.com/eric-zeng/cordova-plugin-local-notifications.git",
         "cordova-plugin-qrscanner": "^2.6.0",
@@ -35,12 +35,12 @@
             "cordova-support-google-services": {},
             "com.unarin.cordova.beacon": {},
             "cordova-plugin-qrscanner": {},
-            "cordova-plugin-firebase-messaging": {
-                "FIREBASE_MESSAGING_VERSION": "17.1.+",
-                "ANDROID_SUPPORT_VERSION": "27.+"
-            },
             "cordova-plugin-statusbar": {},
-            "cordova-plugin-local-notification": {}
+            "cordova-plugin-local-notification": {},
+            "cordova-plugin-firebase-messaging": {
+                "FIREBASE_MESSAGING_VERSION": "17.3.+",
+                "ANDROID_SUPPORT_VERSION": "27.+"
+            }
         }
     }
 }
