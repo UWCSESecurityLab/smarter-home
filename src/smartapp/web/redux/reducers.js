@@ -13,10 +13,10 @@ function fcmToken(state = '', action) {
   }
 }
 
-function notificationsEnabled(state = JSON.parse(localStorage.getItem('notificationsEnabled')), action) {
+function notificationsEnabled(state = false, action) {
   switch (action.type) {
     case Actions.UPDATE_NOTIFICATIONS_ENABLED:
-      localStorage.setItem('notificationsEnabled', action.enabled);
+      // localStorage.setItem('notificationsEnabled', action.enabled);
       return action.enabled;
     default:
       return state;

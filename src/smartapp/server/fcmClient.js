@@ -92,6 +92,9 @@ function sendActivityNotification(data, token) {
             },
             badge: 0,
             sound: 'default'
+          },
+          data: {
+            activity: JSON.stringify(data)
           }
         }
       }
@@ -138,6 +141,9 @@ function sendAskNotification(data, token) {
               title: `${data.requester} wants to ${actionText} ${data.device}`,
               body: 'Tap here to allow or deny'
             }
+          },
+          data: {
+            ask: JSON.stringify(data)
           }
         }
       }

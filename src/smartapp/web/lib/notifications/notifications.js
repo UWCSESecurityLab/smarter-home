@@ -23,15 +23,16 @@ class Notifications {
     }
   }
   static updateToken(currentToken) {
+    console.log(`updateToken('${currentToken}')`);
     if (!currentToken) {
       // TODO: check cordova behavior
       // If getToken doesn't return a token, we don't have the notification
       // permission.
-      store.dispatch(Actions.updateNotificationsEnabled(false));
+      // store.dispatch(Actions.updateNotificationsEnabled(false));
       store.dispatch(Actions.updateFcmToken(null));
       throw 'Need to request permissions';
     }
-    store.dispatch(Actions.updateNotificationsEnabled(true));
+    // store.dispatch(Actions.updateNotificationsEnabled(true));
     return smartAppClient.updateNotificationToken(
       currentToken,
       store.getState().flags

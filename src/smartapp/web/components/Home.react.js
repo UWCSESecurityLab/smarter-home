@@ -54,9 +54,7 @@ class Home extends React.Component {
       });
     } else {
       import('../lib/notifications/cordova-notifications.js').then((module) => {
-        console.log('Imported cordova-notifications');
         this.setState({notifications: module.default });
-        console.log(this.state);
       });
     }
   }

@@ -24,8 +24,9 @@ class CordovaNotifications extends Notifications {
   }
 
   static enableNotifications() {
+    console.log('enableNotifications called');
     cordova.plugins.firebase.messaging.requestPermission().then((token) => {
-      console.log("APNS device token: ", token);
+      console.log('Plugin successfully requested permissions');
       store.dispatch(Actions.updateNotificationsEnabled(true));
     }).catch((err) => {
       console.error(err);
@@ -226,7 +227,11 @@ function initializeFirebaseMessaging() {
     CordovaNotifications.updateToken().catch(console.error);
   });
   cordova.plugins.firebase.messaging.onMessage((payload) => {
-    Notifications.onMessage(payload)
+    if (payload.apns) {
+      Notifications.onMessage(payload.data);
+    } else {
+      Notifications.onMessage(payload);
+    }
   });
   cordova.plugins.firebase.messaging.onBackgroundMessage(
       CordovaNotifications.onBackgroundMessage);
