@@ -17,6 +17,7 @@ class AskApprovalPrompt extends React.Component {
     this.allow = this.allow.bind(this);
     this.deny = this.deny.bind(this);
     this.ignore = this.ignore.bind(this);
+    this.renderContent = this.renderContent.bind(this);
   }
 
   allow(request, approvalType) {
@@ -39,10 +40,8 @@ class AskApprovalPrompt extends React.Component {
     this.props.dispatch(Actions.removeCommandRequest(request.id));
   }
 
-  render() {
-    const show = Object.keys(this.props.commandRequests).length !== 0;
-    let content;
-    if (show) {
+  renderContent() {
+    if (Object.keys(this.props.commandRequests).length !== 0) {
       let minDate = new Date();
       let minId;
       Object.values(this.props.commandRequests).forEach((commandRequest) => {
@@ -55,6 +54,9 @@ class AskApprovalPrompt extends React.Component {
       console.log(minId);
       console.log(this.props.commandRequests);
       let request = this.props.commandRequests[minId];
+      if (!request) {
+        return null;
+      }
       let permissions = this.props.permissions[request.deviceId];
 
       const deviceLabel = Capability.getLabel({
@@ -85,7 +87,7 @@ class AskApprovalPrompt extends React.Component {
 
       let requestDate = new Date(request.date).toLocaleTimeString();
 
-      content = (
+      return (
         <div>
           <div className="modal-heading-container">
             <h3 className="modal-heading">Request for permission</h3>
@@ -115,6 +117,11 @@ class AskApprovalPrompt extends React.Component {
         </div>
       );
     }
+  }
+
+  render() {
+    const show = Object.keys(this.props.commandRequests).length !== 0;
+    const content = this.renderContent();
 
     return (
       <CSSTransition in={show} timeout={75} classNames={'fade'} mountOnEnter unmountOnExit>

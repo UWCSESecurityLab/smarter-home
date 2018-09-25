@@ -12,6 +12,8 @@
   z-index: 5;
   background-color: white;
   padding: 16px 0;
+  overflow-y: auto;
+  max-height: calc(100vh - 100px);
 }
 .modal-bg {
   z-index: 4;
