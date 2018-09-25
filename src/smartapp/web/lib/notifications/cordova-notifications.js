@@ -227,7 +227,7 @@ function initializeFirebaseMessaging() {
     CordovaNotifications.updateToken().catch(console.error);
   });
   cordova.plugins.firebase.messaging.onMessage((payload) => {
-    if (payload.apns) {
+    if (payload.aps) {
       Notifications.onMessage(payload.data);
     } else {
       Notifications.onMessage(payload);
