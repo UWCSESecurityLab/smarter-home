@@ -678,7 +678,7 @@ app.post('/devices/:deviceId/requestCommand', checkAuth, (req, res) => {
           executeDevice(req, res);
         });
     } else if (status.decision === ApprovalState.DENY) {
-      res.status(400).json(status);
+      res.status(200).json(status);
     } else if (status.decision === ApprovalState.PENDING) {
       res.status(200).json(status);
     }

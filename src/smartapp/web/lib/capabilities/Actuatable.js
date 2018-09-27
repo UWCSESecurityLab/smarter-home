@@ -63,7 +63,7 @@ class Actuatable extends Capability {
       if (decision === ApprovalState.DENY) {
         console.log('immediate deny');
         store.dispatch(Actions.stopDeviceSpinner(deviceId));
-        toast.show('You do not have permission to control ' + name);
+        toast.show('You do not have permission to control ' + name, 'error');
       } else if (decision === ApprovalState.ALLOW) {
         smartAppClient.getDeviceStatus(deviceId).then((newStatus) => {
           store.dispatch(
