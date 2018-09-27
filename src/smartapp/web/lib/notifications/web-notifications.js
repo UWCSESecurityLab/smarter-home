@@ -34,7 +34,8 @@ class WebNotifications extends Notifications {
   static async updateToken() {
     try {
       let currentToken = await messaging.getToken();
-      super.updateToken(currentToken);
+      await super.updateToken(currentToken);
+      store.dispatch(updateNotificationsEnabled(true));
     } catch(e) {
       console.error(e);
       store.dispatch(updateNotificationsEnabled(false));
@@ -44,7 +45,7 @@ class WebNotifications extends Notifications {
   // Requests permission to send browser notifications.
   static enableNotifications() {
     messaging.requestPermission().then(() => {
-      store.dispatch(updateNotificationsEnabled(true));
+      return this.updateToken();
     }).catch((err) => {
       console.error(err);
       store.dispatch(updateNotificationsEnabled(false));
