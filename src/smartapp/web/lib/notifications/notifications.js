@@ -4,6 +4,7 @@ import { store } from '../../redux/reducers';
 import * as Actions from '../../redux/actions';
 import * as Proximity from '../proximity';
 import HomeState from '../home-state';
+import * as StateUpdate from '../../../state-update';
 
 let smartAppClient = new SmartAppClient();
 
@@ -20,6 +21,9 @@ class Notifications {
     }
     if (message.askDecision) {
       this.onAskDecision(JSON.parse(message.askDecision));
+    }
+    if (message.update) {
+      this.onUpdate(message.update);
     }
   }
   static updateToken(currentToken) {
@@ -89,6 +93,29 @@ class Notifications {
         store.dispatch(Actions.changeDecision(askDecision.id, askDecision.decision));
         store.dispatch(Actions.stopDeviceSpinner(askDecision.deviceId));
       }
+    }
+  }
+
+  static onUpdate(type) {
+    switch (type) {
+      case StateUpdate.USERS:
+        HomeState.fetchUsers();
+        break;
+      case StateUpdate.PERMISSIONS:
+        HomeState.fetchAllDevicePermissions(store.getState().devices.rooms);
+        break;
+      case StateUpdate.ROOMS:
+        HomeState.fetchRooms();
+        break;
+      case StateUpdate.DEVICES:
+        HomeState.fetchRooms().then((rooms) => {
+          return Promise.all([
+            this.fetchAllDeviceDescriptions(rooms),
+            this.fetchAllDeviceStatuses(rooms),
+            this.fetchAllDevicePermissions(rooms)
+          ]);
+        });
+        break;
     }
   }
 }

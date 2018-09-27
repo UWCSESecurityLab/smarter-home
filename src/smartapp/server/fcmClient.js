@@ -2,7 +2,11 @@ const log = require('./log');
 const Errors = require('../errors');
 const Flags = require('../flags');
 const request = require('request');
+const User = require('./db/user');
 const {google} = require('googleapis');
+const { loggers } = require('winston');
+
+const logger = loggers.get('logger');
 
 const FIREBASE_CONFIG = require('../config/firebase.json');
 
@@ -31,6 +35,10 @@ function getAccessToken() {
 
 function handleFcmResponse(resolve, reject, err, res, body) {
   if (err) {
+    logger.error({
+      message: 'FCM error',
+      meta: { error: err }
+    });
     log.error('FCM error');
     log.error(err);
     reject(err);
@@ -40,6 +48,10 @@ function handleFcmResponse(resolve, reject, err, res, body) {
     log.error('FCM error');
     log.error(res.statusCode);
     log.error(json);
+    logger.error({
+      message: 'FCM error',
+      meta: { error: err }
+    });
     reject(json);
   }
   log.yellow('FCM response', json);
@@ -153,7 +165,7 @@ function sendAskNotification(data, token) {
   return sendFcmNotification(message);
 }
 
-function sendAskDecisionNotificiation(data, token) {
+function sendAskDecisionNotification(data, token) {
   let message = {
     message: {
       token: token,
@@ -163,6 +175,31 @@ function sendAskDecisionNotificiation(data, token) {
     }
   }
   return sendFcmNotification(message);
+}
+
+function sendStateUpdateNotification(type, installedAppId) {
+  return User.find({ installedAppId: installedAppId }).then((users) => {
+    users.forEach((user) => {
+      user.permissionsFcmTokens.forEach((token) => {
+        const message = {
+          message: {
+            token: token,
+            data: {
+              update: type
+            }
+          }
+        }
+        return sendFcmNotification(message);
+      });
+    });
+  }).catch((err) => {
+    if (err.name === 'MongoError') {
+      logger.error({
+        message: Errors.DB_ERROR,
+        meta: { context: 'sendStateUpdateNotification', error: err }
+      });
+    }
+  });
 }
 
 
@@ -208,8 +245,9 @@ function updateActivityNotifications({ flags, user, token }) {
 module.exports = {
   sendActivityNotification: sendActivityNotification,
   sendAskNotification: sendAskNotification,
-  sendAskDecisionNotification: sendAskDecisionNotificiation,
+  sendAskDecisionNotification: sendAskDecisionNotification,
+  sendStateUpdateNotification: sendStateUpdateNotification,
   ensureTokenIsInGroup: ensureTokenIsInGroup,
   ensureTokenIsNotInGroup: ensureTokenIsNotInGroup,
-  updateActivityNotifications: updateActivityNotifications
+  updateActivityNotifications: updateActivityNotifications,
 }

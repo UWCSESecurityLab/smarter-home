@@ -53,6 +53,7 @@ const Roles = require('../roles');
 const Room = require('./db/room');
 const RoomTransaction = require('./db/room-transaction');
 const SmartThingsClient = require('./SmartThingsClient');
+const StateUpdate = require('../state-update');
 const User = require('./db/user');
 const UserReport = require('./db/user-report');
 const SmartappConfig = require('../config/smartapp-config.js');
@@ -107,6 +108,7 @@ const logger = winston.createLogger({
     })
   ]
 });
+winston.loggers.add('logger', logger);
 
 let app = express();
 app.use(compression());
@@ -772,6 +774,7 @@ app.post('/devices/:deviceId/permissions', checkAuth, (req, res) => {
     installedAppId: req.session.installedAppId
   }, update).then(() => {
     res.status(200).json({});
+    fcmClient.sendStateUpdateNotification(StateUpdate.PERMISSIONS, req.session.installedAppId);
   }).catch((err) => {
     logger.error({
       message: Errors.DB_ERROR,
@@ -824,6 +827,7 @@ app.post('/beacon/add', checkAuth, getInstallData, (req, res) => {
         default: true
       }, { $push: { devices: beacon.name }}).then(() => {
         res.status(200).json(beacon);
+        fcmClient.sendStateUpdateNotification(StateUpdate.ROOMS, req.session.installedAppId);
       }).catch((err) => {
         log.error(err);
         res.status(500).json({ error: Errors.DB_ERROR });
@@ -848,6 +852,7 @@ app.post('/beacon/remove', checkAuth, getInstallData, (req, res) => {
         devices: beacon.name
       }, { $pull: { devices: beacon.name }}).then(() => {
         res.status(200).json({});
+        fcmClient.sendStateUpdateNotification(StateUpdate.DEVICES, req.session.installedAppId);
       }).catch((err) => {
         logger.error({
           message: Errors.DB_ERROR,
@@ -893,6 +898,7 @@ app.post('/rooms/create', checkAuth, getInstallData, (req, res) => {
   room.save().then(() => {
     log.log('Successfully created room');
     res.status(200).json(room);
+    fcmClient.sendStateUpdateNotification(StateUpdate.ROOMS, req.session.installedAppId);
   }).catch((err) => {
     logger.error({
       message: Errors.DB_ERROR,
@@ -906,6 +912,7 @@ app.post('/rooms/:roomId/delete', checkAuth, getInstallData, (req, res) => {
   RoomTransaction.deleteRoom(req.params.roomId).then(() => {
     log.log('Successfully deleted room ' + req.params.roomId);
     res.status(200).json({});
+    fcmClient.sendStateUpdateNotification(StateUpdate.ROOMS, req.session.installedAppId);
   }).catch((err) => {
     logger.error({
       message: Errors.DB_ERROR,
@@ -923,6 +930,7 @@ app.post('/rooms/:roomId/updateName', checkAuth, getInstallData, (req, res) => {
   }).then(() => {
     log.log('Successfully updated name');
     res.status(200).json({});
+    fcmClient.sendStateUpdateNotification(StateUpdate.ROOMS, req.session.installedAppId);
   }).catch((err) => {
     logger.error({
       message: Errors.DB_ERROR,
@@ -946,6 +954,7 @@ app.post('/rooms/:roomId/reorderDeviceInRoom', checkAuth, getInstallData,
   }).then((room) => {
     log.log('Successfully reordered devices');
     res.status(200).json(room);
+    fcmClient.sendStateUpdateNotification(StateUpdate.ROOMS, req.session.installedAppId);
   }).catch((err) => {
     logger.error({
       message: Errors.DB_ERROR,
@@ -965,6 +974,7 @@ app.post('/rooms/moveDeviceBetweenRooms', checkAuth, getInstallData,
   ).then(() => {
     log.log('Successfully moved device between rooms');
     res.status(200).json({});
+    fcmClient.sendStateUpdateNotification(StateUpdate.ROOMS, req.session.installedAppId);
   }).catch((err) => {
     logger.error({
       message: Errors.DB_ERROR,
@@ -1014,6 +1024,7 @@ app.post('/users/new', checkAuth, (req, res) => {
       }, { $push: { owners: newUser.id }});
     }).then(() => {
       res.status(200).json({});
+      fcmClient.sendStateUpdateNotification(StateUpdate.USERS, req.session.installedAppId);
     }).catch((err) => {
       logger.error({
         message: Errors.DB_ERROR,
@@ -1102,6 +1113,7 @@ app.post('/users/:userId/updateRole', checkAuth, (req, res) => {
     { id: req.params.userId }, { $set: { role: req.body.role }}
   ).then(() => {
     res.status(200).json({});
+    fcmClient.sendStateUpdateNotification(StateUpdate.USERS, req.session.installedAppId);
   }).catch((err) => {
     logger.error({
       message: Errors.DB_ERROR,

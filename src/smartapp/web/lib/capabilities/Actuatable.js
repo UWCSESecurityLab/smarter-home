@@ -59,7 +59,9 @@ class Actuatable extends Capability {
         isNearby: isNearby
       }
     }).then(({ commandId, decision, nearby, owner }) => {
+      console.log(decision);
       if (decision === ApprovalState.DENY) {
+        console.log('immediate deny');
         store.dispatch(Actions.stopDeviceSpinner(deviceId));
         toast.show('You do not have permission to control ' + name);
       } else if (decision === ApprovalState.ALLOW) {
