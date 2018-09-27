@@ -26,6 +26,12 @@ import '@material/react-material-icon/index.scss';
 import '../css/home.scss';
 import '../css/modal.scss';
 
+const RippleSpinner = (props) => {
+  return (
+    <span ref={props.initRipple} className="ripple-icon-component inline-spinner-white"></span>
+  )
+}
+
 class Home extends React.Component {
   constructor(props, context) {
     super(props, context);
@@ -120,7 +126,9 @@ class Home extends React.Component {
             onClick={() => { this.setState({ drawerOpen: !this.state.drawerOpen })}}
           />}
           actionItems={[
-            <MaterialIcon key='item' icon='refresh' onClick={this.refresh}/>
+            this.props.refreshSpinner
+              ? <RippleSpinner/>
+              : <MaterialIcon key='item' icon='refresh' onClick={this.refresh}/>
           ]}
         />
         <div className="container mdc-top-app-bar--fixed-adjust"
@@ -171,12 +179,14 @@ Home.propTypes = {
   match: PropTypes.object,
   location: PropTypes.object,
   notificationsEnabled: PropTypes.bool,
+  refreshSpinner: PropTypes.bool,
   silenceNotificationPrompt: PropTypes.bool
 }
 
 const mapStateToProps = (state) => {
   return {
     notificationsEnabled: state.fcm.notificationsEnabled,
+    refreshSpinner: state.refreshSpinner,
     silenceNotificationPrompt: state.fcm.silenceNotificationPrompt
   }
 }

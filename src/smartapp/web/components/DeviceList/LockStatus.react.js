@@ -28,10 +28,20 @@ class LockStatus extends React.Component {
     const buttonStyle = this.props.status === 'unlocked'
       ? 'toggle-active'
       : 'toggle-inactive';
+
+    let inner;
+    if (this.props.spinner) {
+      inner = <span className="inline-spinner-white"></span>
+    } else if (this.props.status) {
+      inner = this.props.status;
+    } else {
+      inner = 'unavailable';
+    }
     return (
       <button onClick={this.toggle}
-              className={'device-status device-status-toggle ' + buttonStyle}>
-        { this.props.status ? this.props.status : 'Unavailable'}
+              className={'device-status device-status-toggle ' + buttonStyle}
+              disabled={this.props.spinner}>
+        {inner}
       </button>
     );
   }
@@ -39,11 +49,13 @@ class LockStatus extends React.Component {
 
 LockStatus.propTypes = {
   deviceId: PropTypes.string,
-  status: PropTypes.string
+  status: PropTypes.string,
+  spinner: PropTypes.bool
 }
 const mapStateToProps = (state, ownProps) => {
   return {
-    status: Lock.getStatus(state, ownProps.deviceId)
+    status: Lock.getStatus(state, ownProps.deviceId),
+    spinner: state.devices.spinners[ownProps.deviceId]
   };
 }
 

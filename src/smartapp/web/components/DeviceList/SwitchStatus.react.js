@@ -28,9 +28,20 @@ class SwitchStatus extends React.Component {
     const buttonStyle = this.props.status === 'on'
       ? 'toggle-active'
       : 'toggle-inactive';
+
+
+    let inner;
+    if (this.props.spinner) {
+      inner = <span className="inline-spinner-white"></span>
+    } else if (this.props.status) {
+      inner = this.props.status;
+    } else {
+      inner = 'unavailable';
+    }
+
     return (
       <button onClick={this.toggle} className={'device-status device-status-toggle ' + buttonStyle}>
-        { this.props.status ? this.props.status : 'Unavailable' }
+        {inner}
       </button>
     );
   }
@@ -38,12 +49,14 @@ class SwitchStatus extends React.Component {
 
 SwitchStatus.propTypes = {
   deviceId: PropTypes.string,
-  status: PropTypes.string
+  status: PropTypes.string,
+  spinner: PropTypes.bool
 }
 
 function mapStateToProps(state, ownProps) {
   return {
-    status: Switch.getStatus(state, ownProps.deviceId)
+    status: Switch.getStatus(state, ownProps.deviceId),
+    spinner: state.devices.spinners[ownProps.deviceId]
   };
 }
 

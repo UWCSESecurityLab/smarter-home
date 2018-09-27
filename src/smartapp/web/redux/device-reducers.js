@@ -119,3 +119,16 @@ export function rooms(state = {}, action) {
       return state;
   }
 }
+
+export function spinners(state = {}, action) {
+  switch (action.type) {
+    case Actions.START_DEVICE_SPINNER:
+      return Object.assign({}, state, { [action.deviceId]: true });
+    case Actions.STOP_DEVICE_SPINNER:
+      return Object.assign({}, state, { [action.deviceId]: false });
+    case Actions.RESET_DEVICE_SPINNERS:
+      return {};
+    default:
+      return state;
+  }
+}

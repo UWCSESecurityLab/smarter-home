@@ -42,3 +42,15 @@
   border-right-color: transparent;
   border-radius: 50%;
 }
+
+.inline-spinner-white {
+  display: inline-block;
+  vertical-align: middle;
+  margin: 0em 0.5em;
+  height: 0.8em;
+  width: 0.8em;
+  animation: rotate 0.8s infinite linear;
+  border: 3px solid white;
+  border-right-color: transparent;
+  border-radius: 50%;
+}

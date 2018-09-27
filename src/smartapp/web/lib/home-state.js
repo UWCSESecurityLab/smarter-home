@@ -10,17 +10,19 @@ class HomeState {
   // Fetches a fresh copy of the rooms and devices in the house, and replaces
   // everything in the Redux store.
   static resetDevices() {
-    return smartAppClient.refreshAccessToken().then(() => {
-      return Promise.all([smartAppClient.getHomeConfig(), this.fetchRooms()])
-        .then(([config, rooms]) => {
-          store.dispatch(Actions.updateHomeConfig(config));
-          return Promise.all([
-            this.fetchAllDeviceDescriptions(rooms),
-            this.fetchAllDeviceStatuses(rooms),
-            this.fetchAllDevicePermissions(rooms)
-          ]);
-        });
-    }).catch(toastError);
+    store.dispatch(Actions.startRefreshSpinner());
+    return Promise.all([smartAppClient.getHomeConfig(), this.fetchRooms()])
+      .then(([config, rooms]) => {
+        store.dispatch(Actions.updateHomeConfig(config));
+        return Promise.all([
+          this.fetchAllDeviceDescriptions(rooms),
+          this.fetchAllDeviceStatuses(rooms),
+          this.fetchAllDevicePermissions(rooms)
+        ]);
+      }).catch(toastError)
+      .finally(() => {
+        store.dispatch(Actions.stopRefreshSpinner());
+      });
   }
 
   static fetchUsers() {
@@ -36,7 +38,7 @@ class HomeState {
   // Fetches the descriptions of all of the devices in the given rooms,
   // and stores them in the |deviceDesc| reducer.
   static fetchAllDeviceDescriptions(rooms) {
-    Promise.all(this.getDeviceIdsFromRooms(rooms).map((deviceId) => {
+    return Promise.all(this.getDeviceIdsFromRooms(rooms).map((deviceId) => {
       return smartAppClient.getDeviceDescription(deviceId);
     })).then((descs) => {
       descs.forEach((desc) => {
@@ -64,13 +66,21 @@ class HomeState {
   // Fetches the status of all of the devices in the given rooms,
   // and stores them in the |deviceStatus| reducer.
   static fetchAllDeviceStatuses(rooms) {
-    Promise.all(this.getDeviceIdsFromRooms(rooms).map((deviceId) => {
+    const deviceIds = this.getDeviceIdsFromRooms(rooms);
+    return Promise.all(deviceIds.map((deviceId) => {
+      store.dispatch(Actions.startDeviceSpinner(deviceId));
       return smartAppClient.getDeviceStatus(deviceId);
     })).then((statuses) => {
       statuses.forEach((status) => {
+        store.dispatch(Actions.stopDeviceSpinner(status.deviceId));
         store.dispatch(Actions.updateDeviceStatus(status.deviceId, status.status));
       });
-    }).catch(toastError);
+    }).catch((err) => {
+      deviceIds.forEach((deviceId) => {
+        store.dispatch(Actions.stopDeviceSpinner(deviceId));
+      });
+      toastError(err);
+    });
   }
 
   // Fetches all rooms from the server, and replaces the |rooms| reducer with
@@ -86,7 +96,7 @@ class HomeState {
   }
 
   static fetchAllDevicePermissions(rooms) {
-    Promise.all(this.getDeviceIdsFromRooms(rooms).map((deviceId) => {
+    return Promise.all(this.getDeviceIdsFromRooms(rooms).map((deviceId) => {
       return smartAppClient.getPermissions(deviceId);
     })).then((permissions) => {
       const idToPermission = Object.assign({}, ...permissions.map((permission) => {

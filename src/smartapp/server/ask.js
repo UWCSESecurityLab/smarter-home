@@ -143,6 +143,7 @@ class Ask {
           requester.permissionsFcmTokens.forEach((token) => {
             fcmClient.sendAskDecisionNotification({
               id: saved.id,
+              deviceId: command.deviceId,
               ownerApproval: saved.ownerApproval,
               nearbyApproval: saved.nearbyApproval
             }, token);

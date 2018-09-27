@@ -44,10 +44,11 @@ class Actuatable extends Capability {
     } else if (desc && desc.name) {
       name = desc.name;
     }
-    // TODO: activate spinner
 
     const isHome = Proximity.userIsHome();
     const isNearby = Proximity.userIsNearDevice(deviceId);
+
+    store.dispatch(Actions.startDeviceSpinner(deviceId));
 
     smartAppClient.requestDeviceCommand({
       deviceId: deviceId,
@@ -59,13 +60,14 @@ class Actuatable extends Capability {
       }
     }).then(({ commandId, decision, nearby, owner }) => {
       if (decision === ApprovalState.DENY) {
+        store.dispatch(Actions.stopDeviceSpinner(deviceId));
         toast.show('You do not have permission to control ' + name);
       } else if (decision === ApprovalState.ALLOW) {
-        // TODO: deactivate spinner
         smartAppClient.getDeviceStatus(deviceId).then((newStatus) => {
           store.dispatch(
             Actions.updateDeviceStatus(newStatus.deviceId, newStatus.status));
-        });
+          });
+          store.dispatch(Actions.stopDeviceSpinner(deviceId));
       } else if (decision === ApprovalState.PENDING) {
         store.dispatch(Actions.setPendingCommand({
           capability: capability,

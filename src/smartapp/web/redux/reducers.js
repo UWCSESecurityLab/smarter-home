@@ -156,6 +156,17 @@ function commandRequests(state = {}, action) {
   }
 }
 
+export function refreshSpinner(state = false, action) {
+  switch (action.type) {
+    case Actions.START_REFRESH_SPINNER:
+      return true;
+    case Actions.STOP_REFRESH_SPINNER:
+      return false;
+    default:
+      return state;
+  }
+}
+
 const fcmReducers = combineReducers({
   fcmToken: fcmToken,
   notificationsEnabled: notificationsEnabled,
@@ -175,14 +186,16 @@ const store = createStore(combineReducers({
     deviceStatus: DeviceReducers.deviceStatus,
     homeConfig: DeviceReducers.homeConfig,
     permissions: DeviceReducers.permissions,
-    rooms: DeviceReducers.rooms
+    rooms: DeviceReducers.rooms,
+    spinners: DeviceReducers.spinners
   }),
   flags: flags,
   users: users,
   permissionPrompts: permissionPrompts,
   me: me,
   pendingCommand: pendingCommand,
-  commandRequests: commandRequests
+  commandRequests: commandRequests,
+  refreshSpinner: refreshSpinner
 }));
 
 export { store };

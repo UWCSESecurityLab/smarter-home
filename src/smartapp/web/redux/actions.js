@@ -245,3 +245,28 @@ export const REMOVE_COMMAND_REQUEST = 'REMOVE_COMMAND_REQUEST';
 export function removeCommandRequest(commandId) {
   return { type: REMOVE_COMMAND_REQUEST, commandId: commandId };
 }
+
+export const START_DEVICE_SPINNER = 'START_DEVICE_SPINNER';
+export function startDeviceSpinner(deviceId) {
+  return { type: START_DEVICE_SPINNER, deviceId: deviceId };
+}
+
+export const STOP_DEVICE_SPINNER = 'STOP_DEVICE_SPINNER';
+export function stopDeviceSpinner(deviceId) {
+  return { type: STOP_DEVICE_SPINNER, deviceId: deviceId };
+}
+
+export const RESET_DEVICE_SPINNERS = 'RESET_DEVICE_SPINNERS';
+export function resetDeviceSpinners() {
+  return { type: RESET_DEVICE_SPINNERS };
+}
+
+export const START_REFRESH_SPINNER = 'START_REFRESH_SPINNER';
+export function startRefreshSpinner() {
+  return { type: START_REFRESH_SPINNER };
+}
+
+export const STOP_REFRESH_SPINNER = 'STOP_REFRESH_SPINNER';
+export function stopRefreshSpinner() {
+  return { type: STOP_REFRESH_SPINNER };
+}

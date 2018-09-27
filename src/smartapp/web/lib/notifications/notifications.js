@@ -45,6 +45,7 @@ class Notifications {
     smartAppClient.getDeviceStatus(activity.deviceId).then((newStatus) => {
       store.dispatch(
         Actions.updateDeviceStatus(newStatus.deviceId, newStatus.status));
+      store.dispatch(Actions.stopDeviceSpinner(newStatus.deviceId));
     });
   }
 
@@ -86,6 +87,7 @@ class Notifications {
       }
       if (askDecision.decision) {
         store.dispatch(Actions.changeDecision(askDecision.id, askDecision.decision));
+        store.dispatch(Actions.stopDeviceSpinner(askDecision.deviceId));
       }
     }
   }
