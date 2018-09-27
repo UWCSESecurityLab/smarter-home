@@ -36,7 +36,8 @@ class WebNotifications extends Notifications {
       let currentToken = await messaging.getToken();
       super.updateToken(currentToken);
     } catch(e) {
-      throw e;
+      console.error(e);
+      store.dispatch(updateNotificationsEnabled(false));
     }
   }
 

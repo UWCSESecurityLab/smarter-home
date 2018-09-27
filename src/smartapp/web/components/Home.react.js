@@ -51,10 +51,12 @@ class Home extends React.Component {
     if (!window.cordova) {
       import('../lib/notifications/web-notifications.js').then((module) => {
         this.setState({ notifications: module.default });
+        module.default.updateToken();
       });
     } else {
       import('../lib/notifications/cordova-notifications.js').then((module) => {
         this.setState({notifications: module.default });
+        module.default.updateToken();
       });
     }
   }

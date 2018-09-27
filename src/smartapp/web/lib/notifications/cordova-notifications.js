@@ -17,8 +17,10 @@ class CordovaNotifications extends Notifications {
   static async updateToken() {
     try {
       let currentToken = await cordova.plugins.firebase.messaging.getToken();
-      super.updateToken(currentToken);
+      await super.updateToken(currentToken);
+      store.dispatch(Actions.updateNotificationsEnabled(true));
     } catch(e) {
+      store.dispatch(Actions.updateNotificationsEnabled(false));
       throw e;
     }
   }
@@ -27,10 +29,8 @@ class CordovaNotifications extends Notifications {
     console.log('enableNotifications called');
     cordova.plugins.firebase.messaging.requestPermission().then((token) => {
       console.log('Plugin successfully requested permissions');
-      store.dispatch(Actions.updateNotificationsEnabled(true));
     }).catch((err) => {
       console.error(err);
-      store.dispatch(Actions.updateNotificationsEnabled(false));
     });
   }
 

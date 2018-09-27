@@ -7,7 +7,7 @@ import myHistory from '../lib/history';
 import HomeState from '../lib/home-state';
 import * as Actions from '../redux/actions';
 import * as Flags from '../../flags';
-import '../lib/notifications/cordova-notifications';
+import CordovaNotifications from '../lib/notifications/cordova-notifications';
 
 function onDeviceReady() {
   // Set initial flags
@@ -32,6 +32,8 @@ function onDeviceReady() {
   }
   store.dispatch(Actions.setAllFlags(flags));
   HomeState.fetchPendingCommands();
+
+  CordovaNotifications.enableNotifications();
 }
 
 document.addEventListener('deviceready', onDeviceReady, false);
