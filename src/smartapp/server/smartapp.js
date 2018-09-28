@@ -266,6 +266,9 @@ app.post('/', (req, res) => {
     return;
   }
 
+  log.log('SmartThings Event');
+  console.log(req.body);
+
   logger.verbose('SmartThings Event', { eventData: req.body });
   switch (req.body.lifecycle) {
     case 'CONFIGURATION':
