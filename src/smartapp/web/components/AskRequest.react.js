@@ -111,8 +111,10 @@ class AskRequest extends React.Component {
     const { deviceDesc, pendingCommand } = this.props;
 
     const show = !!pendingCommand;
+
+    const label = deviceDesc.label ? deviceDesc.label : deviceDesc.name;
     const action = deviceDesc && show
-      ? `${deviceDesc.label} | ${pendingCommand.capability} → ${pendingCommand.command}`
+      ? `${label} | ${pendingCommand.capability} → ${pendingCommand.command}`
       : null;
 
     return (
