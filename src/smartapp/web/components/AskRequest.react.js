@@ -112,10 +112,13 @@ class AskRequest extends React.Component {
 
     const show = !!pendingCommand;
 
-    const label = deviceDesc.label ? deviceDesc.label : deviceDesc.name;
-    const action = deviceDesc && show
+    let action = null;
+    if (show && deviceDesc) {
+      const label = deviceDesc.label ? deviceDesc.label : deviceDesc.name;
+      action = deviceDesc && show
       ? `${label} | ${pendingCommand.capability} → ${pendingCommand.command}`
       : null;
+    }
 
     return (
       <CSSTransition in={show} timeout={75} classNames={'fade'} mountOnEnter unmountOnExit>
