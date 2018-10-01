@@ -42,6 +42,7 @@ function handleFcmResponse(resolve, reject, err, res, body) {
     log.error('FCM error');
     log.error(err);
     reject(err);
+    return;
   }
   let json = JSON.stringify(body);
   if (res.statusCode !== 200) {
@@ -53,6 +54,7 @@ function handleFcmResponse(resolve, reject, err, res, body) {
       meta: { error: err }
     });
     reject(json);
+    return;
   }
   log.yellow('FCM response', json);
   resolve(json);
