@@ -142,7 +142,6 @@ NotificationSettings.propTypes = {
   fcmToken: PropTypes.string,
   flags: PropTypes.object,
   notificationsEnabled: PropTypes.bool,
-  notificationData: PropTypes.object
 }
 
 const mapStateToProps = (state) => {
@@ -150,7 +149,6 @@ const mapStateToProps = (state) => {
     fcmToken: state.fcm.fcmToken,
     flags: state.flags,
     notificationsEnabled: state.fcm.notificationsEnabled,
-    notificationData: state.fcm.notificationData
   };
 }
 

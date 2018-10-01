@@ -23,15 +23,6 @@ function notificationsEnabled(state = false, action) {
   }
 }
 
-function notificationData(state = null, action) {
-  switch (action.type) {
-    case Actions.UPDATE_NOTIFICATION_DATA:
-      return action.data;
-    default:
-      return state;
-  }
-}
-
 function silenceNotificationPrompt(state = false, action) {
   switch (action.type) {
     case Actions.SILENCE_NOTIFICATION_PROMPT:
@@ -170,7 +161,6 @@ export function refreshSpinner(state = false, action) {
 const fcmReducers = combineReducers({
   fcmToken: fcmToken,
   notificationsEnabled: notificationsEnabled,
-  notificationData: notificationData,
   silenceNotificationPrompt: silenceNotificationPrompt
 });
 

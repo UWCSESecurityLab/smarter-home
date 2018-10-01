@@ -12,7 +12,6 @@ class Notifications {
   static onMessage(message) {
     console.log('Received foreground notification');
     console.log(message);
-    store.dispatch(Actions.updateNotificationData(message));
     if (message.activity) {
       this.onActivity(JSON.parse(message.activity));
     }
