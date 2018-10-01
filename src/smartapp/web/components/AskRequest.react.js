@@ -1,7 +1,10 @@
 import React from 'react';
+import Actuatable from '../lib/capabilities/Actuatable';
+import Button from '@material/react-button';
 import MaterialIcon from '@material/react-material-icon';
 import PropTypes from 'prop-types';
 import * as Actions from '../redux/actions';
+import * as Roles from '../../roles';
 import { ApprovalState, LocationRestrictions } from '../../permissions';
 import { connect } from 'react-redux';
 import { CSSTransition } from 'react-transition-group';
@@ -10,6 +13,7 @@ class AskRequest extends React.Component {
   constructor(props) {
     super(props);
     this.close = this.close.bind(this);
+    this.override = this.override.bind(this);
     this.renderOwnerApproval = this.renderOwnerApproval.bind(this);
     this.renderNearbyApproval = this.renderNearbyApproval.bind(this);
     this.renderApprovalSymbol = this.renderApprovalSymbol.bind(this);
@@ -81,30 +85,57 @@ class AskRequest extends React.Component {
         </div>
       );
     }
-    if (pendingCommand.ownerApproval === ApprovalState.ALLOW &&
-        pendingCommand.nearbyApproval === ApprovalState.ALLOW) {
+    if (pendingCommand.decision === ApprovalState.ALLOW) {
       return (
         <div className="approval overall-approval">
           <MaterialIcon className="approval-icon approval-icon-allow" icon="done"/>
           <span>Success!</span>
         </div>
       );
-    } else if (pendingCommand.ownerApproval === ApprovalState.DENY ||
-               pendingCommand.nearbyApproval === ApprovalState.DENY) {
+    } else if (pendingCommand.decision === ApprovalState.DENY) {
       return (
         <div className="approval overall-approval">
           <MaterialIcon className="approval-icon approval-icon-deny" icon="error_outline" />
           <span>Permission denied</span>
         </div>
       );
-    } else if (pendingCommand.nearbyApproval === ApprovalState.TIMEOUT) {
+    } else if (pendingCommand.decision === ApprovalState.PROMPT) {
       return (
         <div className="approval overall-approval">
           <MaterialIcon className="approval-icon approval-icon-unknown" icon="help_outline"/>
-          <span>Timed out</span>
+          <span>Nobody responded</span>
         </div>
       );
     }
+  }
+
+  override() {
+    const { deviceId, capability, command } = this.props.pendingCommand;
+    Actuatable.actuallyActuate(deviceId, capability, command).then(() => {
+      this.close();
+    });
+  }
+
+  renderOverride() {
+    if (this.props.pendingCommand.decision !== ApprovalState.PROMPT) {
+      return null;
+    }
+    if (this.props.users[this.props.me].role !== Roles.USER) {
+      return null;
+    }
+    return (
+      <div>
+        <div style={{ marginBottom: '10px' }}>
+          Do you want to do this anyways?
+        </div>
+        <Button className="prompt-button" onClick={this.override}>
+          Yes
+        </Button>
+        <Button className="prompt-button mdc-button-blue" raised onClick={this.close}>
+          No
+        </Button>
+      </div>
+    );
   }
 
   render() {
@@ -136,6 +167,7 @@ class AskRequest extends React.Component {
                   {this.renderOverallApproval()}
                   {this.renderNearbyApproval()}
                   {this.renderOwnerApproval()}
+                  {this.renderOverride()}
                 </div>
               </div>
               : null
