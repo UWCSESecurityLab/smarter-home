@@ -188,7 +188,6 @@ function updateBeaconMonitoring() {
   });
   activeBeaconState = newState;
 }
-store.subscribe(updateBeaconMonitoring);
 
 function initializeBeaconMonitoring() {
   console.log('initializeBeaconMonitoring called');
@@ -219,6 +218,8 @@ function initializeBeaconMonitoring() {
 
   cordova.plugins.locationManager.setDelegate(delegate);
   cordova.plugins.locationManager.requestAlwaysAuthorization();
+
+  store.subscribe(updateBeaconMonitoring);
 }
 
 function initializeFirebaseMessaging() {
