@@ -171,8 +171,25 @@ function sendAskDecisionNotification(data, token) {
   let message = {
     message: {
       token: token,
-      data: {
-        askDecision: JSON.stringify(data)
+      android: {
+        data: {
+          activity: JSON.stringify(data)
+        }
+      },
+      webpush: {
+        data: {
+          activity: JSON.stringify(data)
+        }
+      },
+      apns: {
+        payload: {
+          aps: {
+            'content-available': 1
+          },
+          data: {
+            askDecision: JSON.stringify(data)
+          }
+        }
       }
     }
   }
@@ -180,21 +197,43 @@ function sendAskDecisionNotification(data, token) {
 }
 
 function sendStateUpdateNotification(type, installedAppId) {
-  return User.find({ installedAppId: installedAppId }).then((users) => {
-    users.forEach((user) => {
-      user.permissionsFcmTokens.forEach((token) => {
-        const message = {
-          message: {
-            token: token,
+  console.log('sendStateUpdateNotification');
+  User.find({ installedAppId: installedAppId }).then((users) => {
+    // console.log(users);
+    const tokens = users.reduce((accumulator, user) => {
+      return accumulator.concat(user.permissionsFcmTokens);
+    }, []);
+    console.log(tokens);
+    return Promise.all(tokens.map((token) => {
+      const message = {
+        message: {
+          token: token,
+          android: {
             data: {
-              update: type
+              activity: type
+            }
+          },
+          webpush: {
+            data: {
+              activity: type
+            }
+          },
+          apns: {
+            payload: {
+              aps: {
+                'content-available': 1
+              },
+              data: {
+                update: type
+              }
             }
           }
         }
-        return sendFcmNotification(message);
-      });
-    });
+      };
+      return sendFcmNotification(message);
+    }));
   }).catch((err) => {
+    console.log(err);
     if (err.name === 'MongoError') {
       logger.error({
         message: Errors.DB_ERROR,
