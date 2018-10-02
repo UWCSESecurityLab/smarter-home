@@ -154,7 +154,7 @@ class AskRequest extends React.Component {
     return (
       <CSSTransition in={show} timeout={75} classNames={'fade'} mountOnEnter unmountOnExit>
         <div>
-          <div className="modal-bg fade" onClick={this.deny}/>
+          <div className="modal-bg fade" onClick={this.close}/>
           <div className="modal-window fade">
             { show ?
               <div>
