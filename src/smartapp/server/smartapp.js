@@ -1158,6 +1158,17 @@ app.post('/userReport/:type', checkAuth, (req, res) => {
   });
 });
 
+app.post('/clientLog', checkAuth, (req, res) => {
+  console.log(req.body);
+  delete req.logMeta.body;
+  logger.log({
+    level: req.body.level,
+    message: req.body.message,
+    meta: Object.assign({}, req.body.meta, req.logMeta)
+  });
+  res.status(200).json({});
+});
+
 app.get('/oauth', (req, res) => {
   if (process.env.SERVER_MODE === 'prod') {
     res.sendFile(path.join(__dirname, '../web/html/oauth-prod.html'));

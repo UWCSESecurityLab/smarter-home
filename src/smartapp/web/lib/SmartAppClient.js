@@ -235,6 +235,15 @@ class SmartAppClient {
   modifyPermission({ deviceId, ...permissions }) {
     return this.postJson(`${this.host}/devices/${deviceId}/permissions`, permissions);
   }
+
+  sendClientLog(level, message, meta) {
+    console.log(meta);
+    return this.postJson(`${this.host}/clientLog`, {
+      level: level,
+      message: message,
+      meta: meta
+    });
+  }
 }
 
 export default SmartAppClient;

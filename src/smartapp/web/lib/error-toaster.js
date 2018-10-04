@@ -2,9 +2,16 @@ import { notify as toast } from 'react-notify-toast';
 import { store } from '../redux/reducers';
 import * as Actions from '../redux/actions';
 import * as Errors from '../../errors';
+import SmartAppClient from './SmartAppClient';
+
+const smartAppClient = new SmartAppClient();
 
 export default function(error) {
   console.error(error);
+  if (error instanceof Error) {
+    smartAppClient.sendClientLog('error', 'Clientside Error', { stack: error.stack });
+  }
+
   if (error instanceof TypeError && error.message === 'Failed to fetch') {
     toast.show('Couldn\'t connect to SmarterHome. Please try again later.', 'error');
   } else if (error instanceof Error) {
