@@ -78,6 +78,10 @@ class Feedback extends React.Component {
           <li>Which people were involved?</li>
           <li>How did it make you feel?</li>
         </ul>
+        <p>
+          What you write here will be shared with the researchers, but not with
+          other people in your home.
+        </p>
         <textarea value={this.state.experienceInput} placeholder="What's going on?"
         onChange={(e) => {
           this.setState({ experienceInput: e.target.value})
