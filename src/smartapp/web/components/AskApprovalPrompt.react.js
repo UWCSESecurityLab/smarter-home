@@ -17,7 +17,6 @@ class AskApprovalPrompt extends React.Component {
     this.allow = this.allow.bind(this);
     this.deny = this.deny.bind(this);
     this.ignore = this.ignore.bind(this);
-    this.renderContent = this.renderContent.bind(this);
   }
 
   allow(request, approvalType) {
