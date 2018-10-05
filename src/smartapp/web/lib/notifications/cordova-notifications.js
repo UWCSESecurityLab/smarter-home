@@ -43,6 +43,10 @@ class CordovaNotifications extends Notifications {
     console.log('Currently nearby beacons:');
     console.log(nearby);
 
+    if (payload.aps) {
+      payload = payload.data;
+    }
+
     if (payload.activity) {
       const message = JSON.parse(payload.activity);
       const title = `${message.device} | ${message.capability} → ${message.value}`;

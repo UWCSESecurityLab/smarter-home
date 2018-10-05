@@ -84,8 +84,7 @@ class NotificationSettings extends React.Component {
             name="activityNotifications"
             id={Flags.ActivityNotifications.PROXIMITY}
             checked={activityFlag === Flags.ActivityNotifications.PROXIMITY}
-            label="Enabled, but only for activity in the same room as me (Android only)"
-            disabled={!isAndroid}
+            label="Enabled, but only for activity in the same room as me"
             onRadioChange={this.changeFlag} />
         <Radio
             name="activityNotifications"
