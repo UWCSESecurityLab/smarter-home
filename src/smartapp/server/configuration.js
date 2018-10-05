@@ -11,7 +11,7 @@ module.exports = {
     configurationData: {
       initialize: {
         name: 'SmarterHome',
-        description: 'Location-aware notifications',
+        description: 'Smart notifications, parental controls, and location controls',
         id: 'app',
         permissions: [],
         firstPageId: 'oauth'
@@ -23,16 +23,16 @@ module.exports = {
       configurationData: {
         page: {
           pageId: 'oauth',
-          name: 'Setup Smart Notifications',
+          name: 'Setup SmarterHome',
           nextPageId: 'devices',
           previousPageId: null,
           complete: false,
           sections: [{
-            name: 'Connect with the Smart Notifications service',
+            name: 'Connect SmarterHome with SmartThings',
             settings: [
               {
                 id: 'oauth',
-                name: 'Log in with your Smart Notifications account',
+                name: 'Log in with your SmarterHome account',
                 description: 'Tap here to log in',
                 type: 'OAUTH',
                 urlTemplate: oauthUrl
@@ -52,7 +52,7 @@ module.exports = {
           complete: true,
           sections: [
             {
-              name: 'Get smart notifications about door locks opening and closing.',
+              name: 'Choose which devices SmarterHome can access',
               settings: [
                 {
                   id: 'doorLocks',
@@ -67,11 +67,11 @@ module.exports = {
               ]
             },
             {
-              name: 'Get smart notifications about switches turning on and off.',
+              name: '',
               settings: [
                 {
                   id: 'switches',
-                  name: 'Which switches?',
+                  name: 'Select switches?',
                   description: 'Tap to set',
                   type: 'DEVICE',
                   required: false,
@@ -82,10 +82,11 @@ module.exports = {
               ]
             },
             {
-              name: 'Get smart notifications about when your contact sensors open and close.',
+              name: '',
               settings: [
                 {
                   id: 'contactSensors',
+                  name: 'Which contact sensors?',
                   description: 'Tap to set',
                   type: 'DEVICE',
                   required: false,
