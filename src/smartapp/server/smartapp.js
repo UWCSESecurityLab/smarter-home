@@ -397,10 +397,10 @@ app.post('/authChallenge', (req, res) => {
   }}}).then((user) => {
     if (!user) {
       logger.error({
-        message: Errors.UNRECOGNIZED_KEY,
+        message: Errors.CR_UNRECOGNIZED_KEY,
         meta: { ...req.logMeta, key: req.body.publicKey }
       });
-      res.status(403).json({error: Errors.UNRECOGNIZED_KEY});
+      res.status(403).json({ error: Errors.CR_UNRECOGNIZED_KEY });
       return;
     }
     // Generate challenge, save user and challenge in session

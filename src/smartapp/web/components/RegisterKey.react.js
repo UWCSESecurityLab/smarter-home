@@ -6,6 +6,7 @@ import SmartAppClient from '../lib/SmartAppClient';
 import * as Actions from '../redux/actions';
 import { store } from '../redux/reducers';
 import { Link } from 'react-router-dom';
+import * as Errors from '../../errors';
 
 const smartAppClient = new SmartAppClient();
 
@@ -65,7 +66,9 @@ async function verifyChallenge(signature, text, publicJwk) {
 class RegisterKey extends React.Component {
   constructor(props) {
     super(props);
+    this.state = { error: null, spinning: false };
     this.login = this.login.bind(this);
+    this.renderError = this.renderError.bind(this);
   }
 
   async componentDidMount() {
@@ -89,6 +92,7 @@ class RegisterKey extends React.Component {
   }
 
   login() {
+    this.setState({ spinning: true });
     smartAppClient.authChallenge(this.state.publicJwk).then(({challenge}) => {
       return signChallenge(challenge, this.state.privateJwk);
     }).then((signature) => {
@@ -96,8 +100,31 @@ class RegisterKey extends React.Component {
     }).then(() => {
       store.dispatch(Actions.login());
     }).catch((err) => {
+      this.setState({ error: err });
       console.error(err);
+    }).finally(() => {
+      this.setState({ spinning: false });
     });
+  }
+
+  renderError() {
+    if (!this.state.error) {
+      return null;
+    }
+
+    let content;
+    if (this.state.error.error === Errors.CR_UNRECOGNIZED_KEY) {
+      content = 'Can\'t find this QR code. Please scan it again.';
+    } else if (this.state.error.error === Errors.CR_FAIL) {
+      content = 'Couldn\'t authenticate this device. Please try adding this QR code again.';
+    } else {
+      content = 'Unknown error - please contact Eric';
+    }
+    return (
+      <div className="error">
+        {content}
+      </div>
+    );
   }
 
   render() {
@@ -118,11 +145,15 @@ class RegisterKey extends React.Component {
           <canvas id="canvas"></canvas>
         </div>
         <p>
-          When they are done scanning, click this button.
+          When they are done adding you, click this button.
         </p>
         <Button className="mdc-button-blue auth-button" raised onClick={this.login}>
           Log In
         </Button>
+        { this.state.spinning
+          ? <span className="spinner"/>
+          : null }
+        {this.renderError()}
       </div>
     );
   }
