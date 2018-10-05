@@ -100,12 +100,7 @@ function sendActivityNotification(data, token) {
       apns: {
         payload: {
           aps: {
-            alert: {
-              title: `${data.device} | ${data.capability} → ${data.value}`,
-              body: `Triggered by ${data.trigger}`
-            },
-            badge: 0,
-            sound: 'default'
+            'content-available': 1
           },
           data: {
             activity: JSON.stringify(data)
@@ -151,10 +146,7 @@ function sendAskNotification(data, token) {
       apns: {
         payload: {
           aps: {
-            alert: {
-              title: `${data.requester} wants to ${actionText} ${data.device}`,
-              body: 'Tap here to allow or deny'
-            }
+            'content-available': 1
           },
           data: {
             ask: JSON.stringify(data)
