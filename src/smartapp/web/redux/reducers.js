@@ -142,6 +142,8 @@ function commandRequests(state = {}, action) {
       delete newState[action.commandId];
       return newState;
     }
+    case Actions.CLEAR_COMMAND_REQUESTS:
+      return {};
     default:
       return state;
   }

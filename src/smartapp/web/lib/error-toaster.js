@@ -9,7 +9,7 @@ const smartAppClient = new SmartAppClient();
 export default function(error) {
   console.error(error);
   if (error instanceof Error) {
-    smartAppClient.sendClientLog('error', 'Clientside Error', { stack: error.stack });
+    smartAppClient.sendClientLog('error', 'Client event handler error', { stack: error.stack });
   }
 
   if (error instanceof TypeError && error.message === 'Failed to fetch') {

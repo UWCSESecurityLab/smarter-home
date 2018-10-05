@@ -271,7 +271,6 @@ class Devices extends React.Component {
                 </div>
               : null
             }
-
             { Object.keys(this.props.homeConfig).length > 0
               ? this.renderAllDevices()
               : null

@@ -152,29 +152,27 @@ class AskRequest extends React.Component {
     }
 
     return (
-      <CSSTransition in={show} timeout={75} classNames={'fade'} mountOnEnter unmountOnExit>
-        <div>
-          <div className="modal-bg fade" onClick={this.close}/>
-          <div className="modal-window fade">
-            { show ?
-              <div>
-                <div className="modal-heading-container">
-                  <h3 className="modal-heading">Asking for Permission</h3>
-                  <MaterialIcon icon="close" onClick={this.close}/>
-                </div>
-                <div className="modal-content">
-                  <p>{action}</p>
-                  {this.renderOverallApproval()}
-                  {this.renderNearbyApproval()}
-                  {this.renderOwnerApproval()}
-                  {this.renderOverride()}
-                </div>
+      <div>
+        <div className="modal-bg fade" onClick={this.close}/>
+        <div className="modal-window fade">
+          { show ?
+            <div>
+              <div className="modal-heading-container">
+                <h3 className="modal-heading">Asking for Permission</h3>
+                <MaterialIcon icon="close" onClick={this.close}/>
               </div>
-              : null
-            }
-          </div>
+              <div className="modal-content">
+                <p>{action}</p>
+                {this.renderOverallApproval()}
+                {this.renderNearbyApproval()}
+                {this.renderOwnerApproval()}
+                {this.renderOverride()}
+              </div>
+            </div>
+            : null
+          }
         </div>
-      </CSSTransition>
+      </div>
     );
   }
 }

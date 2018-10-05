@@ -246,6 +246,11 @@ export function removeCommandRequest(commandId) {
   return { type: REMOVE_COMMAND_REQUEST, commandId: commandId };
 }
 
+export const CLEAR_COMMAND_REQUESTS = 'CLEAR_COMMAND_REQUESTS';
+export function clearCommandRequests() {
+  return { type: CLEAR_COMMAND_REQUESTS };
+}
+
 export const START_DEVICE_SPINNER = 'START_DEVICE_SPINNER';
 export function startDeviceSpinner(deviceId) {
   return { type: START_DEVICE_SPINNER, deviceId: deviceId };

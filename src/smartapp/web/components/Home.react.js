@@ -15,7 +15,9 @@ import Devices from './Devices.react';
 import DeviceModal from './DeviceModal.react';
 import Drawer from './Drawer.react';
 import Feedback from './Feedback.react';
+import HomeItemErrorBoundary from './HomeItemErrorBoundary.react';
 import HomeState from '../lib/home-state';
+import ModalErrorBoundary from './ModalErrorBoundary.react';
 import NotificationSettings from './NotificationSettings.react';
 import toastError from '../lib/error-toaster';
 import UserModal from './UserModal.react';
@@ -115,6 +117,9 @@ class Home extends React.Component {
       transitionKey = this.props.location.key;
     }
 
+    const showApprovalPrompt = Object.keys(this.props.commandRequests).length !== 0;
+    const showAskRequest = !!this.props.pendingCommand;
+
     return (
       <div>
         <Drawer open={this.state.drawerOpen} closeFn={() => this.setState({drawerOpen: false})}/>
@@ -143,30 +148,67 @@ class Home extends React.Component {
               classNames={'fade'}>
               <Switch location={this.props.location}>
                 <Route path={`${this.props.match.url}/addBeacon`}
-                      component={BeaconModal}/>
+                       render={() =>
+                        <ModalErrorBoundary route="/addBeacon">
+                          <BeaconModal/>
+                        </ModalErrorBoundary>
+                       }/>
                 <Route path={`${this.props.match.url}/addUser`}
-                      render={() =>
-                        <AddUserModal setVisibility={this.setVisibility}/>} />
+                       render={() =>
+                          <ModalErrorBoundary route="/addUser">
+                            <AddUserModal setVisibility={this.setVisibility}/>
+                          </ModalErrorBoundary>
+                       }/>
                 <Route path={`${this.props.match.url}/device/:deviceId`}
-                      component={DeviceModal}/>
+                       render={() =>
+                         <ModalErrorBoundary route="/device/">
+                           <DeviceModal/>
+                         </ModalErrorBoundary>
+                       }/>
                 <Route path={`${this.props.match.url}/user/:userId`}
-                      component={UserModal}/>
+                       render={() =>
+                         <ModalErrorBoundary route="/user/">
+                           <UserModal/>
+                         </ModalErrorBoundary>
+                       }/>
                 <Route render={() => null}/>
               </Switch>
             </CSSTransition>
           </TransitionGroup>
 
-          <AskApprovalPrompt/>
-          <AskRequest/>
+          <CSSTransition in={showApprovalPrompt} timeout={75} classNames={'fade'} mountOnEnter unmountOnExit>
+            <ModalErrorBoundary action={Actions.clearCommandRequests()}>
+              <AskApprovalPrompt/>
+            </ModalErrorBoundary>
+          </CSSTransition>
+
+          <CSSTransition in={showAskRequest} timeout={75} classNames={'fade'} mountOnEnter unmountOnExit>
+            <ModalErrorBoundary action={Actions.clearPendingCommand()}>
+              <AskRequest/>
+            </ModalErrorBoundary>
+          </CSSTransition>
+
           <Switch>
             <Route path="/home" render={() => (
               <div>
-                <Devices/>
-                <Users/>
+                <HomeItemErrorBoundary className="home-item">
+                  <Devices/>
+                </HomeItemErrorBoundary>
+                <HomeItemErrorBoundary className="home-item">
+                  <Users/>
+                </HomeItemErrorBoundary>
               </div>
             )}/>
-            <Route path="/notificationSettings" component={NotificationSettings}/>
-            <Route path="/feedback" component={Feedback}/>
+            <Route path="/notificationSettings" render={() =>
+              <HomeItemErrorBoundary>
+                <NotificationSettings/>
+              </HomeItemErrorBoundary>
+            }/>
+            <Route path="/feedback" render={() =>
+              <HomeItemErrorBoundary>
+                <Feedback/>
+              </HomeItemErrorBoundary>
+            }/>
           </Switch>
         </div>
       </div>
@@ -175,10 +217,12 @@ class Home extends React.Component {
 }
 
 Home.propTypes = {
+  commandRequests: PropTypes.object,
   dispatch: PropTypes.func,
   match: PropTypes.object,
   location: PropTypes.object,
   notificationsEnabled: PropTypes.bool,
+  pendingCommand: PropTypes.object,
   refreshSpinner: PropTypes.bool,
   silenceNotificationPrompt: PropTypes.bool
 }
@@ -187,7 +231,9 @@ const mapStateToProps = (state) => {
   return {
     notificationsEnabled: state.fcm.notificationsEnabled,
     refreshSpinner: state.refreshSpinner,
-    silenceNotificationPrompt: state.fcm.silenceNotificationPrompt
+    silenceNotificationPrompt: state.fcm.silenceNotificationPrompt,
+    pendingCommand: state.pendingCommand,
+    commandRequests: state.commandRequests
   }
 }
 

@@ -40,55 +40,62 @@ class AskApprovalPrompt extends React.Component {
     this.props.dispatch(Actions.removeCommandRequest(request.id));
   }
 
-  renderContent() {
-    if (Object.keys(this.props.commandRequests).length !== 0) {
-      let minDate = new Date();
-      let minId;
-      Object.values(this.props.commandRequests).forEach((commandRequest) => {
-        let current = new Date(commandRequest.date);
-        if (current < minDate) {
-          minDate = current;
-          minId = commandRequest.id;
-        }
-      });
-      console.log(minId);
-      console.log(this.props.commandRequests);
-      let request = this.props.commandRequests[minId];
-      if (!request) {
-        return null;
+  render() {
+    if (Object.keys(this.props.commandRequests).length === 0) {
+      return null;
+    }
+    // Get the earliest command request
+    let minDate = new Date();
+    let minId;
+    Object.values(this.props.commandRequests).forEach((commandRequest) => {
+      let current = new Date(commandRequest.date);
+      if (current < minDate) {
+        minDate = current;
+        minId = commandRequest.id;
       }
-      let permissions = this.props.permissions[request.deviceId];
+    });
+    console.log(minId);
+    console.log(this.props.commandRequests);
+    let request = this.props.commandRequests[minId];
+    if (!request) {
+      return null;
+    }
 
-      const deviceLabel = Capability.getLabel({
-        devices: { deviceDesc: this.props.deviceDesc }
-      }, request.deviceId);
+    // Get strings for displaying which user is asking to do which command
+    const deviceLabel = Capability.getLabel({
+      devices: { deviceDesc: this.props.deviceDesc }
+    }, request.deviceId);
 
-      const requesterName = this.props.users[request.requesterId].displayName;
+    const requesterName = this.props.users[request.requesterId].displayName;
 
-      let switchVerb = '';
-      if (request.command === 'on' || request.command === 'off') {
-        switchVerb = 'turn';
-      }
+    let switchVerb = '';
+    if (request.command === 'on' || request.command === 'off') {
+      switchVerb = 'turn';
+    }
 
-      let authorization, approvalType;
-      if (request.ownerApproval === ApprovalState.PENDING &&
-          permissions.owners.includes(this.props.me)) {
-        approvalType = ApprovalType.OWNERS;
-        authorization = `an owner of ${deviceLabel}.`;
-      } else if (request.nearbyApproval === ApprovalState.PENDING &&
-          permissions.locationRestrictions === LocationRestrictions.NEARBY) {
-        approvalType = ApprovalType.NEARBY;
-        authorization = `nearby ${deviceLabel}.`;
-      } else if (request.nearbyApproval === ApprovalState.PENDING &&
-          permissions.locationRestrictions === LocationRestrictions.AT_HOME) {
-        approvalType = ApprovalType.NEARBY;
-        authorization = `at home.`;
-      }
+    // Create string describing the permission being requested
+    let permissions = this.props.permissions[request.deviceId];
+    let authorization, approvalType;
+    if (request.ownerApproval === ApprovalState.PENDING &&
+        permissions.owners.includes(this.props.me)) {
+      approvalType = ApprovalType.OWNERS;
+      authorization = `an owner of ${deviceLabel}.`;
+    } else if (request.nearbyApproval === ApprovalState.PENDING &&
+        permissions.locationRestrictions === LocationRestrictions.NEARBY) {
+      approvalType = ApprovalType.NEARBY;
+      authorization = `nearby ${deviceLabel}.`;
+    } else if (request.nearbyApproval === ApprovalState.PENDING &&
+        permissions.locationRestrictions === LocationRestrictions.AT_HOME) {
+      approvalType = ApprovalType.NEARBY;
+      authorization = `at home.`;
+    }
 
-      let requestDate = new Date(request.date).toLocaleTimeString();
+    let requestDate = new Date(request.date).toLocaleTimeString();
 
-      return (
-        <div>
+    return (
+      <div>
+        <div className="modal-bg fade" onClick={this.deny}/>
+        <div className="modal-window fade">
           <div className="modal-heading-container">
             <h3 className="modal-heading">Request for permission</h3>
             <MaterialIcon icon="close" onClick={() => { this.ignore(request) }}/>
@@ -115,23 +122,7 @@ class AskApprovalPrompt extends React.Component {
             </div>
           </div>
         </div>
-      );
-    }
-  }
-
-  render() {
-    const show = Object.keys(this.props.commandRequests).length !== 0;
-    const content = this.renderContent();
-
-    return (
-      <CSSTransition in={show} timeout={75} classNames={'fade'} mountOnEnter unmountOnExit>
-        <div>
-          <div className="modal-bg fade" onClick={this.deny}/>
-          <div className="modal-window fade">
-            {content}
-          </div>
-        </div>
-      </CSSTransition>
+      </div>
     );
   }
 }
