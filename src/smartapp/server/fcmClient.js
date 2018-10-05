@@ -173,12 +173,12 @@ function sendAskDecisionNotification(data, token) {
       token: token,
       android: {
         data: {
-          activity: JSON.stringify(data)
+          askDecision: JSON.stringify(data)
         }
       },
       webpush: {
         data: {
-          activity: JSON.stringify(data)
+          askDecision: JSON.stringify(data)
         }
       },
       apns: {
@@ -204,18 +204,18 @@ function sendStateUpdateNotification(type, installedAppId) {
       return accumulator.concat(user.permissionsFcmTokens);
     }, []);
     console.log(tokens);
-    return Promise.all(tokens.map((token) => {
+    tokens.forEach((token) => {
       const message = {
         message: {
           token: token,
           android: {
             data: {
-              activity: type
+              update: type
             }
           },
           webpush: {
             data: {
-              activity: type
+              update: type
             }
           },
           apns: {
@@ -230,8 +230,8 @@ function sendStateUpdateNotification(type, installedAppId) {
           }
         }
       };
-      return sendFcmNotification(message);
-    }));
+      sendFcmNotification(message);
+    });
   }).catch((err) => {
     console.log(err);
     if (err.name === 'MongoError') {

@@ -273,7 +273,7 @@ class Ask {
       nearby: nearby,
     };
 
-    await users.map((user) => {
+    users.forEach((user) => {
       user.permissionsFcmTokens.forEach((token) => {
         fcmClient.sendAskNotification(data, token);
       });
