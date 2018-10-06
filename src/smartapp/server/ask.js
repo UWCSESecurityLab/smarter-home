@@ -11,6 +11,10 @@ const { ApprovalType,
         LocationRestrictions,
         ParentalRestrictions } = require('../permissions');
 
+const { loggers } = require('winston');
+
+const logger = loggers.get('logger');
+
 // "Ask" protocol implmentation.
 class Ask {
   static async request({ requester, deviceId, command, capability, isNearby, isHome }) {
@@ -172,6 +176,16 @@ class Ask {
       decision = ApprovalState.ALLOW;
     }
     pendingCommand.decision = decision;
+
+    logger.info({
+      message: 'Ask-Response Decision',
+      meta: {
+        ownerApproval: pendingCommand.ownerApproval,
+        nearbyApproval: pendingCommand.nearbyApproval,
+        decision: decision
+      }
+    });
+
     // Save the decided command to prevent further changes
     return pendingCommand.save().then((decided) => {
       // Notify requester that the request was fulfilled

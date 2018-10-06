@@ -91,13 +91,7 @@ if (process.env.SERVER_MODE === 'dev') {
 db_url += REPLICA_SET;
 mongoose.connect(db_url);
 
-let db = mongoose.connection;
-db.on('error', console.error.bind(console, 'connection error:'));
-db.once('open', function() {
-  logger.verbose('Database connection established');
-});
-
-const logger = winston.createLogger({
+winston.loggers.add('logger', {
   level: 'verbose',
   format: winston.format.json(),
   transports: [
@@ -108,7 +102,14 @@ const logger = winston.createLogger({
     })
   ]
 });
-winston.loggers.add('logger', logger);
+
+const logger = winston.loggers.get('logger');
+
+let db = mongoose.connection;
+db.on('error', console.error.bind(console, 'connection error:'));
+db.once('open', function() {
+  logger.verbose('Database connection established');
+});
 
 let app = express();
 app.use(compression());
@@ -674,6 +675,13 @@ app.post('/devices/:deviceId/requestCommand', checkAuth, (req, res) => {
     isNearby: req.body.isNearby,
     isHome: req.body.isHome,
   }).then((status) => {
+    logger.info({
+      message: 'Ask-Request Decision',
+      meta: {
+        ...req.logMeta,
+        ask: status
+      }
+    });
     if (status.decision === ApprovalState.ALLOW) {
       InstallData.findOne({ 'installedApp.installedAppId': req.session.installedAppId })
         .then((installData) => {
