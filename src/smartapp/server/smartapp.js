@@ -34,8 +34,6 @@ const mongoose = require('mongoose');
 const path = require('path');
 const session = require('express-session');
 const uuid = require('uuid/v4');
-const winston = require('winston');
-require('winston-mongodb');
 const MongoStore = require('connect-mongo')(session);
 
 const ask = require('./ask');
@@ -43,11 +41,13 @@ const { ApprovalState } = require('../permissions');
 const auth = require('./auth');
 const Beacon = require('./db/beacon');
 const Command = require('./db/command');
+const db_url = require('./db/dbUrl');
 const Errors = require('../errors');
 const fcmClient = require('./fcmClient');
 const InstallData = require('./db/installData');
 const lifecycle = require('./lifecycle');
 const log = require('./log');
+const logger = require('./logger');
 const Permission = require('./db/permissions');
 const Roles = require('../roles');
 const Room = require('./db/room');
@@ -71,39 +71,7 @@ if (process.env.SERVER_MODE === 'prod') {
   PUBLIC_KEY = SmartappConfig.devKey;
 }
 
-const DOCKER_DB_URL = 'mongodb://mongo1:27017,mongo2:27018,mongo3:27019';
-const LOCALHOST_DB_URL = 'mongodb://localhost:27017,localhost:27018,localhost:27019';
-const TEST_DB_PATH = '/test';
-const PILOT_DB_PATH = '/pilot';
-const REPLICA_SET = '?replicaSet=my-mongo-set';
-
-let db_url = '';
-if (process.env.IS_DOCKER === 'true') {
-  db_url += DOCKER_DB_URL;
-} else {
-  db_url += LOCALHOST_DB_URL;
-}
-if (process.env.SERVER_MODE === 'dev') {
-  db_url += TEST_DB_PATH;
-} else if (process.env.SERVER_MODE === 'prod') {
-  db_url += PILOT_DB_PATH;
-}
-db_url += REPLICA_SET;
 mongoose.connect(db_url);
-
-winston.loggers.add('logger', {
-  level: 'verbose',
-  format: winston.format.json(),
-  transports: [
-    new winston.transports.MongoDB({ level: 'verbose', db: db_url, collection: 'log'}),
-    new winston.transports.Console({
-      format: winston.format.simple(),
-      level: 'verbose'
-    })
-  ]
-});
-
-const logger = winston.loggers.get('logger');
 
 let db = mongoose.connection;
 db.on('error', console.error.bind(console, 'connection error:'));
@@ -119,23 +87,6 @@ app.use(express.static('web/sw'));
 app.use('/favicon.ico', express.static('web/favicon.ico'));
 app.use('/css', express.static('web/css'));
 app.use(bodyParser.json());
-
-// Middleware that logs when a request is received.
-app.use(function(req, res, next) {
-  let meta = {
-    session: req.get('Client-Session'),
-    method: req.method,
-    url: req.originalUrl,
-    // headers: req.headers,
-  };
-  if (!req.originalUrl.startsWith('/login') || !req.originalUrl.startsWith('/register')) {
-    meta.body = req.body
-  }
-  req.logMeta = meta;
-  logger.verbose({ message: 'Client Request', meta: meta });
-  // log.magenta('Incoming request', req.method + ' ' + req.originalUrl);
-  next();
-});
 
 // Middleware to convert client-side sessions into cookies so that passport
 // can authenticate Cordova clients.
@@ -166,6 +117,20 @@ app.use(session({
     return uuid();
   }
 }));
+
+app.use((req, res, next) => {
+  let meta = {
+    session: req.get('Client-Session'),
+    method: req.method,
+    url: req.originalUrl,
+    // headers: req.headers,
+  };
+  if (!req.originalUrl.startsWith('/login') || !req.originalUrl.startsWith('/register')) {
+    meta.body = req.body
+  }
+  req.logMeta = meta;
+  next();
+});
 
 // Middleware that attaches a user's SmartThings InstallData to the request.
 function getInstallData(req, res, next) {
@@ -227,8 +192,17 @@ function checkAuth(req, res, next) {
       res.status(403).json({ error: Errors.USER_NOT_LINKED });
       return;
     }
+    req.logMeta.installedAppId = req.session.installedAppId;
+    req.logMeta.user = req.session.user;
     next();
   });
+}
+
+// Middleware that logs when a request is received.
+function logRequest(req, res, next) {
+  logger.verbose({ message: 'Client Request', meta: req.logMeta });
+  // log.magenta('Incoming request', req.method + ' ' + req.originalUrl);
+  next();
 }
 
 function signatureIsVerified(req) {
@@ -250,7 +224,7 @@ function signatureIsVerified(req) {
   return true;
 }
 
-app.post('/', (req, res) => {
+app.post('/', logRequest, (req, res) => {
   if (!req.body) {
     res.status(400).send('Invalid request');
     return;
@@ -298,7 +272,7 @@ app.post('/', (req, res) => {
   }
 });
 
-app.post('/login', (req, res) => {
+app.post('/login', logRequest, (req, res) => {
   auth.verifyUser(req.body.username, req.body.password).then((user) => {
     logger.info({
       message: 'Login Success',
@@ -353,7 +327,7 @@ app.post('/login', (req, res) => {
   });
 });
 
-app.post('/register', (req, res) => {
+app.post('/register', logRequest, (req, res) => {
   if (!req.body.username || !req.body.displayName || !req.body.password || !req.body.confirm) {
     logger.error({ message: Errors.REGISTER_MISSING_FIELD, meta: req.logMeta });
     res.status(400).json({ error: Errors.REGISTER_MISSING_FIELD });
@@ -391,7 +365,7 @@ app.post('/register', (req, res) => {
 // Step 1 in challenge-response login protocol.
 // Client sends public key (so server can verify user exists)
 // Server responds with string challenge
-app.post('/authChallenge', (req, res) => {
+app.post('/authChallenge', logRequest, (req, res) => {
   // Find matching public key in User database.
   User.findOne({ publicKeys: { $elemMatch: {
     x: req.body.publicKey.x, y: req.body.publicKey.y
@@ -426,7 +400,7 @@ app.post('/authChallenge', (req, res) => {
 // Client sends ECDSA signed challenge (JSON object containing r, s in arrays)
 // Server verifies that it was signed by the holder of the private key, who
 // sent their key in the challenge.
-app.post('/authResponse', (req, res) => {
+app.post('/authResponse', logRequest, (req, res) => {
   if (!req.session.challenge || !req.session.challengeUser) {
     logger.error({ message: Errors.CR_MISSING_CHALLENGE, meta: req.logMeta });
     res.status(401).json({ error: Errors.CR_MISSING_CHALLENGE });
@@ -495,7 +469,7 @@ app.post('/authResponse', (req, res) => {
   });
 });
 
-app.post('/logout', (req, res) => {
+app.post('/logout', logRequest, (req, res) => {
   req.session.destroy((err) => {
     if (err) {
       logger.error({
@@ -509,7 +483,7 @@ app.post('/logout', (req, res) => {
 });
 
 // Registers the FCM notification token with the current user.
-app.post('/notificationToken', checkAuth, async (req, res) => {
+app.post('/notificationToken', checkAuth, logRequest, async (req, res) => {
   fcmClient.updateActivityNotifications({
     flags: req.body.flags,
     user: req.user,
@@ -531,7 +505,7 @@ app.post('/notificationToken', checkAuth, async (req, res) => {
 });
 
 // Lists all devices in the home.
-app.get('/listDevices', checkAuth, getInstallData, (req, res) => {
+app.get('/listDevices', checkAuth, getInstallData, logRequest, (req, res) => {
   SmartThingsClient.listDevices({
     authToken: req.installData.authToken
   }).then((results) => {
@@ -545,7 +519,7 @@ app.get('/listDevices', checkAuth, getInstallData, (req, res) => {
   });
 });
 
-app.get('/homeConfig', checkAuth, getInstallData, (req, res) => {
+app.get('/homeConfig', checkAuth, getInstallData, logRequest, (req, res) => {
   const deviceTypes = ['doorLocks', 'switches', 'contactSensors'];
 
   let stConfig = req.installData.installedApp.config;
@@ -564,7 +538,7 @@ app.get('/homeConfig', checkAuth, getInstallData, (req, res) => {
 });
 
 // Get the status of a device
-app.get('/devices/:deviceId/status', checkAuth, getInstallData, (req, res) => {
+app.get('/devices/:deviceId/status', checkAuth, getInstallData, logRequest, (req, res) => {
   Beacon.findOne({ name: req.params.deviceId }).then((beacon) => {
     if (!beacon) {
       SmartThingsClient.getDeviceStatus({
@@ -600,7 +574,7 @@ app.get('/devices/:deviceId/status', checkAuth, getInstallData, (req, res) => {
   });
 });
 
-app.get('/devices/:deviceId/description', checkAuth, getInstallData,
+app.get('/devices/:deviceId/description', checkAuth, getInstallData, logRequest,
     (req, res) => {
   Beacon.findOne({ name: req.params.deviceId }).then((beacon) => {
     if (!beacon) {
@@ -662,11 +636,11 @@ function executeDevice(req, res) {
   });
 }
 
-app.post('/devices/:deviceId/commands', checkAuth, getInstallData, (req, res) => {
+app.post('/devices/:deviceId/commands', checkAuth, getInstallData, logRequest, (req, res) => {
   executeDevice(req, res);
 });
 
-app.post('/devices/:deviceId/requestCommand', checkAuth, (req, res) => {
+app.post('/devices/:deviceId/requestCommand', checkAuth, logRequest, (req, res) => {
   ask.request({
     requester: req.user,
     deviceId: req.params.deviceId,
@@ -696,7 +670,7 @@ app.post('/devices/:deviceId/requestCommand', checkAuth, (req, res) => {
   });
 });
 
-app.get('/pendingCommands', checkAuth, (req, res) => {
+app.get('/pendingCommands', checkAuth, logRequest, (req, res) => {
   ask.getPendingCommands(req.user).then((pending) => {
     res.status(200).json(pending);
   }).catch((err) => {
@@ -708,7 +682,7 @@ app.get('/pendingCommands', checkAuth, (req, res) => {
   });
 });
 
-app.post('/pendingCommands/:commandId', checkAuth, (req, res) => {
+app.post('/pendingCommands/:commandId', checkAuth, logRequest, (req, res) => {
   ask.response({
     commandId: req.params.commandId,
     approvalType: req.body.approvalType,
@@ -722,7 +696,7 @@ app.post('/pendingCommands/:commandId', checkAuth, (req, res) => {
   res.status(200).json({});
 });
 
-app.get('/devices/:deviceId/permissions', checkAuth, (req, res) => {
+app.get('/devices/:deviceId/permissions', checkAuth, logRequest, (req, res) => {
   Permission.findOne({
     deviceId: req.params.deviceId,
     installedAppId: req.session.installedAppId
@@ -765,7 +739,7 @@ app.get('/devices/:deviceId/permissions', checkAuth, (req, res) => {
   });
 });
 
-app.post('/devices/:deviceId/permissions', checkAuth, (req, res) => {
+app.post('/devices/:deviceId/permissions', checkAuth, logRequest, (req, res) => {
   let update = {};
   if (req.body.hasOwnProperty('locationRestrictions')) {
     update.locationRestrictions = req.body.locationRestrictions
@@ -795,7 +769,7 @@ app.post('/devices/:deviceId/permissions', checkAuth, (req, res) => {
   });
 });
 
-app.get('/beacon/configure', (req, res) => {
+app.get('/beacon/configure', logRequest, (req, res) => {
   res.sendFile(path.join(__dirname, '../web/html/beacons.html'));
 });
 
@@ -811,7 +785,7 @@ app.get('/beacon/list', (req, res) => {
   });
 });
 
-app.post('/beacon/new', (req, res) => {
+app.post('/beacon/new', logRequest, (req, res) => {
   let beacon = new Beacon({
     namespace: req.body.namespace,
     id: req.body.id,
@@ -828,7 +802,7 @@ app.post('/beacon/new', (req, res) => {
   });
 });
 
-app.post('/beacon/add', checkAuth, getInstallData, (req, res) => {
+app.post('/beacon/add', checkAuth, getInstallData, logRequest, (req, res) => {
   Beacon.findOne({ name: req.body.name }).then((beacon) => {
     if (!beacon) {
       res.status(404).json({ error: Errors.BEACON_NOT_FOUND });
@@ -853,7 +827,7 @@ app.post('/beacon/add', checkAuth, getInstallData, (req, res) => {
   });
 });
 
-app.post('/beacon/remove', checkAuth, getInstallData, (req, res) => {
+app.post('/beacon/remove', checkAuth, getInstallData, logRequest, (req, res) => {
   Beacon.findOne({ name: req.body.name }).then((beacon) => {
     if (!beacon) {
       res.status(404).json({ error: Errors.BEACON_NOT_FOUND });
@@ -882,7 +856,7 @@ app.post('/beacon/remove', checkAuth, getInstallData, (req, res) => {
 });
 
 // Retrieve all of the rooms
-app.get('/rooms', checkAuth, getInstallData, (req, res) => {
+app.get('/rooms', checkAuth, getInstallData, logRequest, (req, res) => {
   Room.find({ installedAppId: req.session.installedAppId })
     .then((rooms) => {
       res.status(200).json(rooms);
@@ -896,7 +870,7 @@ app.get('/rooms', checkAuth, getInstallData, (req, res) => {
 });
 
 // Create a new room
-app.post('/rooms/create', checkAuth, getInstallData, (req, res) => {
+app.post('/rooms/create', checkAuth, getInstallData, logRequest, (req, res) => {
   console.log(req.body);
   const room = new Room({
     installedAppId: req.session.installedAppId,
@@ -919,7 +893,7 @@ app.post('/rooms/create', checkAuth, getInstallData, (req, res) => {
   });
 });
 
-app.post('/rooms/:roomId/delete', checkAuth, getInstallData, (req, res) => {
+app.post('/rooms/:roomId/delete', checkAuth, getInstallData, logRequest, (req, res) => {
   RoomTransaction.deleteRoom(req.params.roomId).then(() => {
     log.log('Successfully deleted room ' + req.params.roomId);
     res.status(200).json({});
@@ -933,7 +907,7 @@ app.post('/rooms/:roomId/delete', checkAuth, getInstallData, (req, res) => {
   });
 });
 
-app.post('/rooms/:roomId/updateName', checkAuth, getInstallData, (req, res) => {
+app.post('/rooms/:roomId/updateName', checkAuth, getInstallData, logRequest, (req, res) => {
   Room.findOneAndUpdate({
       installedAppId: req.session.installedAppId,
       roomId: req.params.roomId
@@ -951,7 +925,7 @@ app.post('/rooms/:roomId/updateName', checkAuth, getInstallData, (req, res) => {
   });
 });
 
-app.post('/rooms/:roomId/reorderDeviceInRoom', checkAuth, getInstallData,
+app.post('/rooms/:roomId/reorderDeviceInRoom', checkAuth, getInstallData, logRequest,
     (req, res) => {
   Room.findOne({
     installedAppId: req.session.installedAppId,
@@ -975,7 +949,7 @@ app.post('/rooms/:roomId/reorderDeviceInRoom', checkAuth, getInstallData,
   });
 });
 
-app.post('/rooms/moveDeviceBetweenRooms', checkAuth, getInstallData,
+app.post('/rooms/moveDeviceBetweenRooms', checkAuth, getInstallData, logRequest,
     (req, res) => {
   RoomTransaction.moveDeviceBetweenRooms(
     req.body.srcRoom,
@@ -995,7 +969,7 @@ app.post('/rooms/moveDeviceBetweenRooms', checkAuth, getInstallData,
   });
 });
 
-app.get('/users', checkAuth, (req, res) => {
+app.get('/users', checkAuth, logRequest, (req, res) => {
   User.find({ installedAppId: req.session.installedAppId }).then((users) => {
     res.status(200).json(users);
   }).catch((err) => {
@@ -1008,7 +982,7 @@ app.get('/users', checkAuth, (req, res) => {
 });
 
 // Create a new user, via public key (scanned with QR code).
-app.post('/users/new', checkAuth, (req, res) => {
+app.post('/users/new', checkAuth, logRequest, (req, res) => {
   if (!req.body.publicKey || !req.body.displayName || !Object.values(Roles).includes(req.body.role)) {
     logger.error({ message: Errors.MISSING_FIELDS, meta: req.logMeta });
     res.status(400).json({ error: Errors.MISSING_FIELDS });
@@ -1052,7 +1026,7 @@ app.post('/users/new', checkAuth, (req, res) => {
   });
 });
 
-app.post('/users/addKey', checkAuth, (req, res) => {
+app.post('/users/addKey', checkAuth, logRequest, (req, res) => {
   if (Object.keys(req.body.publicKey).length === 0 || !req.body.userId) {
     logger.error({ message: Errors.MISSING_FIELDS, meta: req.logMeta });
     res.status(400).json({ error: Errors.MISSING_FIELDS });
@@ -1086,7 +1060,7 @@ app.post('/users/addKey', checkAuth, (req, res) => {
   });
 });
 
-app.get('/users/:userId', checkAuth, (req, res) => {
+app.get('/users/:userId', checkAuth, logRequest, (req, res) => {
   if (req.params.userId === 'me') {
     res.status(200).json(req.user);
     return;
@@ -1109,7 +1083,7 @@ app.get('/users/:userId', checkAuth, (req, res) => {
   });
 });
 
-app.post('/users/:userId/updateRole', checkAuth, (req, res) => {
+app.post('/users/:userId/updateRole', checkAuth, logRequest, (req, res) => {
   if (req.user.role !== Roles.ADMIN && req.user.role !== Roles.USER) {
     logger.error({ message: Errors.MISSING_PERMISSIONS, meta: req.logMeta });
     res.status(403).json({ error: Errors.MISSING_PERMISSIONS });
@@ -1134,7 +1108,7 @@ app.post('/users/:userId/updateRole', checkAuth, (req, res) => {
   });
 });
 
-app.get('/refresh', checkAuth, (req, res) => {
+app.get('/refresh', checkAuth, logRequest, (req, res) => {
   SmartThingsClient.renewTokens(req.session.installedAppId, APP_CONFIG)
     .then((tokens) => {
       res.status(200).json(tokens);
@@ -1147,7 +1121,7 @@ app.get('/refresh', checkAuth, (req, res) => {
     });
 });
 
-app.post('/userReport/:type', checkAuth, (req, res) => {
+app.post('/userReport/:type', checkAuth, logRequest, (req, res) => {
   let report = new UserReport({
     timestamp: new Date(),
     userId: req.user.id,
@@ -1166,7 +1140,7 @@ app.post('/userReport/:type', checkAuth, (req, res) => {
   });
 });
 
-app.post('/clientLog', checkAuth, (req, res) => {
+app.post('/clientLog', checkAuth, logRequest, (req, res) => {
   console.log(req.body);
   delete req.logMeta.body;
   logger.log({
@@ -1177,7 +1151,7 @@ app.post('/clientLog', checkAuth, (req, res) => {
   res.status(200).json({});
 });
 
-app.get('/oauth', (req, res) => {
+app.get('/oauth', logRequest, (req, res) => {
   if (process.env.SERVER_MODE === 'prod') {
     res.sendFile(path.join(__dirname, '../web/html/oauth-prod.html'));
   } else if (process.env.SERVER_MODE === 'dev') {
@@ -1185,11 +1159,11 @@ app.get('/oauth', (req, res) => {
   }
 });
 
-app.get('/privacy', (req, res) => {
+app.get('/privacy', logRequest, (req, res) => {
   res.sendFile(path.join(__dirname, '../web/html/privacy.html'));
 });
 
-app.get('*', (req, res) => {
+app.get('*', logRequest, (req, res) => {
   if (process.env.SERVER_MODE === 'prod') {
     res.sendFile(path.join(__dirname, '../web/html/index-prod.html'));
   } else if (process.env.SERVER_MODE === 'dev') {

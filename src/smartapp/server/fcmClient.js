@@ -1,12 +1,10 @@
 const log = require('./log');
 const Errors = require('../errors');
 const Flags = require('../flags');
+const logger = require('./logger');
 const request = require('request');
 const User = require('./db/user');
 const {google} = require('googleapis');
-const { loggers } = require('winston');
-
-const logger = loggers.get('logger');
 
 const FIREBASE_CONFIG = require('../config/firebase.json');
 

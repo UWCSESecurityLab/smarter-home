@@ -1,6 +1,7 @@
 const Command = require('./db/command');
 const fcmClient = require('./fcmClient');
 const InstallData = require('./db/installData');
+const logger = require('./logger');
 const SmartThingsClient = require('./SmartThingsClient');
 const PendingCommand = require('./db/pending-command');
 const Permission = require('./db/permissions');
@@ -11,9 +12,6 @@ const { ApprovalType,
         LocationRestrictions,
         ParentalRestrictions } = require('../permissions');
 
-const { loggers } = require('winston');
-
-const logger = loggers.get('logger');
 
 // "Ask" protocol implmentation.
 class Ask {
