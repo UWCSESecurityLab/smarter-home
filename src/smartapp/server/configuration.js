@@ -52,11 +52,11 @@ module.exports = {
           complete: true,
           sections: [
             {
-              name: 'Choose which devices SmarterHome can access',
+              name: 'Please grant SmarterHome access to the devices in your home.',
               settings: [
                 {
                   id: 'doorLocks',
-                  name: 'Which door locks?',
+                  name: 'Select door locks',
                   description: 'Tap to set',
                   type: 'DEVICE',
                   required: false,
@@ -71,7 +71,7 @@ module.exports = {
               settings: [
                 {
                   id: 'switches',
-                  name: 'Select switches?',
+                  name: 'Select switches',
                   description: 'Tap to set',
                   type: 'DEVICE',
                   required: false,
@@ -86,12 +86,27 @@ module.exports = {
               settings: [
                 {
                   id: 'contactSensors',
-                  name: 'Which contact sensors?',
+                  name: 'Select contact sensors',
                   description: 'Tap to set',
                   type: 'DEVICE',
                   required: false,
                   multiple: true,
                   capabilities: ['contactSensor'],
+                  permissions: ['r', 'x']
+                }
+              ]
+            },
+            {
+              name: '',
+              settings: [
+                {
+                  id: 'motionSensors',
+                  name: 'Select motion sensors',
+                  description: 'Tap to set',
+                  type: 'DEVICE',
+                  required: false,
+                  multiple: true,
+                  capabilities: ['motionSensor'],
                   permissions: ['r', 'x']
                 }
               ]

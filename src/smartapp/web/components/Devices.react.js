@@ -11,12 +11,13 @@ import { withRouter } from 'react-router-dom';
 import ContactSensorStatus from './DeviceList/ContactSensorStatus.react';
 import BeaconStatus from './DeviceList/BeaconStatus.react';
 import DeviceListItem from './DeviceList/DeviceListItem.react';
-import toastError from '../lib/error-toaster';
 import HomeState from '../lib/home-state';
 import LockStatus from './DeviceList/LockStatus.react';
+import MotionSensorStatus from './DeviceList/MotionSensorStatus.react';
 import Roles from '../../roles';
 import SmartAppClient from '../lib/SmartAppClient';
 import SwitchStatus from './DeviceList/SwitchStatus.react';
+import toastError from '../lib/error-toaster';
 
 import * as Actions from '../redux/actions';
 
@@ -146,6 +147,9 @@ class Devices extends React.Component {
     } else if (this.props.homeConfig.doorLocks &&
                this.props.homeConfig.doorLocks.includes(deviceId)) {
       status = <LockStatus deviceId={deviceId}/>
+    } else if (this.props.homeConfig.motionSensors &&
+               this.props.homeConfig.motionSensors.includes(deviceId)) {
+      status = <MotionSensorStatus deviceId={deviceId}/>
     } else if (this.props.deviceDesc[deviceId] &&
                this.props.deviceDesc[deviceId].deviceTypeName === 'beacon') {
       if (this.state.edit) {

@@ -86,6 +86,13 @@ class DeviceModal extends React.Component {
     }
   }
 
+  renderMotionSensorStatus() {
+    const motionSensorStatus = this.props.status.components.main.motionSensor;
+    if (motionSensorStatus) {
+      return this.renderStatus('Motion Sensor', motionSensorStatus.motion.value);
+    }
+  }
+
   renderBeaconStatus() {
     if (this.props.desc.deviceTypeName !== 'beacon') {
       return null;
@@ -281,6 +288,7 @@ class DeviceModal extends React.Component {
                   <h4 className="device-modal-heading">Status</h4>
                   {this.renderBeaconStatus()}
                   {this.renderContactStatus()}
+                  {this.renderMotionSensorStatus()}
                   {this.renderLockStatus()}
                   {this.renderSwitchStatus()}
                   {this.renderTemperature()}

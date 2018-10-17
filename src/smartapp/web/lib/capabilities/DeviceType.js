@@ -1,5 +1,6 @@
 import ContactSensor from './ContactSensor';
 import Lock from './Lock';
+import MotionSensor from './MotionSensor';
 import Switch from './Switch';
 
 export function getCapabilityHelper(homeConfig, deviceId) {
@@ -9,6 +10,8 @@ export function getCapabilityHelper(homeConfig, deviceId) {
     return Switch;
   } else if (homeConfig.doorLocks.includes(deviceId)) {
     return Lock;
+  } else if (homeConfig.motionSensors.includes(deviceId)) {
+    return MotionSensor;
   } else {
     return null;
   }

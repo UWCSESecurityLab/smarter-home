@@ -4,6 +4,7 @@ let initial_home_config_state = {
   doorLocks: [],
   switches: [],
   contactSensors: [],
+  motionSensors: []
 }
 
 // Export individual reducers because react-native's metro bundler can't

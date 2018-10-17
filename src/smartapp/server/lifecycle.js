@@ -146,7 +146,7 @@ module.exports = {
     if (!deviceEvent) {
       return;
     }
-    let supportedCapabilities = ['switch', 'lock', 'contactSensor'];
+    let supportedCapabilities = ['switch', 'lock', 'contactSensor', 'motionSensor'];
     if (!supportedCapabilities.includes(deviceEvent.deviceEvent.capability)) {
       return;
     }

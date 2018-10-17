@@ -520,7 +520,7 @@ app.get('/listDevices', checkAuth, getInstallData, logRequest, (req, res) => {
 });
 
 app.get('/homeConfig', checkAuth, getInstallData, logRequest, (req, res) => {
-  const deviceTypes = ['doorLocks', 'switches', 'contactSensors'];
+  const deviceTypes = ['doorLocks', 'switches', 'contactSensors', 'motionSensors'];
 
   let stConfig = req.installData.installedApp.config;
   let ourConfig = {};
