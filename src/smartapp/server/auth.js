@@ -7,8 +7,9 @@ const SALT_ROUNDS = 10;
 
 module.exports = {
   verifyUser: function(username, password) {
+    const usernameLower = username.toLowerCase();
     return new Promise((resolve, reject) => {
-      User.findOne({ username: username }, function(err, user) {
+      User.findOne({ username: usernameLower }, function(err, user) {
         if (err) {
           console.log(err);
           return reject({ error: Errors.DB_ERROR });
@@ -27,8 +28,9 @@ module.exports = {
     });
   },
   createUser: function(username, displayName, password) {
+    const usernameLower = username.toLowerCase();
     return new Promise((resolve, reject) => {
-      User.findOne({ username: username }, (err, user) => {
+      User.findOne({ username: usernameLower }, (err, user) => {
         if (err) {
           reject({ error: Errors.DB_ERROR });
         }
@@ -42,7 +44,7 @@ module.exports = {
             }
             let user = new User({
               id: uuid(),
-              username: username,
+              username: usernameLower,
               displayName: displayName,
               hashedPassword: hash,
               notificationTokens: []
