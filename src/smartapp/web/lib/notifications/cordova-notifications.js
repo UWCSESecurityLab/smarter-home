@@ -49,18 +49,16 @@ class CordovaNotifications extends Notifications {
 
     if (payload.activity) {
       const message = JSON.parse(payload.activity);
-      const title = `${message.device} | ${message.capability} → ${message.value}`;
-
-      if (Proximity.userIsNearDevice(message.deviceId)) {
-        console.log('Beacons nearby, showing notification');
+      const notificationPref = state.notificationPrefs[message.deviceId];
+      if (notificationPref === Flags.ActivityNotifications.ON ||
+          notificationPref === Flags.ActivityNotifications.PROXIMITY &&
+          Proximity.userIsNearDevice(message.deviceId)) {
         cordova.plugins.notification.local.schedule({
           id: PROXIMITY_ID,
-          title: title,
+          title: `${message.device} | ${message.capability} → ${message.value}`,
           summary: 'Nearby activity',
           text: 'Triggered by ' + message.trigger
         });
-      } else {
-        console.log('Beacons not nearby, blocking notification.')
       }
     }
     if (payload.ask) {
