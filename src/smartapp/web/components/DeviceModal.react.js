@@ -350,25 +350,31 @@ class DeviceModal extends React.Component {
                   {this.renderSwitchStatus()}
                   {this.renderTemperature()}
                   {this.renderBatteryStatus()}
-                  { isActuator ?
-                    <div>
-                      <h4 className="device-modal-heading">Settings</h4>
-                      <div className="device-modal-nav-item"  onClick={() => {
-                        if (this.props.canModifySettings ) {
-                          this.props.history.push(`${this.props.match.url}/notifications`);
-                        }
-                      }}>
-                        <div>
-                          <div>Activity Notifications</div>
-                          <div className="device-modal-nav-item-subtitle">
-                            {NotificationStrings[this.props.notificationPrefs[this.props.match.params.deviceId]]}
+                  <div>
+                    { this.props.desc.deviceTypeName !== 'beacon' ?
+                      <div>
+                        <h4 className="device-modal-heading">Settings</h4>
+                        <div className="device-modal-nav-item"  onClick={() => {
+                          if (this.props.canModifySettings ) {
+                            this.props.history.push(`${this.props.match.url}/notifications`);
+                          }
+                        }}>
+                          <div>
+                            <div>Activity Notifications</div>
+                            <div className="device-modal-nav-item-subtitle">
+                              {NotificationStrings[this.props.notificationPrefs[this.props.match.params.deviceId]]}
+                            </div>
                           </div>
+                          { this.props.canModifySettings ?
+                            <MaterialIcon icon="chevron_right" style={{ color: '#8c8c8c' }}/>
+                            : null }
                         </div>
-                        { this.props.canModifySettings ?
-                          <MaterialIcon icon="chevron_right" style={{ color: '#8c8c8c' }}/>
-                        : null }
                       </div>
+                      : null
+                    }
 
+                    { isActuator ?
+                      <div>
                       <div className="device-modal-nav-item"  onClick={() => {
                         if (this.props.canModifySettings ) {
                           this.props.history.push(`${this.props.match.url}/location`);
@@ -383,28 +389,29 @@ class DeviceModal extends React.Component {
                         { this.props.canModifySettings ?
                             <MaterialIcon icon="chevron_right" style={{ color: '#8c8c8c' }}/>
                           : null }
-                      </div>
-
-                      <div className="device-modal-nav-item" onClick={() => {
-                        if (this.props.canModifySettings) {
-                          this.props.history.push(`${this.props.match.url}/users`);
-                        }
-                      }}>
-                        <div>
-                          <div>Allowed Users</div>
-                          <div className="device-modal-nav-item-subtitle">
-                            {userSubtitle}
-                          </div>
-                          <div className="device-modal-nav-item-subtitle">
-                            {userPolicySubtitle}
-                          </div>
                         </div>
-                        { this.props.canModifySettings ?
-                            <MaterialIcon icon="chevron_right" style={{ color: '#8c8c8c' }}/>
-                          : null }
+
+                        <div className="device-modal-nav-item" onClick={() => {
+                          if (this.props.canModifySettings) {
+                            this.props.history.push(`${this.props.match.url}/users`);
+                          }
+                        }}>
+                          <div>
+                            <div>Allowed Users</div>
+                            <div className="device-modal-nav-item-subtitle">
+                              {userSubtitle}
+                            </div>
+                            <div className="device-modal-nav-item-subtitle">
+                              {userPolicySubtitle}
+                            </div>
+                          </div>
+                          { this.props.canModifySettings ?
+                              <MaterialIcon icon="chevron_right" style={{ color: '#8c8c8c' }}/>
+                            : null }
+                        </div>
                       </div>
+                      : null }
                     </div>
-                    : null }
               </div>
              </div>
             )}/>
