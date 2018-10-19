@@ -199,7 +199,7 @@ class ActivityNotificationSettings extends React.Component {
           <h3>Activity Notifications</h3>
         </div>
         <p className="settings-padding">
-          Choose whether to get notifications about changes to each device.
+          Get notifications when devices in your home change.
         </p>
         { Object.values(this.props.rooms).map((room) => this.renderRoom(room)) }
       </div>

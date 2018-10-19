@@ -9,12 +9,19 @@ import SmartAppClient from '../lib/SmartAppClient';
 import strToColor from '../lib/strToColor';
 import toastError from '../lib/error-toaster';
 import * as Actions from '../redux/actions';
+import { ActivityNotifications } from '../../flags';
 import { connect } from 'react-redux';
 import { notify as toast } from 'react-notify-toast';
 import { Link, Route, Switch, withRouter } from 'react-router-dom';
 import { LocationRestrictions, ParentalRestrictions } from '../../permissions';
 
 const smartAppClient = new SmartAppClient();
+
+const NotificationStrings = {
+  [ActivityNotifications.ON]: 'On',
+  [ActivityNotifications.PROXIMITY]: 'On if nearby',
+  [ActivityNotifications.OFF]: 'Off'
+}
 
 const LocationRestrictionsStrings = {
   [LocationRestrictions.NEARBY]: 'Control if nearby, otherwise ask someone nearby',
@@ -40,8 +47,10 @@ class DeviceModal extends React.Component {
     this.close = this.close.bind(this);
     this.changeCheckbox = this.changeCheckbox.bind(this);
     this.changeRadio = this.changeRadio.bind(this);
+    this.changeNotificationRadio = this.changeNotificationRadio.bind(this);
     this.renderBatteryStatus = this.renderBatteryStatus.bind(this);
     this.renderLocationRestrictions = this.renderLocationRestrictions.bind(this);
+    this.renderNotifications = this.renderNotifications.bind(this);
     this.renderTemperature = this.renderTemperature.bind(this);
   }
 
@@ -242,6 +251,48 @@ class DeviceModal extends React.Component {
     );
   }
 
+  changeNotificationRadio(_, newPref) {
+    const deviceId = this.props.match.params.deviceId;
+    smartAppClient.updateNotificationPrefs(
+      Object.assign({}, this.props.notificationPrefs, { [deviceId]: newPref })
+    ).then(() => {
+      this.props.dispatch(Actions.changeNotificationPref(deviceId, newPref));
+    }).catch(toastError);
+  }
+
+  renderNotifications() {
+    const devicePref = this.props.notificationPrefs[this.props.match.params.deviceId];
+    return (
+      <div>
+        <h4 className="device-modal-heading">Activity Notifications</h4>
+        <div className="modal-content">
+          <p>Get notifications when this device changes.</p>
+          <Radio
+            name="notifications"
+            id={ActivityNotifications.ON}
+            checked={devicePref === ActivityNotifications.ON}
+            label="Enabled"
+            onRadioChange={this.changeNotificationRadio}
+          />
+          <Radio
+            name="notifications"
+            id={ActivityNotifications.PROXIMITY}
+            checked={devicePref === ActivityNotifications.PROXIMITY}
+            label="Enabled, but only when I'm nearby"
+            onRadioChange={this.changeNotificationRadio}
+          />
+          <Radio
+            name="notifications"
+            id={ActivityNotifications.OFF}
+            checked={devicePref === ActivityNotifications.OFF}
+            label="Disabled"
+            onRadioChange={this.changeNotificationRadio}
+          />
+        </div>
+      </div>
+    );
+  }
+
   render() {
     let isActuator = this.props.desc.components &&
       !!this.props.desc.components.find((component) => {
@@ -278,6 +329,12 @@ class DeviceModal extends React.Component {
                 {this.renderUserRestrictions()}
               </div>
             )}/>
+             <Route path={`${this.props.match.path}/notifications`} render={() => (
+              <div>
+                {this.renderAccessControlHeader('/notifications')}
+                {this.renderNotifications()}
+              </div>
+            )}/>
             <Route path={this.props.match.path} render={() => (
               <div>
                 <div className="modal-heading-container">
@@ -294,8 +351,24 @@ class DeviceModal extends React.Component {
                   {this.renderTemperature()}
                   {this.renderBatteryStatus()}
                   { isActuator ?
-                     <div>
+                    <div>
                       <h4 className="device-modal-heading">Settings</h4>
+                      <div className="device-modal-nav-item"  onClick={() => {
+                        if (this.props.canModifySettings ) {
+                          this.props.history.push(`${this.props.match.url}/notifications`);
+                        }
+                      }}>
+                        <div>
+                          <div>Activity Notifications</div>
+                          <div className="device-modal-nav-item-subtitle">
+                            {NotificationStrings[this.props.notificationPrefs[this.props.match.params.deviceId]]}
+                          </div>
+                        </div>
+                        { this.props.canModifySettings ?
+                          <MaterialIcon icon="chevron_right" style={{ color: '#8c8c8c' }}/>
+                        : null }
+                      </div>
+
                       <div className="device-modal-nav-item"  onClick={() => {
                         if (this.props.canModifySettings ) {
                           this.props.history.push(`${this.props.match.url}/location`);
@@ -311,6 +384,7 @@ class DeviceModal extends React.Component {
                             <MaterialIcon icon="chevron_right" style={{ color: '#8c8c8c' }}/>
                           : null }
                       </div>
+
                       <div className="device-modal-nav-item" onClick={() => {
                         if (this.props.canModifySettings) {
                           this.props.history.push(`${this.props.match.url}/users`);
@@ -349,6 +423,7 @@ DeviceModal.propTypes = {
   label: PropTypes.string,
   match: PropTypes.object,
   nearbyBeacons: PropTypes.object,
+  notificationPrefs: PropTypes.object,
   permissions: PropTypes.object,
   status: PropTypes.object,
   users: PropTypes.object,
@@ -365,6 +440,7 @@ const mapStateToProps = (state, ownProps) => {
     canModifySettings: canModifySettings,
     desc: Capability.getDesc(state, deviceId),
     label: Capability.getLabel(state, deviceId),
+    notificationPrefs: state.notificationPrefs,
     permissions: Capability.getPermissions(state, deviceId),
     status: Capability.getStatus(state, deviceId),
     nearbyBeacons: state.beacons.nearbyBeacons,
