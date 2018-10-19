@@ -7,6 +7,7 @@ import { connect } from 'react-redux';
 import { Route, Switch, withRouter } from 'react-router-dom';
 import { TransitionGroup, CSSTransition } from 'react-transition-group'
 
+import ActivityNotificationSettings from './ActivityNotificationSettings.react';
 import AddUserModal from './AddUserModal.react';
 import AskApprovalPrompt from './AskApprovalPrompt.react';
 import AskRequest from './AskRequest.react';
@@ -199,6 +200,11 @@ class Home extends React.Component {
                 </HomeItemErrorBoundary>
               </div>
             )}/>
+            <Route path="/notificationSettings/activity" render={() =>
+              <HomeItemErrorBoundary>
+                <ActivityNotificationSettings/>
+              </HomeItemErrorBoundary>
+            }/>
             <Route path="/notificationSettings" render={() =>
               <HomeItemErrorBoundary>
                 <NotificationSettings/>

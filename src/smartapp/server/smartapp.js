@@ -970,9 +970,41 @@ app.post('/rooms/moveDeviceBetweenRooms', checkAuth, getInstallData, logRequest,
 });
 
 app.get('/users', checkAuth, logRequest, (req, res) => {
-  User.find({ installedAppId: req.session.installedAppId }).then((users) => {
+  User.find({ installedAppId: req.session.installedAppId }, {
+    id: 1,
+    username: 1,
+    displayName: 1,
+    installedAppId: 1,
+    role: 1,
+  }).then((users) => {
+    const meIdx = users.findIndex((user) => user.id === req.user.id);
+    users[meIdx].notificationPrefs = req.user.notificationPrefs;
     res.status(200).json(users);
   }).catch((err) => {
+    logger.error({
+      message: Errors.DB_ERROR,
+      meta: { ...req.logMeta, error: err }
+    });
+    res.status(500).json({ error: Errors.DB_ERROR });
+  });
+});
+
+app.post('/users/updateNotificationPrefs', checkAuth, logRequest, (req, res) => {
+  console.log(req.body.newPrefs);
+  let prefs = {};
+  Object.keys(req.body.newPrefs).forEach((deviceId) => {
+    prefs[`notificationPrefs.${deviceId}`] = req.body.newPrefs[deviceId];
+  });
+
+  User.findOneAndUpdate(
+    { id: req.user.id },
+    { $set: prefs }
+  ).then((user) => {
+    console.log('Updated user');
+    console.log(user);
+    res.status(200).json({});
+  }).catch((err) => {
+    log.error(err.stack);
     logger.error({
       message: Errors.DB_ERROR,
       meta: { ...req.logMeta, error: err }
@@ -1067,6 +1099,13 @@ app.get('/users/:userId', checkAuth, logRequest, (req, res) => {
   }
   User.findOne({
     installedAppId: req.session.installedAppId, id: req.params.userId
+  }, {
+    id: 1,
+    username: 1,
+    displayName: 1,
+    installedAppId: 1,
+    role: 1,
+    notificationPrefs: req.params.userId === req.session.user.id ? 1 : 0
   }).then((user) => {
     if (!user) {
       logger.error({ message: Errors.USER_NOT_FOUND, meta: req.logMeta });

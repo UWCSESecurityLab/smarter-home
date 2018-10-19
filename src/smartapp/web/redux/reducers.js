@@ -160,6 +160,17 @@ export function refreshSpinner(state = false, action) {
   }
 }
 
+export function notificationPrefs(state = {}, action) {
+  switch (action.type) {
+    case Actions.SET_NOTIFICATION_PREFS:
+      return action.notificationPrefs;
+    case Actions.CHANGE_NOTIFICATION_PREF:
+      return Object.assign({}, state, { [action.deviceId]: action.pref });
+    default:
+      return state;
+  }
+}
+
 const fcmReducers = combineReducers({
   fcmToken: fcmToken,
   notificationsEnabled: notificationsEnabled,
@@ -187,7 +198,8 @@ const store = createStore(combineReducers({
   me: me,
   pendingCommand: pendingCommand,
   commandRequests: commandRequests,
-  refreshSpinner: refreshSpinner
+  refreshSpinner: refreshSpinner,
+  notificationPrefs: notificationPrefs
 }));
 
 export { store };

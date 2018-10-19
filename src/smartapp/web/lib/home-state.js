@@ -27,6 +27,13 @@ class HomeState {
 
   static fetchUsers() {
     smartAppClient.listUsers().then((users) => {
+      users.forEach((user) => {
+        if (!user.notificationPrefs) {
+          return;
+        }
+        store.dispatch(Actions.setNotificationPrefs(user.notificationPrefs));
+        delete user.notificationPrefs;
+      });
       store.dispatch(Actions.setUsers(users));
     }).catch(toastError);
 

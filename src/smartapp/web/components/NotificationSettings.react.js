@@ -1,11 +1,15 @@
 import React from 'react';
 import Button from '@material/react-button';
+import MaterialIcon from '@material/react-material-icon';
 import PropTypes from 'prop-types';
 import Radio from './Radio.react';
 import toastError from '../lib/error-toaster';
+import { Link } from 'react-router-dom';
 import { connect } from 'react-redux';
 import * as Actions from '../redux/actions';
 import * as Flags from '../../flags';
+
+import '../css/settings.scss';
 
 class NotificationSettings extends React.Component {
   constructor(props) {
@@ -63,74 +67,85 @@ class NotificationSettings extends React.Component {
     let isAndroid = !!window.cordova && device.platform === 'Android';
 
     return (
-      <section className="home-item home-item-padded">
-        <h3>Notification Settings</h3>
+      <section className="home-item">
+        <h3 className="settings-heading">Notification Settings</h3>
         { this.props.notificationsEnabled
           ? null
           : <Button onClick={this.enableNotifications}>Enable notifications</Button>
         }
 
-        <h4>Activity Notifications</h4>
-        <p>
-          Get notified when things in your home happen automatically.
-        </p>
-        <Radio
-          name="activityNotifications"
-          id={Flags.ActivityNotifications.ON}
-          checked={activityFlag === Flags.ActivityNotifications.ON}
-          label="Enabled"
-          onRadioChange={this.changeFlag} />
-        <Radio
-            name="activityNotifications"
-            id={Flags.ActivityNotifications.PROXIMITY}
-            checked={activityFlag === Flags.ActivityNotifications.PROXIMITY}
-            label="Enabled, but only for activity in the same room as me"
-            onRadioChange={this.changeFlag} />
-        <Radio
-            name="activityNotifications"
-            id={Flags.ActivityNotifications.OFF}
-            checked={activityFlag === Flags.ActivityNotifications.OFF}
-            label="Disabled"
-            onRadioChange={this.changeFlag} />
+        <Link className="link-plain" to="/notificationSettings/activity">
+          <div className="settings-item settings-expand-item">
+            <div>
+              <h4 className="settings-subheading">Activity Notifications</h4>
+              <div>
+                Get notified when things in your home happen automatically.
+              </div>
+            </div>
+            <MaterialIcon icon="arrow_forward_ios" style={{ color: '#8c8c8c' }}/>
+            {/* <Radio
+              name="activityNotifications"
+              id={Flags.ActivityNotifications.ON}
+              checked={activityFlag === Flags.ActivityNotifications.ON}
+              label="Enabled"
+              onRadioChange={this.changeFlag} />
+            <Radio
+                name="activityNotifications"
+                id={Flags.ActivityNotifications.PROXIMITY}
+                checked={activityFlag === Flags.ActivityNotifications.PROXIMITY}
+                label="Enabled, but only for activity in the same room as me"
+                onRadioChange={this.changeFlag} />
+            <Radio
+                name="activityNotifications"
+                id={Flags.ActivityNotifications.OFF}
+                checked={activityFlag === Flags.ActivityNotifications.OFF}
+                label="Disabled"
+                onRadioChange={this.changeFlag} /> */}
+          </div>
+        </Link>
 
-        <h4>Nearby Device Notifications</h4>
-        <p>
-          Show the devices around you in your notification center.
-        </p>
-        <Radio
-            name="nearbyNotifications"
-            id={Flags.NearbyNotifications.ON}
-            checked={nearbyFlag === Flags.NearbyNotifications.ON}
-            label="Enabled (Android only)"
+        <div className="settings-item">
+          <h4 className="settings-subheading">Nearby Device Notifications</h4>
+          <div>
+            Show the devices around you in your notification center.
+          </div>
+          <Radio
+              name="nearbyNotifications"
+              id={Flags.NearbyNotifications.ON}
+              checked={nearbyFlag === Flags.NearbyNotifications.ON}
+              label="Enabled (Android only)"
+              disabled={!isMobile}
+              onRadioChange={this.changeFlag} />
+          <Radio
+              name="nearbyNotifications"
+              id={Flags.NearbyNotifications.OFF}
+              checked={nearbyFlag === Flags.NearbyNotifications.OFF}
+              label="Disabled"
+              onRadioChange={this.changeFlag} />
+        </div>
+
+        <div className="settings-item">
+          <h4 className="settings-subheading">Background Beacon Scanning</h4>
+          <div>
+            Allow your phone to scan for beacons when the
+            SmarterHome app is closed. You can turn this off to reduce battery
+            usage. However, it must be enabled to enable Nearby Notifications
+            and proximity-based Activity Notifications.
+          </div>
+          <Radio
+            name="backgroundScanning"
+            id={Flags.BackgroundScanning.ON}
+            checked={backgroundFlag === Flags.BackgroundScanning.ON}
+            label="Enabled (mobile only)"
             disabled={!isMobile}
             onRadioChange={this.changeFlag} />
-        <Radio
-            name="nearbyNotifications"
-            id={Flags.NearbyNotifications.OFF}
-            checked={nearbyFlag === Flags.NearbyNotifications.OFF}
+          <Radio
+            name="backgroundScanning"
+            id={Flags.BackgroundScanning.OFF}
+            checked={backgroundFlag === Flags.BackgroundScanning.OFF}
             label="Disabled"
             onRadioChange={this.changeFlag} />
-
-        <h4>Background Beacon Scanning</h4>
-        <p>
-          Allow your phone to scan for beacons when the
-          SmarterHome app is closed. You can turn this off to reduce battery
-          usage. However, it must be enabled to enable Nearby Notifications
-          and proximity-based Activity Notifications.
-        </p>
-        <Radio
-          name="backgroundScanning"
-          id={Flags.BackgroundScanning.ON}
-          checked={backgroundFlag === Flags.BackgroundScanning.ON}
-          label="Enabled (mobile only)"
-          disabled={!isMobile}
-          onRadioChange={this.changeFlag} />
-        <Radio
-          name="backgroundScanning"
-          id={Flags.BackgroundScanning.OFF}
-          checked={backgroundFlag === Flags.BackgroundScanning.OFF}
-          label="Disabled"
-          onRadioChange={this.changeFlag} />
+        </div>
       </section>
     );
   }
@@ -141,6 +156,7 @@ NotificationSettings.propTypes = {
   fcmToken: PropTypes.string,
   flags: PropTypes.object,
   notificationsEnabled: PropTypes.bool,
+  notificationPrefs: PropTypes.object
 }
 
 const mapStateToProps = (state) => {

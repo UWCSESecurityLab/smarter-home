@@ -275,3 +275,13 @@ export const STOP_REFRESH_SPINNER = 'STOP_REFRESH_SPINNER';
 export function stopRefreshSpinner() {
   return { type: STOP_REFRESH_SPINNER };
 }
+
+export const SET_NOTIFICATION_PREFS = 'SET_NOTIFICATION_PREFS';
+export function setNotificationPrefs(notificationPrefs) {
+  return { type: SET_NOTIFICATION_PREFS, notificationPrefs: notificationPrefs };
+}
+
+export const CHANGE_NOTIFICATION_PREF = 'CHANGE_NOTIFICATION_PREF';
+export function changeNotificationPref(deviceId, pref) {
+  return { type: CHANGE_NOTIFICATION_PREF, deviceId: deviceId, pref: pref };
+}

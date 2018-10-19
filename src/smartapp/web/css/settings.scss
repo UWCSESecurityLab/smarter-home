@@ -1,0 +1,53 @@
+.settings-item {
+  border-top: 1px solid #EEEEEE;
+  padding: 10px 20px 10px 20px;
+}
+
+.settings-heading {
+  // border-bottom: 1px solid #EEEEEE;
+  padding: 10px 20px 20px 20px;
+  margin: 0;
+}
+
+.settings-expand-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.settings-table {
+  width: 100%;
+  border-spacing: 0;
+}
+
+.activity-radio {
+  margin: auto;
+}
+
+.activity-device-label {
+  width: 40%;
+  text-align: left;
+  padding-left: 20px;
+}
+
+.settings-table tr {
+  padding: 0 20px;
+}
+
+.settings-table th {
+  padding-top: 10px;
+  padding-bottom: 10px;
+}
+
+.settings-table td {
+  border-top: 1px solid #eeeeee;
+}
+
+.settings-last {
+  padding-right: 20px;
+}
+
+.settings-padding {
+  padding-left: 20px;
+  padding-right: 20px;
+}

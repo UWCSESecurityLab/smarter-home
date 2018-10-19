@@ -189,6 +189,10 @@ class SmartAppClient {
     return this.getJson(`${this.host}/users/${userId}`);
   }
 
+  updateNotificationPrefs(newPrefs) {
+    return this.postJson(`${this.host}/users/updateNotificationPrefs`, { newPrefs: newPrefs });
+  }
+
   updateUserRole(userId, role) {
     return this.postJson(`${this.host}/users/${userId}/updateRole`, {
       role: role

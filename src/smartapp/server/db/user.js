@@ -12,7 +12,8 @@ let userSchema = mongoose.Schema({
   // FCM notification tokens and keys for home activity notifications.
   activityFcmTokens: [String],
   permissionsFcmTokens: [String],
-  role: { type: String, default: Roles.USER }
+  role: { type: String, default: Roles.USER },
+  notificationPrefs: Object      // Key-value mapping of deviceId to notification preference
 });
 
 let User = mongoose.model('User', userSchema);
