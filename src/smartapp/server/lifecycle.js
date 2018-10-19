@@ -222,10 +222,10 @@ module.exports = {
       // Send an FCM notification
       let responses = await Promise.all(
         users
-          .filter((user) => user.activityFcmTokens.length > 0)
+          .filter((user) => user.permissionsFcmTokens.length > 0)
           .reduce((promises, user) => {
             return promises.concat(
-              user.activityFcmTokens.map((token) => {
+              user.permissionsFcmTokens.map((token) => {
                 fcmClient.sendActivityNotification({
                   beacons: beaconNames,
                   device: description.label,
