@@ -90,6 +90,15 @@ class SmartAppClient {
     });
   }
 
+  changePassword(username, oldPassword, newPassword, confirmNewPassword) {
+    return this.postJson(`${this.host}/changePassword`, {
+      username: username,
+      oldPassword: oldPassword,
+      newPassword: newPassword,
+      confirmNewPassword: confirmNewPassword
+    });
+  }
+
   executeDeviceCommand(params) {
     return this.postJson(`${this.host}/devices/${params.deviceId}/commands`, params.command);
   }

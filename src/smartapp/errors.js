@@ -41,4 +41,6 @@ module.exports = {
   MISSING_PERMISSIONS: 'MISSING_PERMISSIONS',
   MISSING_FIELDS: 'MISSING_FIELDS',
   UNKNOWN: 'UNKNOWN',
+  // User attempted to reuse their old password when changing their password
+  REUSE_OLD_PASSWORD: 'REUSE_OLD_PASSWORD',
 }

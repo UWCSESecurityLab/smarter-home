@@ -1,5 +1,6 @@
 import React from 'react';
 import Button from '@material/react-button';
+import ChangePassword from './ChangePassword.react';
 import Login from './Login.react';
 import MaterialIcon from '@material/react-material-icon';
 import RegisterAccount from './RegisterAccount.react';
@@ -43,13 +44,21 @@ class Authenticate extends React.Component {
               </div>
             </Link>
             <Link to="/login" className="link-plain">
-              <div className="option option-bottom">
+              <div className="option">
                 <MaterialIcon className="intro-icon" icon="input" style={{fontSize: '36px', color: '#593F8E'}}/>
                 <div>
                   <h4>Log In</h4>
                   <div className="subtitle">
                     If you made a password when setting up, log in here.
                   </div>
+                </div>
+              </div>
+            </Link>
+            <Link to="/changePassword" className="link-plain">
+              <div className="option option-bottom">
+                <MaterialIcon className="intro-icon" icon="lock" style={{fontSize: '36px', color: '#E34232'}}/>
+                <div>
+                  <h4>Change Password</h4>
                 </div>
               </div>
             </Link>
@@ -60,11 +69,27 @@ class Authenticate extends React.Component {
         )}/>
         <Route path="/register" component={RegisterAccount}/>
         <Route path="/join" component={RegisterKey}/>
+        <Route path="/changePassword" component={ChangePassword}/>
         <Route path="/registerSuccess" render={() => (
           <div>
             <div id="big-check">✓</div>
             <h2>Registration Successful</h2>
             <div>To continue, install the SmarterHome SmartApp in the SmartThings app.</div>
+            <div style={{marginTop: '10px'}}>
+              <Link to="/" className="link-plain">
+                <Button className="back-button"
+                        icon={<MaterialIcon icon="arrow_back"/>}>
+                    Back
+                </Button>
+              </Link>
+            </div>
+          </div>
+        )}/>
+        <Route path="/passwordChanged" render={() => (
+          <div>
+            <div id="big-check">✓</div>
+            <h2>Password Changed</h2>
+            <div>Please log in again on all of your devices.</div>
             <div style={{marginTop: '10px'}}>
               <Link to="/" className="link-plain">
                 <Button className="back-button"

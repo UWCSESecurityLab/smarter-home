@@ -61,5 +61,24 @@ module.exports = {
         }
       });
     });
+  },
+  changePassword: function(user, newPassword) {
+    return new Promise((resolve, reject) => {
+      bcrypt.hash(newPassword, SALT_ROUNDS, (err, hash) => {
+        if (err) {
+          reject(err);
+          return;
+        }
+        user.hashedPassword = hash;
+        user.save((err) => {
+          if (err) {
+            console.log(err);
+            reject({ error: Errors.DB_ERROR });
+          } else {
+            resolve();
+          }
+        });
+      });
+    });
   }
 };

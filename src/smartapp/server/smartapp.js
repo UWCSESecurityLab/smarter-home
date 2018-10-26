@@ -362,6 +362,40 @@ app.post('/register', logRequest, (req, res) => {
   });
 });
 
+app.post('/changePassword', logRequest, (req, res) => {
+  if (!req.body.username || !req.body.oldPassword || !req.body.newPassword || !req.body.confirmNewPassword) {
+    logger.error({ message: Errors.REGISTER_MISSING_FIELD, meta: req.logMeta });
+    res.status(400).json({ error: Errors.REGISTER_MISSING_FIELD });
+    return;
+  }
+
+  if (req.body.newPassword !== req.body.confirmNewPassword) {
+    logger.error({ message: Errors.REGISTER_PW_MISMATCH, meta: req.logMeta });
+    res.status(400).json({ error: Errors.REGISTER_PW_MISMATCH });
+    return;
+  }
+
+  auth.verifyUser(req.body.username, req.body.oldPassword).then((user) => {
+    return auth.changePassword(user, req.body.newPassword);
+  }).then(() => {
+    res.status(200).json({});
+  }).catch((err) => {
+    if (err.error === Errors.LOGIN_BAD_USER_PW) {
+      logger.error({
+        message: Errors.LOGIN_BAD_USER_PW,
+        meta: { ...req.logMeta, user: req.body.username }
+      });
+      res.status(401).json({ error: Errors.LOGIN_BAD_USER_PW });
+    } else {
+      logger.error({
+        message: Errors.UNKNOWN,
+        meta: { ...req.logMeta, error: err }
+      });
+      res.status(500).json({ error: Errors.DB_ERROR });
+    }
+  });
+});
+
 // Step 1 in challenge-response login protocol.
 // Client sends public key (so server can verify user exists)
 // Server responds with string challenge
