@@ -5,10 +5,14 @@ import '@material/checkbox/mdc-checkbox.scss';
 
 class Checkbox extends React.Component {
   render() {
-    const { id, checked, label, name, onCheckboxChange } = this.props;
+    const { id, checked, label, name, onCheckboxChange, disable } = this.props;
+    let disableClassName = '';
+    if (disable) {
+      disableClassName = ' mdc-checkbox--disabled'
+    }
     return (
       <div className="mdc-form-field">
-        <div className="mdc-checkbox">
+        <div className={ "mdc-checkbox" + disableClassName }>
           <input type="checkbox"
                  checked={checked}
                  className="mdc-checkbox__native-control"
@@ -34,6 +38,7 @@ class Checkbox extends React.Component {
 Checkbox.propTypes = {
   id: PropTypes.string,
   checked: PropTypes.bool,
+  disable: PropTypes.bool,
   label: PropTypes.node,
   name: PropTypes.string,
   onCheckboxChange: PropTypes.func,

@@ -173,6 +173,7 @@ class DeviceModal extends React.Component {
 
   renderUserRestrictions() {
     const restrictions = this.props.permissions.parentalRestrictions;
+    const disable = this.props.me.role === Roles.CHILD || this.props.me.role === Roles.GUEST;
     return (
       <div>
         <h4 className="device-modal-heading">Allowed Users</h4>
@@ -189,6 +190,7 @@ class DeviceModal extends React.Component {
                   <span key={`${user.id}-label`} className="user-li-label">{user.displayName}</span>
                 ]}
                 onCheckboxChange={this.changeCheckbox}
+                disable={disable}
               />
             ))
           }
@@ -199,6 +201,7 @@ class DeviceModal extends React.Component {
             checked={restrictions === ParentalRestrictions.ALLOW_IF_NEARBY}
             label={UserRestrictionsStrings[ParentalRestrictions.ALLOW_IF_NEARBY]}
             onRadioChange={this.changeRadio}
+            disable={disable}
           />
           <Radio
             name="parentalRestrictions"
@@ -206,6 +209,7 @@ class DeviceModal extends React.Component {
             checked={restrictions === ParentalRestrictions.ALWAYS_ASK}
             label={UserRestrictionsStrings[ParentalRestrictions.ALWAYS_ASK]}
             onRadioChange={this.changeRadio}
+            disable={disable}
           />
           <Radio
             name="parentalRestrictions"
@@ -213,6 +217,7 @@ class DeviceModal extends React.Component {
             checked={restrictions === ParentalRestrictions.DENY}
             label={UserRestrictionsStrings[ParentalRestrictions.DENY]}
             onRadioChange={this.changeRadio}
+            disable={disable}
           />
         </div>
       </div>
@@ -220,6 +225,7 @@ class DeviceModal extends React.Component {
   }
 
   renderLocationRestrictions() {
+    const disable = this.props.me.role === Roles.CHILD || this.props.me.role === Roles.GUEST;
     return (
       <div>
         <h4 className="device-modal-heading">Remote Control</h4>
@@ -231,6 +237,7 @@ class DeviceModal extends React.Component {
             checked={this.props.permissions.locationRestrictions === LocationRestrictions.NEARBY}
             label={LocationRestrictionsStrings[LocationRestrictions.NEARBY]}
             onRadioChange={this.changeRadio}
+            disable={disable}
           />
           <Radio
             name="locationRestrictions"
@@ -238,6 +245,7 @@ class DeviceModal extends React.Component {
             checked={this.props.permissions.locationRestrictions === LocationRestrictions.AT_HOME}
             label={LocationRestrictionsStrings[LocationRestrictions.AT_HOME]}
             onRadioChange={this.changeRadio}
+            disable={disable}
           />
           <Radio
             name="locationRestrictions"
@@ -245,6 +253,7 @@ class DeviceModal extends React.Component {
             checked={this.props.permissions.locationRestrictions === LocationRestrictions.ANYWHERE}
             label={LocationRestrictionsStrings[LocationRestrictions.ANYWHERE]}
             onRadioChange={this.changeRadio}
+            disable={disable}
           />
         </div>
       </div>
@@ -429,6 +438,7 @@ DeviceModal.propTypes = {
   history: PropTypes.object,
   label: PropTypes.string,
   match: PropTypes.object,
+  me: PropTypes.object,
   nearbyBeacons: PropTypes.object,
   notificationPrefs: PropTypes.object,
   permissions: PropTypes.object,
@@ -452,6 +462,7 @@ const mapStateToProps = (state, ownProps) => {
     status: Capability.getStatus(state, deviceId),
     nearbyBeacons: state.beacons.nearbyBeacons,
     users: state.users,
+    me: state.users[state.me] ? state.users[state.me] : {}
   };
 };
 
