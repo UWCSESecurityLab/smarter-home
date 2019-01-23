@@ -60,13 +60,14 @@ class Notifications {
     // Only notify if the user qualifies to approve the request.
     const permissions = state.devices.permissions[ask.deviceId];
     const userNearby =
-      permissions.locationRestrictions === LocationRestrictions.NEARBY &&
+      permissions.locationRestrictions[ask.requesterId] === LocationRestrictions.NEARBY &&
       Proximity.userIsNearDevice(ask.deviceId);
     const userAtHome =
-      permissions.locationRestrictions === LocationRestrictions.AT_HOME &&
+      permissions.locationRestrictions[ask.requesterId] === LocationRestrictions.AT_HOME &&
       Proximity.userIsHome();
     const userIsOwner = permissions.owners.includes(state.me);
-    return userIsOwner || userAtHome || userNearby;
+    const requesterIsNotOwner = !permissions.owners.includes(ask.requesterId);
+    return (userIsOwner && requesterIsNotOwner) || userAtHome || userNearby;
   }
 
   static onAsk(ask) {

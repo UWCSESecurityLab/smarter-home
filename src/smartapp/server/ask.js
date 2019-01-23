@@ -32,14 +32,14 @@ class Ask {
     }
 
     let nearbyApproval = ApprovalState.PENDING;
-    if (permission.locationRestrictions === LocationRestrictions.ANYWHERE) {
+    if (permission.locationRestrictions[requester.id] === LocationRestrictions.ANYWHERE) {
       nearbyApproval = ApprovalState.ALLOW;
     } else if (
-      permission.locationRestrictions === LocationRestrictions.NEARBY &&
+      permission.locationRestrictions[requester.id] === LocationRestrictions.NEARBY &&
         isNearby) {
       nearbyApproval = ApprovalState.ALLOW;
     } else if (
-      permission.locationRestrictions === LocationRestrictions.AT_HOME &&
+      permission.locationRestrictions[requester.id] === LocationRestrictions.AT_HOME &&
         isHome
     ) {
       nearbyApproval = ApprovalState.ALLOW;
