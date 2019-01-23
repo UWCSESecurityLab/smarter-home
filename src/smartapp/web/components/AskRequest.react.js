@@ -42,13 +42,15 @@ class AskRequest extends React.Component {
   }
 
   renderNearbyApproval() {
-    if (this.props.permissions.locationRestrictions === LocationRestrictions.ANYWHERE) {
+    const permission =
+      this.props.permissions.locationRestrictions[this.props.me];
+    if (permission === LocationRestrictions.ANYWHERE) {
       return null;
     }
     let locText;
-    if (this.props.permissions.locationRestrictions === LocationRestrictions.AT_HOME) {
+    if (permission === LocationRestrictions.AT_HOME) {
       locText = 'at home';
-    } else if (this.props.permissions.locationRestrictions === LocationRestrictions.NEARBY) {
+    } else if (permission === LocationRestrictions.NEARBY) {
       locText = 'nearby';
     }
 

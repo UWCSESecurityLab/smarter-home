@@ -76,16 +76,17 @@ class AskApprovalPrompt extends React.Component {
     let permissions = this.props.permissions[request.deviceId];
     let authorization, approvalType;
     if (request.ownerApproval === ApprovalState.PENDING &&
-        permissions.owners.includes(this.props.me)) {
+        permissions.owners.includes(this.props.me) &&
+        !permissions.owners.includes(request.requesterId)) {
       approvalType = ApprovalType.OWNERS;
       authorization = `an owner of ${deviceLabel}.`;
     } else if (request.nearbyApproval === ApprovalState.PENDING &&
-        permissions.locationRestrictions === LocationRestrictions.NEARBY) {
+        permissions.locationRestrictions[request.requesterId] === LocationRestrictions.NEARBY) {
       approvalType = ApprovalType.NEARBY;
       authorization = `nearby ${deviceLabel}.`;
-    } else if (request.nearbyApproval === ApprovalState.PENDING &&
+    } else if (request.nearbyApproval[request.requesterId] === ApprovalState.PENDING &&
         permissions.locationRestrictions === LocationRestrictions.AT_HOME) {
-      approvalType = ApprovalType.NEARBY;
+      approvalType = ApprovalType.AT_HOME;
       authorization = `at home.`;
     }
 

@@ -24,9 +24,9 @@ const NotificationStrings = {
 }
 
 const LocationRestrictionsStrings = {
-  [LocationRestrictions.NEARBY]: 'Control if nearby, otherwise ask someone nearby',
-  [LocationRestrictions.AT_HOME]: 'Control if at home, otherwise ask someone at home',
-  [LocationRestrictions.ANYWHERE]: 'Control from anywhere'
+  [LocationRestrictions.NEARBY]: 'Can control if nearby, otherwise ask someone nearby',
+  [LocationRestrictions.AT_HOME]: 'Can control if at home, otherwise ask someone at home',
+  [LocationRestrictions.ANYWHERE]: 'Can control from anywhere'
 }
 
 const UserRestrictionsStrings = {
@@ -430,7 +430,7 @@ class DeviceModal extends React.Component {
                         <div>
                           <div>Remote Control</div>
                           <div className="device-modal-nav-item-subtitle">
-                            {LocationRestrictionsStrings[this.props.permissions.locationRestrictions]}
+                            {LocationRestrictionsStrings[this.props.permissions.locationRestrictions[this.props.me.id]]}
                           </div>
                         </div>
                         { this.props.canModifySettings ?
