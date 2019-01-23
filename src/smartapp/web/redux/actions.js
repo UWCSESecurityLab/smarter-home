@@ -149,6 +149,16 @@ export function updatePermission({ deviceId, ...permissions }) {
   }
 }
 
+export const UPDATE_LOCATION_PERMISSION = 'UPDATE_LOCATION_PERMISSION';
+export function updateLocationPermission(deviceId, userId, value) {
+  return {
+    type: UPDATE_LOCATION_PERMISSION,
+    deviceId: deviceId,
+    userId: userId,
+    value: value
+  }
+}
+
 export const ADD_DEVICE_OWNER = 'ADD_DEVICE_OWNER';
 export function addDeviceOwner(deviceId, userId) {
   return {

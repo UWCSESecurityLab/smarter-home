@@ -4,7 +4,7 @@ const { LocationRestrictions, ParentalRestrictions } = require('../../permission
 const permissionSchema = mongoose.Schema({
   deviceId: String,
   installedAppId: String,
-  locationRestrictions: { type: String, default: LocationRestrictions.ANYWHERE },
+  locationRestrictions: Object,
   parentalRestrictions: { type: String, default: ParentalRestrictions.ALWAYS_ASK },
   owners: [String], // Array of user ids
 });

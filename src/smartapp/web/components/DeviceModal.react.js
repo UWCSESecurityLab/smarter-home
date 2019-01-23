@@ -47,9 +47,11 @@ class DeviceModal extends React.Component {
     this.close = this.close.bind(this);
     this.changeCheckbox = this.changeCheckbox.bind(this);
     this.changeRadio = this.changeRadio.bind(this);
+    this.changeLocationRadio = this.changeLocationRadio.bind(this);
     this.changeNotificationRadio = this.changeNotificationRadio.bind(this);
     this.renderBatteryStatus = this.renderBatteryStatus.bind(this);
     this.renderLocationRestrictions = this.renderLocationRestrictions.bind(this);
+    this.renderUserLocationRestrictions = this.renderUserLocationRestrictions.bind(this);
     this.renderNotifications = this.renderNotifications.bind(this);
     this.renderTemperature = this.renderTemperature.bind(this);
   }
@@ -224,37 +226,73 @@ class DeviceModal extends React.Component {
     );
   }
 
-  renderLocationRestrictions() {
+  changeLocationRadio(userId, value) {
+    const params = {
+      deviceId: this.props.match.params.deviceId,
+      locationRestrictions: Object.assign({},
+        this.props.permissions.locationRestrictions,
+        { [userId]: value })
+    };
+    smartAppClient.modifyPermission(params).then(() => {
+      this.props.dispatch(Actions.updatePermission(params));
+    }).catch(toastError);
+  }
+
+  renderUserLocationRestrictions(user) {
     const disable = this.props.me.role === Roles.CHILD || this.props.me.role === Roles.GUEST;
+    return (
+      <tr key={user.id}>
+        <td>{user.displayName}</td>
+        <td>
+          <Radio
+            name={user.id}
+            id={LocationRestrictions.ANYWHERE}
+            checked={this.props.permissions.locationRestrictions[user.id] === LocationRestrictions.ANYWHERE}
+            onRadioChange={this.changeLocationRadio}
+            disable={disable}
+          />
+        </td>
+        <td>
+          <Radio
+              name={user.id}
+              id={LocationRestrictions.AT_HOME}
+              checked={this.props.permissions.locationRestrictions[user.id] === LocationRestrictions.AT_HOME}
+              onRadioChange={this.changeLocationRadio}
+              disable={disable}
+            />
+        </td>
+        <td>
+          <Radio
+              name={user.id}
+              id={LocationRestrictions.NEARBY}
+              checked={this.props.permissions.locationRestrictions[user.id] === LocationRestrictions.NEARBY}
+              onRadioChange={this.changeLocationRadio}
+              disable={disable}
+            />
+        </td>
+      </tr>
+    );
+  }
+
+  renderLocationRestrictions() {
     return (
       <div>
         <h4 className="device-modal-heading">Remote Control</h4>
         <div className="modal-content">
           <p>Restrict where this device can be controlled from.</p>
-          <Radio
-            name="locationRestrictions"
-            id={LocationRestrictions.NEARBY}
-            checked={this.props.permissions.locationRestrictions === LocationRestrictions.NEARBY}
-            label={LocationRestrictionsStrings[LocationRestrictions.NEARBY]}
-            onRadioChange={this.changeRadio}
-            disable={disable}
-          />
-          <Radio
-            name="locationRestrictions"
-            id={LocationRestrictions.AT_HOME}
-            checked={this.props.permissions.locationRestrictions === LocationRestrictions.AT_HOME}
-            label={LocationRestrictionsStrings[LocationRestrictions.AT_HOME]}
-            onRadioChange={this.changeRadio}
-            disable={disable}
-          />
-          <Radio
-            name="locationRestrictions"
-            id={LocationRestrictions.ANYWHERE}
-            checked={this.props.permissions.locationRestrictions === LocationRestrictions.ANYWHERE}
-            label={LocationRestrictionsStrings[LocationRestrictions.ANYWHERE]}
-            onRadioChange={this.changeRadio}
-            disable={disable}
-          />
+          <table>
+            <thead>
+              <tr>
+                <th>User</th>
+                <th>Can control anywhere</th>
+                <th>Can control if at home</th>
+                <th>Can control if nearby</th>
+              </tr>
+            </thead>
+            <tbody>
+              { Object.values(this.props.users).map(this.renderUserLocationRestrictions)}
+            </tbody>
+          </table>
         </div>
       </div>
     );
