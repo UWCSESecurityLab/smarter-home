@@ -7,7 +7,7 @@ import * as Actions from '../redux/actions';
 import { ApprovalState, ApprovalType , LocationRestrictions } from '../../permissions';
 import { connect } from 'react-redux';
 import SmartAppClient from '../lib/SmartAppClient';
-import Proximity from '../lib/proximity';
+import * as Proximity from '../lib/proximity';
 
 let smartAppClient = new SmartAppClient();
 
