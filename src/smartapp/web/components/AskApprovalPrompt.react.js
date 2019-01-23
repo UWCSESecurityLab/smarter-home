@@ -18,22 +18,20 @@ class AskApprovalPrompt extends React.Component {
     this.ignore = this.ignore.bind(this);
   }
 
-  allow(request, approvalTypes) {
-    Promise.all(approvalTypes.map((approvalType) => {
-      return smartAppClient.postPendingCommand(
+  async allow(request, approvalTypes) {
+    for (const approvalType of approvalTypes) {
+      await smartAppClient.postPendingCommand(
         request.id, approvalType, ApprovalState.ALLOW)
-    })).then(() => {
-      this.props.dispatch(Actions.removeCommandRequest(request.id));
-    });
+    }
+    this.props.dispatch(Actions.removeCommandRequest(request.id));
   }
 
-  deny(request, approvalTypes) {
-    Promise.all(approvalTypes.map((approvalType) => {
-    return smartAppClient.postPendingCommand(
-      request.id, approvalType, ApprovalState.DENY)
-    })).then(() => {
-      this.props.dispatch(Actions.removeCommandRequest(request.id));
-    });
+  async deny(request, approvalTypes) {
+    for (const approvalType of approvalTypes) {
+      await smartAppClient.postPendingCommand(
+        request.id, approvalType, ApprovalState.DENY)
+    }
+    this.props.dispatch(Actions.removeCommandRequest(request.id));
   }
 
   ignore(request) {
@@ -90,7 +88,7 @@ class AskApprovalPrompt extends React.Component {
       authorizations.push(`nearby ${deviceLabel}`);
     } else if (request.nearbyApproval[request.requesterId] === ApprovalState.PENDING &&
         permissions.locationRestrictions === LocationRestrictions.AT_HOME) {
-      approvalTypes.push(ApprovalType.AT_HOME);
+      approvalTypes.push(ApprovalType.NEARBY);
       authorizations.push('at home');
     }
     let authorization = authorizations.join(' and you are ');
