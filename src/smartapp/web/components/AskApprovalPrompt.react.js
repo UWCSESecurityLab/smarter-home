@@ -7,6 +7,7 @@ import * as Actions from '../redux/actions';
 import { ApprovalState, ApprovalType , LocationRestrictions } from '../../permissions';
 import { connect } from 'react-redux';
 import SmartAppClient from '../lib/SmartAppClient';
+import Proximity from '../lib/proximity';
 
 let smartAppClient = new SmartAppClient();
 
@@ -83,11 +84,13 @@ class AskApprovalPrompt extends React.Component {
     }
 
     if (request.nearbyApproval === ApprovalState.PENDING &&
-        permissions.locationRestrictions[request.requesterId] === LocationRestrictions.NEARBY) {
+        permissions.locationRestrictions[request.requesterId] === LocationRestrictions.NEARBY &&
+        Proximity.userIsNearDevice(request.deviceId)) {
       approvalTypes.push(ApprovalType.NEARBY);
       authorizations.push(`nearby ${deviceLabel}`);
     } else if (request.nearbyApproval[request.requesterId] === ApprovalState.PENDING &&
-        permissions.locationRestrictions === LocationRestrictions.AT_HOME) {
+        permissions.locationRestrictions === LocationRestrictions.AT_HOME &&
+        Proximity.userIsHome()) {
       approvalTypes.push(ApprovalType.NEARBY);
       authorizations.push('at home');
     }
