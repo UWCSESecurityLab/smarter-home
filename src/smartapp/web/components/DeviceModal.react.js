@@ -249,6 +249,7 @@ class DeviceModal extends React.Component {
             id={LocationRestrictions.ANYWHERE}
             checked={this.props.permissions.locationRestrictions[user.id] === LocationRestrictions.ANYWHERE}
             onRadioChange={this.changeLocationRadio}
+            radioClassName="centered-radio"
             disable={disable}
           />
         </td>
@@ -258,6 +259,7 @@ class DeviceModal extends React.Component {
               id={LocationRestrictions.AT_HOME}
               checked={this.props.permissions.locationRestrictions[user.id] === LocationRestrictions.AT_HOME}
               onRadioChange={this.changeLocationRadio}
+              radioClassName="centered-radio"
               disable={disable}
             />
         </td>
@@ -267,6 +269,7 @@ class DeviceModal extends React.Component {
               id={LocationRestrictions.NEARBY}
               checked={this.props.permissions.locationRestrictions[user.id] === LocationRestrictions.NEARBY}
               onRadioChange={this.changeLocationRadio}
+              radioClassName="centered-radio"
               disable={disable}
             />
         </td>
@@ -280,13 +283,13 @@ class DeviceModal extends React.Component {
         <h4 className="device-modal-heading">Remote Control</h4>
         <div className="modal-content">
           <p>Restrict where this device can be controlled from.</p>
-          <table>
+          <table className="settings-table">
             <thead>
               <tr>
                 <th>User</th>
-                <th>Can control anywhere</th>
-                <th>Can control if at home</th>
-                <th>Can control if nearby</th>
+                <th>Anywhere</th>
+                <th>If at home</th>
+                <th>If nearby</th>
               </tr>
             </thead>
             <tbody>

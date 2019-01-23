@@ -71,7 +71,7 @@ class ActivityNotificationSettings extends React.Component {
         <td className="activity-device-label"><i>All Devices</i></td>
         <td>
           <div className="mdc-form-field">
-            <div className="mdc-radio activity-radio">
+            <div className="mdc-radio centered-radio">
               <input className="mdc-radio__native-control"
                      type="radio"
                      id={Flags.ActivityNotifications.ON}
@@ -87,7 +87,7 @@ class ActivityNotificationSettings extends React.Component {
         </td>
         <td>
           <div className="mdc-form-field">
-            <div className="mdc-radio activity-radio">
+            <div className="mdc-radio centered-radio">
               <input className="mdc-radio__native-control"
                      type="radio"
                      id={Flags.ActivityNotifications.PROXIMITY}
@@ -103,7 +103,7 @@ class ActivityNotificationSettings extends React.Component {
         </td>
         <td className="settings-last">
           <div className="mdc-form-field">
-            <div className="mdc-radio activity-radio">
+            <div className="mdc-radio centered-radio">
               <input className="mdc-radio__native-control"
                      type="radio"
                      id={Flags.ActivityNotifications.OFF}
@@ -139,7 +139,7 @@ class ActivityNotificationSettings extends React.Component {
         <td className="activity-device-label">{name}</td>
         <td>
           <div className="mdc-form-field">
-            <div className="mdc-radio activity-radio">
+            <div className="mdc-radio centered-radio">
               <input className="mdc-radio__native-control"
                      type="radio"
                      id={Flags.ActivityNotifications.ON}
@@ -155,7 +155,7 @@ class ActivityNotificationSettings extends React.Component {
         </td>
         <td>
           <div className="mdc-form-field">
-            <div className="mdc-radio activity-radio">
+            <div className="mdc-radio centered-radio">
               <input className="mdc-radio__native-control"
                      type="radio"
                      id={Flags.ActivityNotifications.PROXIMITY}
@@ -171,7 +171,7 @@ class ActivityNotificationSettings extends React.Component {
         </td>
         <td className="settings-last">
           <div className="mdc-form-field">
-            <div className="mdc-radio activity-radio">
+            <div className="mdc-radio centered-radio">
               <input className="mdc-radio__native-control"
                      type="radio"
                      id={Flags.ActivityNotifications.OFF}

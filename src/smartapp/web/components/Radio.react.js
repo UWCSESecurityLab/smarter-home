@@ -5,14 +5,17 @@ import '@material/radio/mdc-radio.scss';
 
 class Radio extends React.Component {
   render() {
-    let { id, checked, label, name, disable, onRadioChange, required} = this.props;
-    let disableClassName = '';
+    let { id, checked, label, name, disable, onRadioChange, required, radioClassName} = this.props;
+    let combinedClassName = ['mdc-radio'];
+    if (radioClassName) {
+      combinedClassName.push(radioClassName)
+    }
     if (disable) {
-      disableClassName = ' mdc-radio--disabled'
+      radioClassName.push('mdc-radio--disabled')
     }
     return (
       <div className="mdc-form-field">
-        <div className={'mdc-radio' + disableClassName}>
+        <div className={combinedClassName.join(' ')}>
           <input className="mdc-radio__native-control"
                 type="radio" id={id} name={name}
                 checked={checked}
@@ -40,6 +43,7 @@ Radio.propTypes = {
   name: PropTypes.string,
   disable: PropTypes.bool,
   required: PropTypes.bool,
+  radioClassName: PropTypes.string,
   onRadioChange: PropTypes.func,
 }
 
