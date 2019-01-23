@@ -719,7 +719,7 @@ app.get('/pendingCommands', checkAuth, logRequest, (req, res) => {
 app.post('/pendingCommands/:commandId', checkAuth, logRequest, (req, res) => {
   ask.response({
     commandId: req.params.commandId,
-    approvalType: req.body.approvalType,
+    approvalTypes: req.body.approvalTypes,
     approvalState: req.body.approvalState
   }).catch((err) => {
     logger.error({

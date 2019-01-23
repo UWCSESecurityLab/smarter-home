@@ -6,7 +6,6 @@ import PropTypes from 'prop-types';
 import * as Actions from '../redux/actions';
 import { ApprovalState, ApprovalType , LocationRestrictions } from '../../permissions';
 import { connect } from 'react-redux';
-import { CSSTransition } from 'react-transition-group';
 import SmartAppClient from '../lib/SmartAppClient';
 
 let smartAppClient = new SmartAppClient();
@@ -19,20 +18,22 @@ class AskApprovalPrompt extends React.Component {
     this.ignore = this.ignore.bind(this);
   }
 
-  allow(request, approvalType) {
-    smartAppClient.postPendingCommand(
-      request.id, approvalType, ApprovalState.ALLOW)
-      .then(() => {
-        this.props.dispatch(Actions.removeCommandRequest(request.id));
-      });
+  allow(request, approvalTypes) {
+    Promise.all(approvalTypes.map((approvalType) => {
+      return smartAppClient.postPendingCommand(
+        request.id, approvalType, ApprovalState.ALLOW)
+    })).then(() => {
+      this.props.dispatch(Actions.removeCommandRequest(request.id));
+    });
   }
 
-  deny(request, approvalType) {
-    smartAppClient.postPendingCommand(
+  deny(request, approvalTypes) {
+    Promise.all(approvalTypes.map((approvalType) => {
+    return smartAppClient.postPendingCommand(
       request.id, approvalType, ApprovalState.DENY)
-      .then(() => {
-        this.props.dispatch(Actions.removeCommandRequest(request.id));
-      });
+    })).then(() => {
+      this.props.dispatch(Actions.removeCommandRequest(request.id));
+    });
   }
 
   ignore(request) {
@@ -74,21 +75,25 @@ class AskApprovalPrompt extends React.Component {
 
     // Create string describing the permission being requested
     let permissions = this.props.permissions[request.deviceId];
-    let authorization, approvalType;
+    let authorizations = [];
+    let approvalTypes = [];
     if (request.ownerApproval === ApprovalState.PENDING &&
         permissions.owners.includes(this.props.me) &&
         !permissions.owners.includes(request.requesterId)) {
-      approvalType = ApprovalType.OWNERS;
-      authorization = `an owner of ${deviceLabel}.`;
-    } else if (request.nearbyApproval === ApprovalState.PENDING &&
+      approvalTypes.push(ApprovalType.OWNERS);
+      authorizations.push(`an owner of ${deviceLabel}`);
+    }
+
+    if (request.nearbyApproval === ApprovalState.PENDING &&
         permissions.locationRestrictions[request.requesterId] === LocationRestrictions.NEARBY) {
-      approvalType = ApprovalType.NEARBY;
-      authorization = `nearby ${deviceLabel}.`;
+      approvalTypes.push(ApprovalType.NEARBY);
+      authorizations.push(`nearby ${deviceLabel}`);
     } else if (request.nearbyApproval[request.requesterId] === ApprovalState.PENDING &&
         permissions.locationRestrictions === LocationRestrictions.AT_HOME) {
-      approvalType = ApprovalType.AT_HOME;
-      authorization = `at home.`;
+      approvalTypes.push(ApprovalType.AT_HOME);
+      authorizations.push('at home');
     }
+    let authorization = authorizations.join(' and you are ');
 
     let requestDate = new Date(request.date).toLocaleTimeString();
 
@@ -113,10 +118,10 @@ class AskApprovalPrompt extends React.Component {
             </p>
 
             <div style={{display: 'flex', justifyContent: 'flex-end'}}>
-              <Button className="prompt-button" onClick={() => { this.allow(request, approvalType) }}>
+              <Button className="prompt-button" onClick={() => { this.allow(request, approvalTypes) }}>
                 Allow
               </Button>
-              <Button className="prompt-button mdc-button-blue" raised onClick={() => { this.deny(request, approvalType) }}>
+              <Button className="prompt-button mdc-button-blue" raised onClick={() => { this.deny(request, approvalTypes) }}>
                 Deny
               </Button>
             </div>
