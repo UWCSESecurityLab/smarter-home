@@ -113,20 +113,15 @@ class Ask {
    */
   static async response({ commandId, approvalType, approvalState }) {
     let command = await PendingCommand.findOne({id: commandId});
-    console.log('INITIAL COMMAND STATUS');
-    console.log(command);
     // Exit early if the command has already been decided, or doesn't exist
     if (!command || command.decision !== ApprovalState.PENDING) {
-      console.log('Already decided');
       return;
     }
     // Validate input
     if (!Object.values(ApprovalState).includes(approvalState)) {
-      console.log('Invalid approval state: ' + approvalState);
       return;
     }
     if (!Object.values(ApprovalType).includes(approvalType)) {
-      console.log('Invalid approval type: ' + approvalType);
       return;
     }
 
@@ -136,8 +131,6 @@ class Ask {
     }
 
     command[approvalType] = approvalState;
-    console.log('NEW COMMAND STATUS');
-    console.log(command);
 
     // Decide if both permissions have been set
     if (approvalState === ApprovalState.DENY ||
