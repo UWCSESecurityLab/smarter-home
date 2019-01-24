@@ -282,14 +282,16 @@ class DeviceModal extends React.Component {
       <div>
         <h4 className="device-modal-heading">Remote Control</h4>
         <div className="modal-content">
-          <p>Restrict where this device can be controlled from.</p>
+          <p>
+            Restrict where this device can be controlled from.
+          </p>
           <table className="settings-table">
             <thead>
               <tr>
                 <th>User</th>
                 <th>Anywhere</th>
-                <th>If at home</th>
-                <th>If nearby</th>
+                <th>At home</th>
+                <th>Nearby</th>
               </tr>
             </thead>
             <tbody>
