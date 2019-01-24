@@ -207,6 +207,11 @@ class SmartAppClient {
       role: role
     });
   }
+  updateDisplayName(userId, displayName) {
+    return this.postJson(`${this.host}/users/${userId}/updateDisplayName`, {
+      displayName: displayName
+    });
+  }
 
   addNewUser(publicKey, displayName, role) {
     return this.postJson(`${this.host}/users/new`, {

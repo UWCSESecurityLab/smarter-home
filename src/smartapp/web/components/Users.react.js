@@ -24,10 +24,10 @@ class Users extends React.Component {
   }
 
   showUserModal(userId) {
-    if (this.props.me && this.props.me.role === Roles.USER) {
+    if (this.props.me &&
+       (this.props.me.role === Roles.USER || this.props.me.id === userId)) {
       this.props.history.push(
-        `${this.props.history.location.pathname}/user/${userId}`
-      );
+        `${this.props.history.location.pathname}/user/${userId}`);
     }
   }
 
@@ -49,7 +49,7 @@ class Users extends React.Component {
                   : null
                 }
               </span>
-              { this.props.me.role === Roles.USER
+              { this.props.me.role === Roles.USER || this.props.me.id === user.id
                 ? <MaterialIcon icon="chevron_right" style={{ color: '#8c8c8c'}} />
                 : null
               }

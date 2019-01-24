@@ -11,7 +11,7 @@ class Radio extends React.Component {
       combinedClassName.push(radioClassName)
     }
     if (disable) {
-      radioClassName.push('mdc-radio--disabled')
+      combinedClassName.push('mdc-radio--disabled')
     }
     return (
       <div className="mdc-form-field">

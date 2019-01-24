@@ -43,4 +43,5 @@ module.exports = {
   UNKNOWN: 'UNKNOWN',
   // User attempted to reuse their old password when changing their password
   REUSE_OLD_PASSWORD: 'REUSE_OLD_PASSWORD',
+  NAME_TOO_SHORT: 'NAME_TOO_SHORT',
 }

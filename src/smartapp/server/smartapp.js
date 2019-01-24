@@ -1181,6 +1181,31 @@ app.post('/users/:userId/updateRole', checkAuth, logRequest, (req, res) => {
   });
 });
 
+app.post('/users/:userId/updateDisplayName', checkAuth, logRequest, (req, res) => {
+  if (req.user.id !== req.params.userId && req.user.role !== Roles.ADMIN && req.user.role !== Roles.USER) {
+    logger.error({ message: Errors.MISSING_PERMISSIONS, meta: req.logMeta });
+    res.status(403).json({ error: Errors.MISSING_PERMISSIONS });
+    return;
+  }
+  if (req.body.displayName.length === 0) {
+    logger.error({ message: Errors.NAME_TOO_SHORT, meta: req.logMeta });
+    res.status(400).json({ error: Errors.NAME_TOO_SHORT });
+    return;
+  }
+  User.findOneAndUpdate(
+    { id: req.params.userId }, { $set: { displayName: req.body.displayName }}
+  ).then(() => {
+    res.status(200).json({});
+    fcmClient.sendStateUpdateNotification(StateUpdate.USERS, req.session.installedAppId);
+  }).catch((err) => {
+    logger.error({
+      message: Errors.DB_ERROR,
+      meta: { error: err, ...req.logMeta }
+    });
+    res.status(500).json({ error: Errors.DB_ERROR });
+  });
+});
+
 app.get('/refresh', checkAuth, logRequest, (req, res) => {
   SmartThingsClient.renewTokens(req.session.installedAppId, APP_CONFIG)
     .then((tokens) => {

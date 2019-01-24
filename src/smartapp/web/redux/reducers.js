@@ -52,6 +52,9 @@ function users(state = {}, action) {
     case Actions.UPDATE_USER_ROLE:
       return Object.assign({}, state, {
         [action.userId]: Object.assign({}, state[action.userId], { role: action.role })});
+    case Actions.UPDATE_DISPLAY_NAME:
+      return Object.assign({}, state, {
+        [action.userId]: Object.assign({}, state[action.userId], { displayName: action.displayName })});
     default:
       return state;
   }

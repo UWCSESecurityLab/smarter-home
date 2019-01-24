@@ -44,6 +44,9 @@ export default function(error) {
       case Errors.MISSING_FIELDS:
         toast.show('Please fill out all of the fields.', 'error');
         break;
+      case Errors.NAME_TOO_SHORT:
+        toast.show('Please enter a name.', 'error');
+        break;
       default:
         toast.show(error.error, 'error');
     }
