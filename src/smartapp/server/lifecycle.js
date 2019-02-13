@@ -173,7 +173,6 @@ module.exports = {
       let commands = await Command.find({
         installedAppId: installedAppId,
         deviceId: deviceId,
-        component: component,
         capability: capability
       });
       // Next, find the command that occurred the closest in time to the event.
