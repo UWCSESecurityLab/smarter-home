@@ -15,9 +15,9 @@ docker pull mongo
 docker network create my-mongo-cluster
 
 # create mongos
-docker run -d --net my-mongo-cluster -p 27017:27017 --name mongo1 mongo mongod --replSet my-mongo-set --port 27017
-docker run -d --net my-mongo-cluster -p 27018:27018 --name mongo2 mongo mongod --replSet my-mongo-set --port 27018
-docker run -d --net my-mongo-cluster -p 27019:27019 --name mongo3 mongo mongod --replSet my-mongo-set --port 27019
+docker run -d --net my-mongo-cluster -p 127.0.0.1:27017:27017 --name mongo1 mongo mongod --replSet my-mongo-set --port 27017
+docker run -d --net my-mongo-cluster -p 127.0.0.1:27018:27018 --name mongo2 mongo mongod --replSet my-mongo-set --port 27018
+docker run -d --net my-mongo-cluster -p 127.0.0.1:27019:27019 --name mongo3 mongo mongod --replSet my-mongo-set --port 27019
 
 # add hosts
 # 127.0.0.1       mongo1 mongo2 mongo3
