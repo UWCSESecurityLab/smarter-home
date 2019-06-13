@@ -8,7 +8,10 @@ let logSchema = mongoose.Schema({
     session: Object,
     method: String,
     url: String,
-    body: Object
+    body: Object,
+    user: String,
+    installedAppId: String,
+    ask: Object,
   }
 });
 
