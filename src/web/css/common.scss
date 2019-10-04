@@ -101,13 +101,13 @@ input:focus, textarea:focus {
 .mdc-button-blue {
   @include mdc-button-filled-accessible(#00a6ff);
   @include mdc-button-ink-color(#FFFFFF);
-  @include mdc-button-corner-radius(4px);
+  @include mdc-button-shape-radius(4px);
 }
 
 .mdc-button-green {
   @include mdc-button-filled-accessible(#409e40);
   @include mdc-button-ink-color(#FFFFFF);
-  @include mdc-button-corner-radius(4px);
+  @include mdc-button-shape-radius(4px);
 }
 
 .fade-enter {

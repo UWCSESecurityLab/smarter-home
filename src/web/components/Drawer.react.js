@@ -10,7 +10,7 @@ import { store } from '../redux/reducers';
 
 import * as Actions from '../redux/actions';
 
-import withRipple from '@material/react-ripple';
+import {withRipple} from '@material/react-ripple';
 import '../css/drawer.scss';
 
 const smartAppClient = new SmartAppClient();

@@ -1,33 +1,40 @@
-import React from 'react';
-import PropTypes from 'prop-types';
 import MaterialIcon from '@material/react-material-icon';
-import TopAppBar from '@material/react-top-app-bar';
+import '@material/react-material-icon/index.scss';
+import TopAppBar, {
+  TopAppBarIcon,
+  TopAppBarRow,
+  TopAppBarSection,
+  TopAppBarTitle
+} from '@material/react-top-app-bar';
+import PropTypes from 'prop-types';
+import React from 'react';
 import Toast from 'react-notify-toast';
 import { connect } from 'react-redux';
 import { Route, Switch, withRouter } from 'react-router-dom';
-import { TransitionGroup, CSSTransition } from 'react-transition-group'
+import { CSSTransition, TransitionGroup } from 'react-transition-group';
 
+import '../css/home.scss';
+import '../css/modal.scss';
+
+import toastError from '../lib/error-toaster';
+import HomeState from '../lib/home-state';
+import * as Actions from '../redux/actions';
 import ActivityNotificationSettings from './ActivityNotificationSettings.react';
 import AddUserModal from './AddUserModal.react';
 import AskApprovalPrompt from './AskApprovalPrompt.react';
 import AskRequest from './AskRequest.react';
 import BeaconModal from './BeaconModal.react';
-import Devices from './Devices.react';
 import DeviceModal from './DeviceModal.react';
+import Devices from './Devices.react';
 import Drawer from './Drawer.react';
 import Feedback from './Feedback.react';
 import HomeItemErrorBoundary from './HomeItemErrorBoundary.react';
-import HomeState from '../lib/home-state';
 import ModalErrorBoundary from './ModalErrorBoundary.react';
 import NotificationSettings from './NotificationSettings.react';
-import toastError from '../lib/error-toaster';
 import UserModal from './UserModal.react';
 import Users from './Users.react';
-import * as Actions from '../redux/actions';
 
-import '@material/react-material-icon/index.scss';
-import '../css/home.scss';
-import '../css/modal.scss';
+
 
 const RippleSpinner = (props) => {
   return (
@@ -124,19 +131,27 @@ class Home extends React.Component {
     return (
       <div>
         <Drawer open={this.state.drawerOpen} closeFn={() => this.setState({drawerOpen: false})}/>
-        <TopAppBar
-          fixed
-          title={'SmarterHome' + devFlag}
-          navigationIcon={<MaterialIcon
-            icon='menu'
-            onClick={() => { this.setState({ drawerOpen: !this.state.drawerOpen })}}
-          />}
-          actionItems={[
-            this.props.refreshSpinner
-              ? <RippleSpinner/>
-              : <MaterialIcon key='item' icon='refresh' onClick={this.refresh}/>
-          ]}
-        />
+        <TopAppBar fixed>
+          <TopAppBarRow>
+            <TopAppBarSection align='start'>
+              <TopAppBarIcon navIcon>
+                <MaterialIcon
+                  icon='menu'
+                  onClick={() => { this.setState({ drawerOpen: !this.state.drawerOpen })}}/>
+              </TopAppBarIcon>
+              <TopAppBarTitle>{'SmarterHome' + devFlag}</TopAppBarTitle>
+            </TopAppBarSection>
+            <TopAppBarSection align="end" role="toolbar">
+              <TopAppBarIcon actionItem>
+                { this.props.refreshSpinner
+                  ? <RippleSpinner/>
+                  : <MaterialIcon key='item' icon='refresh' onClick={this.refresh}/>
+                }
+              </TopAppBarIcon>
+            </TopAppBarSection>
+          </TopAppBarRow>
+        </TopAppBar>
+
         <div className="container mdc-top-app-bar--fixed-adjust"
              style={this.state.visible ? null : hidden}>
           <Toast options={{ zIndex: 6 }}/>
