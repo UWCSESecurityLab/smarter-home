@@ -31,15 +31,15 @@ messaging.usePublicVapidKey('BNrb6anNOhl4s8eiPTLHsLLtgftuu-WRc3CAYVJuqNhZ4pTqci_
 class WebNotifications extends Notifications {
   // Updates the FCM token (state.fcmToken).
   // Retrieves a cached token if one exists, otherwise gets one from the FCM server.
-  static async updateToken() {
-    try {
-      let currentToken = await messaging.getToken();
-      await super.updateToken(currentToken);
+  static updateToken() {
+    return messaging.getToken().then(currentToken =>
+      super.updateToken(currentToken)
+    ).then(() => {
       store.dispatch(updateNotificationsEnabled(true));
-    } catch(e) {
+    }).catch((e) => {
       console.error(e);
       store.dispatch(updateNotificationsEnabled(false));
-    }
+    });
   }
 
   // Requests permission to send browser notifications.

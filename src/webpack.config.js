@@ -4,8 +4,8 @@ const webpack = require('webpack');
 
 module.exports = [{
   entry: {
-    'oauth-prod': ['babel-polyfill', './web/entrypoints/oauth.js'],
-    'home-prod': ['babel-polyfill', './web/entrypoints/home.js'],
+    'oauth-prod': './web/entrypoints/oauth.js',
+    'home-prod': './web/entrypoints/home.js',
   },
   output: {
     filename: '[name].js',
@@ -24,15 +24,17 @@ module.exports = [{
           loader: 'babel-loader',
           options: {
             presets: [
-              'react',
-              ['env', {
-                useBuiltIns: true,
-                targets: {
-                  "esmodules": true
-                },
+              '@babel/preset-react',
+              [ '@babel/preset-env', {
+                corejs: 3,
+                targets: { "esmodules": true},
+                useBuiltIns: 'usage',
               }],
             ],
-            plugins: [ 'syntax-dynamic-import', "transform-object-rest-spread" ]
+            plugins: [
+              '@babel/plugin-syntax-dynamic-import',
+              '@babel/plugin-proposal-object-rest-spread'
+            ]
           },
         },
       }, {
@@ -43,7 +45,9 @@ module.exports = [{
             {
               loader: "sass-loader",  // compiles Sass to CSS
               options: {
-                includePaths: glob.sync('node_modules').map((d) => path.join(__dirname, d))
+                sassOptions: {
+                  includePaths: glob.sync('node_modules').map((d) => path.join(__dirname, d))
+                }
               }
             }
         ]
@@ -63,8 +67,8 @@ module.exports = [{
 
 {
   entry: {
-    'oauth-dev': ['babel-polyfill', './web/entrypoints/oauth.js'],
-    'home-dev': ['babel-polyfill', './web/entrypoints/home.js'],
+    'oauth-dev': './web/entrypoints/oauth.js',
+    'home-dev': './web/entrypoints/home.js',
   },
   output: {
     filename: '[name].js',
@@ -83,15 +87,19 @@ module.exports = [{
           loader: 'babel-loader',
           options: {
             presets: [
-              'react',
-              ['env', {
-                useBuiltIns: true,
+              '@babel/preset-react',
+              [ '@babel/preset-env', {
+                corejs: 3,
                 targets: {
                   "esmodules": true
                 },
+                useBuiltIns: 'usage',
               }],
             ],
-            plugins: [ 'syntax-dynamic-import', "transform-object-rest-spread" ]
+            plugins: [
+              '@babel/plugin-syntax-dynamic-import',
+              '@babel/plugin-proposal-object-rest-spread'
+            ]
           },
         },
       }, {
@@ -102,7 +110,9 @@ module.exports = [{
             {
               loader: "sass-loader",  // compiles Sass to CSS
               options: {
-                includePaths: glob.sync('node_modules').map((d) => path.join(__dirname, d))
+                sassOptions: {
+                  includePaths: glob.sync('node_modules').map((d) => path.join(__dirname, d))
+                }
               }
             }
         ]

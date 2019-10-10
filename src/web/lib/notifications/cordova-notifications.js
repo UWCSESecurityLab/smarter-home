@@ -14,20 +14,20 @@ const ASK_REQUEST_ID = 3;
 const NEARBY_GROUP_ID_OFFSET = 4;
 
 class CordovaNotifications extends Notifications {
-  static async updateToken() {
-    try {
-      let currentToken = await cordova.plugins.firebase.messaging.getToken();
-      await super.updateToken(currentToken);
+  static updateToken() {
+    cordova.plugins.firebase.messaging.getToken().then(currentToken =>
+      super.updateToken(currentToken)
+    ).then(() => {
       store.dispatch(Actions.updateNotificationsEnabled(true));
-    } catch(e) {
+    }).catch(e => {
       store.dispatch(Actions.updateNotificationsEnabled(false));
       throw e;
-    }
+    });
   }
 
   static enableNotifications() {
     console.log('enableNotifications called');
-    cordova.plugins.firebase.messaging.requestPermission().then((token) => {
+    return cordova.plugins.firebase.messaging.requestPermission().then((token) => {
       console.log('Plugin successfully requested permissions');
     }).catch((err) => {
       console.error(err);
