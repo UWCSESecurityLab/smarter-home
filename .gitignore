@@ -1,5 +1,5 @@
 node_modules
 .DS_Store
-src/smartapp/dist
-src/smartapp/config/*
-src/smartapp/data
+src/dist
+src/config/*
+src/data
