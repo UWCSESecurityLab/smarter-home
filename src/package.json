@@ -45,7 +45,7 @@
     "express": "^4.17.1",
     "express-session": "^1.17.0",
     "firebase": "^5.5.1",
-    "googleapis": "^34.0.0",
+    "googleapis": "^43.0.0",
     "history": "^4.10.1",
     "http-signature": "^1.2.0",
     "mongoose": "^5.7.4",
