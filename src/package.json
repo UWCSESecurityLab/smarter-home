@@ -1,7 +1,7 @@
 {
   "name": "smarter-home",
-  "version": "1.1.6",
-  "description": "",
+  "version": "1.2.0",
+  "description": "SmarterHome is a prototype smart home control app for experimenting with features to improve the UX of multi-user smart homes.",
   "main": "smartapp.js",
   "scripts": {
     "build": "webpack --config webpack.config.js",
@@ -20,8 +20,8 @@
     "watch:cordova-dev": "webpack --watch --config webpack.cordova-dev.js",
     "watch:cordova-prod": "webpack --watch --config webpack.cordova-prod.js"
   },
-  "author": "",
-  "license": "",
+  "author": "Eric Zeng",
+  "license": "MIT",
   "dependencies": {
     "@material/checkbox": "^3.2.0",
     "@material/form-field": "^3.2.0",

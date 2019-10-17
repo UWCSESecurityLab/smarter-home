@@ -18,7 +18,3 @@ Run:
 1. `$ mongod`: Start database
 2. `$ node server/smartapp.js`: Start server
 3. Open `localhost:5000/login`
-
-Note: you may need to use the host `selenium.dyn.cs.washington.edu:5000` if you
-need to access the page from a machine besides the server (e.g. on a phone via
-the SmartThings app).
