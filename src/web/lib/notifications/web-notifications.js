@@ -14,19 +14,21 @@ import Notifications from './notifications';
 // redux state.
 
 // Initialize Firebase
+// TODO: refactor so that these details aren't hardcoded in. I deleted the
+// previous credentials so don't get any ideas.
 const config = {
-  apiKey: "AIzaSyCmhR4iGFbCSY3JO3UFPwjkZjd16JiNUO8",
-  authDomain: "iot-stuff-8e265.firebaseapp.com",
-  databaseURL: "https://iot-stuff-8e265.firebaseio.com",
-  projectId: "iot-stuff-8e265",
-  storageBucket: "iot-stuff-8e265.appspot.com",
-  messagingSenderId: "469706959609"
+  apiKey: "",
+  authDomain: "",
+  databaseURL: "",
+  projectId: "",
+  storageBucket: "",
+  messagingSenderId: ""
 };
 firebase.initializeApp(config);
 // Retrieve Firebase Messaging object.
 const messaging = firebase.messaging();
 // Add the public key generated from the console here.
-messaging.usePublicVapidKey('BNrb6anNOhl4s8eiPTLHsLLtgftuu-WRc3CAYVJuqNhZ4pTqci_GWqr_Aq93_TZnm_mJKaDijOn9oLXsQUrBOow');
+messaging.usePublicVapidKey('');
 
 class WebNotifications extends Notifications {
   // Updates the FCM token (state.fcmToken).
