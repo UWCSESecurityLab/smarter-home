@@ -48,7 +48,7 @@
     "googleapis": "^43.0.0",
     "history": "^4.10.1",
     "http-signature": "^1.2.0",
-    "mongoose": "^5.7.4",
+    "mongoose": "^5.7.8",
     "mongoose-unique-validator": "^2.0.3",
     "prop-types": "^15.7.2",
     "qrcode": "^1.4.2",
