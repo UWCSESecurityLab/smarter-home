@@ -32,7 +32,7 @@
     "@material/react-top-app-bar": "^0.15.0",
     "@material/ripple": "^3.2.0",
     "@material/theme": "^3.1.0",
-    "bcrypt": "^3.0.6",
+    "bcrypt": "^5.0.0",
     "body-parser": "^1.19.0",
     "colors": "^1.4.0",
     "compression": "^1.7.4",
